@@ -5,7 +5,7 @@
     "tradable_balance_ratio": 0.99,
     "dry_run": true,
     "timeframe": "15m",
-    "trading_mode": "spot",
+    "trading_mode": "futures",
     "margin_mode": "isolated",
     "exchange": {
         "name": "bybit",
@@ -14,7 +14,7 @@
         "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
-            "BTC/USDT"
+            "BTC/USDT:USDT"
         ]
     },
     "pairlists": [
