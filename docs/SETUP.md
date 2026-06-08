@@ -927,6 +927,124 @@ docker compose -f docker/docker-compose.monitoring.yml up -d
 
 ---
 
+## Cloudflare Tunnel
+
+Cloudflare Tunnel allows you to securely expose your services without opening firewall ports. All traffic is encrypted and routed through Cloudflare's network.
+
+### Install cloudflared
+
+```bash
+curl -fsSL https://pkg.cloudflare.com/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+cloudflared --version
+```
+
+### Authenticate with Cloudflare
+
+```bash
+cloudflared tunnel login
+# Opens a browser — authorize your Cloudflare domain
+# Copy the certificate to the server if running remotely
+```
+
+### Create Tunnels (Separate per Service)
+
+```bash
+# Each tunnel gets a random UUID — save these!
+cloudflared tunnel create freqtrade-dashboard
+cloudflared tunnel create freqtrade-api
+cloudflared tunnel create freqtrade-grafana
+
+# List tunnels to see UUIDs
+cloudflared tunnel list
+```
+
+### Tunnel Config File
+
+Create `~/.cloudflared/config.yml`:
+
+```yaml
+tunnel: <DASHBOARD-TUNNEL-ID>
+credentials-file: /home/ubuntu/.cloudflared/<DASHBOARD-TUNNEL-ID>.json
+
+ingress:
+  # Dashboard
+  - hostname: dashboard.your-domain.com
+    service: http://localhost:3000
+
+  # API
+  - hostname: api.your-domain.com
+    service: http://localhost:8080
+    originRequest:
+      httpHostHeader: localhost
+
+  # Grafana
+  - hostname: grafana.your-domain.com
+    service: http://localhost:3001
+
+  # Default: 404
+  - service: http_status:404
+```
+
+> **Important:** Replace `<DASHBOARD-TUNNEL-ID>` with the UUID from `cloudflared tunnel list`. Replace `your-domain.com` with your actual domain name managed in Cloudflare DNS.
+
+### Create DNS Records
+
+In Cloudflare DNS dashboard, add CNAME records:
+
+| Hostname | Type | Target |
+|----------|------|--------|
+| `dashboard.your-domain.com` | CNAME | `<TUNNEL-ID>.cfargotunnel.com` |
+| `api.your-domain.com` | CNAME | `<TUNNEL-ID>.cfargotunnel.com` |
+| `grafana.your-domain.com` | CNAME | `<TUNNEL-ID>.cfargotunnel.com` |
+
+Each points to its own tunnel UUID's subdomain.
+
+### Route Traffic
+
+```bash
+# Create DNS routes
+cloudflared tunnel route dns freqtrade-dashboard dashboard.your-domain.com
+cloudflared tunnel route dns freqtrade-api api.your-domain.com
+cloudflared tunnel route dns freqtrade-grafana grafana.your-domain.com
+```
+
+### Install as Systemd Service
+
+```bash
+sudo cloudflared service install
+sudo systemctl enable cloudflared
+sudo systemctl start cloudflared
+sudo systemctl status cloudflared
+```
+
+### Access Your Services
+
+| Service | URL |
+|---------|-----|
+| Dashboard | `https://dashboard.your-domain.com` |
+| API | `https://api.your-domain.com/api/v1/ping` |
+| Grafana | `https://grafana.your-domain.com` |
+
+All traffic is now secured via Cloudflare's edge — free SSL, DDoS protection, and no open firewall ports.
+
+### Tunnel Persistence → Git Updates Don't Affect It
+
+**Cloudflare Tunnel is fully independent from your Freqtrade codebase:**
+
+| Action | Effect on Tunnel |
+|--------|-----------------|
+| `git pull` / `git push` / `git commit` | **None** — tunnel keeps running |
+| `docker compose restart` | **None** — reconnects automatically when port comes back |
+| `docker compose down && up -d` | **None** — reconnects within seconds |
+| Change `config.yml` | **Restart required:** `sudo systemctl restart cloudflared` |
+| Reboot VPS | **Auto-start** — systemd handles it |
+| Update `cloudflared` binary | **Restart required:** `sudo systemctl restart cloudflared` |
+
+> You can `git push` updates all day — the tunnel stays up. Your users keep accessing the dashboard without interruption.
+
+---
+
 ## Security Checklist
 
 - [ ] Change all default passwords in `docker/.env`

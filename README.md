@@ -153,3 +153,33 @@ Fork: `https://github.com/malikstarvo/freqcustom.git`
 ---
 
 **For full VPS setup, all CLI commands, API reference, and troubleshooting — see [docs/SETUP.md](docs/SETUP.md).**
+
+---
+
+## Access via Cloudflare Tunnel
+
+To expose the dashboard without opening firewall ports:
+
+```bash
+# 1. Install cloudflared
+curl -fsSL https://pkg.cloudflare.com/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+
+# 2. Login to Cloudflare (opens browser)
+cloudflared tunnel login
+
+# 3. Create tunnels (separate per service)
+cloudflared tunnel create freqtrade-dashboard
+cloudflared tunnel create freqtrade-api
+cloudflared tunnel create freqtrade-grafana
+
+# 4. Create config.yml — paste tunnel UUIDs from step 3
+# ~/.cloudflared/config.yml — see docs/SETUP.md for full config
+```
+
+**Important:** Cloudflare Tunnel runs as a systemd service pointing at `localhost` ports. It is **fully independent** from the Freqtrade code:
+- `git pull` / `git commit` / `git push` → **no effect on tunnel** — tunnel stays live
+- `docker compose restart` → **no effect** — tunnel reconnects automatically
+- Tunnel only needs restart if: you change `config.yml`, reboot VPS, or update the `cloudflared` binary
+
+Full instructions: [`docs/SETUP.md` § Cloudflare Tunnel](docs/SETUP.md#cloudflare-tunnel)
