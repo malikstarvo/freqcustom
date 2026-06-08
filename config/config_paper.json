@@ -40,7 +40,7 @@
     "freqaimodel": "XGBoostGridSearchModel",
     "freqaimodel_path": "user_data/freqaimodels",
     "freqai": {
-        "enabled": true,
+        "enabled": false,
         "purge_old_models": 3,
         "train_period_days": 90,
         "backtest_period_days": 30,
