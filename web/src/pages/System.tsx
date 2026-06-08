@@ -72,7 +72,7 @@ export default function System() {
     ? new Date(health.last_process_ts * 1000).toLocaleString()
     : "—";
 
-  const cpuCores = sysinfo?.cpu_load.map((c) => c.pct) ?? [];
+  const cpuCores = sysinfo?.cpu_load.map((c: { pct: number }) => c.pct) ?? [];
   const cpuAvg = sysinfo?.cpu_avg ?? 0;
   const ramPct = sysinfo?.ram_pct ?? 0;
 
@@ -144,7 +144,7 @@ export default function System() {
             </div>
             <Progress value={cpuAvg} />
             <div className="grid grid-cols-4 gap-2 mt-2">
-              {cpuCores.slice(0, 8).map((pct, i) => (
+              {cpuCores.slice(0, 8).map((pct: number, i: number) => (
                 <div key={i} className="space-y-1">
                   <div className="flex justify-between text-xs text-[--color-text-secondary]">
                     <span>Core {i + 1}</span>

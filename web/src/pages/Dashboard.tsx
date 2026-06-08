@@ -33,7 +33,7 @@ export default function Dashboard() {
   const handleExport = () => {
     if (!daily) return;
     const headers = ["Date", "Abs Profit", "Rel Profit %", "Starting Balance", "Trade Count"];
-    const rows = daily.data.map(d => [d.date, d.abs_profit.toFixed(2), d.rel_profit.toFixed(2), d.starting_balance.toFixed(2), d.trade_count]);
+    const rows = daily.data.map((d: { date: string; abs_profit: number; rel_profit: number; starting_balance: number; trade_count: number }) => [d.date, d.abs_profit.toFixed(2), d.rel_profit.toFixed(2), d.starting_balance.toFixed(2), d.trade_count]);
     downloadCSV("daily_pnl.csv", headers, rows);
     addToast("success", "Export complete", `${daily.data.length} daily records exported`);
   };
@@ -59,7 +59,7 @@ export default function Dashboard() {
         });
       }
       setEquityData(equityPoints);
-      setDailyPnlData(daily.data.map(d => ({
+      setDailyPnlData(daily.data.map((d: { date: string; rel_profit: number }) => ({
         label: d.date.slice(5),
         pnl: d.rel_profit,
       })));
@@ -188,7 +188,7 @@ export default function Dashboard() {
                   }}
                   labelStyle={{ color: "#e4e6f0" }}
                   itemStyle={{ color: pnlColor }}
-                  formatter={(val: number) => [`${val.toFixed(2)}`, "Equity"]}
+                  formatter={(_val: unknown) => [String(_val), "Equity"]}
                 />
                 <Area type="monotone" dataKey="equity" stroke={pnlColor} strokeWidth={2} fill="url(#equityGradient)" />
               </AreaChart>
@@ -222,7 +222,7 @@ export default function Dashboard() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(val: number) => [`${val.toFixed(2)}%`, "Daily P&L"]}
+                  formatter={(_val: unknown) => [`${String(_val)}%`, "Daily P&L"]}
                 />
                 <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                   {dailyPnlData.map((entry, index) => (
@@ -240,7 +240,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <Activity size={14} className="text-[--color-accent]" />
               <span className="text-xs text-[--color-text-secondary]">
-                {daily?.data.reduce((s, d) => s + d.trade_count, 0) ?? 0} trades over {daily?.data.length ?? 0} days
+                {daily?.data.reduce((s: number, d: { trade_count: number }) => s + d.trade_count, 0) ?? 0} trades over {daily?.data.length ?? 0} days
               </span>
             </div>
             <Sparkline data={pnlSparkline} color="#00d4ff" />

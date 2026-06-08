@@ -18,7 +18,7 @@ export default function Paper() {
   const refresh = useCallback(() => {
     api.paperStatus().then(setStatus).catch(() => {});
     api.paperTrades(50).then(setTrades).catch(() => {});
-    api.paperAccount(100).then((snaps) => {
+    api.paperAccount(100).then((snaps: Array<{ ts: string; balance: number; equity: number; unrealized_pnl: number; day_pnl: number; day_trades: number }>) => {
       const tops: typeof topupHistory = [];
       let prev = 0;
       for (const s of snaps) {

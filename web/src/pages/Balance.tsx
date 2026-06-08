@@ -35,7 +35,7 @@ export default function Balance() {
               </tr>
             </thead>
             <tbody>
-              {balance?.currencies?.map(c => (
+              {balance?.currencies?.map((c: { currency: string; free: number; used: number; balance: number }) => (
                 <tr key={c.currency} className="border-b border-[--color-card-border]/50">
                   <td className="py-2 pr-4 font-medium">{c.currency}</td>
                   <td className="py-2 pr-4">{c.free.toFixed(4)}</td>

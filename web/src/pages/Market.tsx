@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, Badge } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
-import { api, type MarketResponse, type WhitelistResponse, type PairHistory } from "@/lib/api";
+import { api, type MarketResponse, type WhitelistResponse, type PairHistory, type MarketModel } from "@/lib/api";
 import { Globe, TrendingUp, Activity, CandlestickChart } from "lucide-react";
 
 export default function Market() {
@@ -32,7 +32,7 @@ export default function Market() {
     ? Object.entries(markets.markets)
     : [];
 
-  const filtered = marketEntries.filter(([symbol, m]) => {
+  const filtered = (marketEntries as Array<[string, MarketModel]>).filter(([symbol, m]) => {
     if (!search) return true;
     const s = search.toLowerCase();
     return (
@@ -151,15 +151,15 @@ export default function Market() {
                       <table className="w-full text-xs">
                         <thead className="sticky top-0 bg-[--color-card-bg]">
                           <tr className="text-left text-[--color-text-secondary]">
-                            {candles.columns.slice(0, 6).map((c, i) => (
+                             {candles.columns.slice(0, 6).map((c: string, i: number) => (
                               <th key={i} className="px-2 py-1 border-b border-[--color-card-border]">{c}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {candles.data.slice(-10).map((row, i) => (
+                           {candles.data.slice(-10).map((row: Array<number | string | null>, i: number) => (
                             <tr key={i} className="border-b border-[--color-card-border]/30">
-                              {row.slice(0, 6).map((cell, j) => (
+                              {row.slice(0, 6).map((cell: number | string | null, j: number) => (
                                 <td key={j} className="px-2 py-1 font-mono">
                                   {typeof cell === "number" ? cell.toFixed(4) : String(cell)}
                                 </td>

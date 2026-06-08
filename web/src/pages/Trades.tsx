@@ -10,7 +10,7 @@ export default function TradesPage() {
   const { addToast } = useToast();
 
   useEffect(() => {
-    api.trades(200).then(r => setTrades(r.trades)).catch(console.error);
+    api.trades(200).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
   }, []);
 
   const handleExport = () => {

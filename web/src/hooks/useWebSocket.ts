@@ -10,7 +10,7 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
   const [readyState, setReadyState] = useState<number>(WebSocket.CONNECTING);
   const [subscriptions, setSubscriptions] = useState<string[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectRef = useRef<ReturnType<typeof setTimeout>>();
+  const reconnectRef = useRef<number | undefined>();
   const retriesRef = useRef(0);
 
   const connect = useCallback(() => {

@@ -19,9 +19,9 @@ export default function Overview() {
 
   useEffect(() => {
     api.profit().then(setProfit).catch(console.error);
-    api.trades(20).then(r => setTrades(r.trades)).catch(console.error);
+        api.trades(20).then((r2: { trades: Trade[] }) => setTrades(r2.trades)).catch(console.error);
     api.paperStatus().then(setPaper).catch(() => {});
-    api.showConfig().then(c => setBotState(c.state)).catch(console.error);
+    api.showConfig().then((c: { state: string }) => setBotState(c.state)).catch(console.error);
     subscribe(["ENTRY", "EXIT", "STATUS"]);
   }, [subscribe]);
 
@@ -31,7 +31,7 @@ export default function Overview() {
         setLastMessage(`${wsMsg.type} at ${new Date().toLocaleTimeString()}`);
         addToast(wsMsg.type === "ENTRY" ? "warning" : "info", `${wsMsg.type} Signal`, `New ${wsMsg.type.toLowerCase()} signal detected`);
         api.profit().then(setProfit).catch(console.error);
-        api.trades(20).then(r => setTrades(r.trades)).catch(console.error);
+    api.trades(20).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
       }
     }
   }, [wsMsg, addToast]);
