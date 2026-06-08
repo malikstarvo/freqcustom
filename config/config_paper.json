@@ -5,17 +5,36 @@
     "tradable_balance_ratio": 0.99,
     "dry_run": true,
     "timeframe": "15m",
+    "trading_mode": "spot",
+    "margin_mode": "isolated",
     "exchange": {
         "name": "bybit",
         "key": "",
         "secret": "",
         "ccxt_config": {},
-        "ccxt_async_config": {}
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "BTC/USDT"
+        ]
     },
     "pairlists": [
         { "method": "StaticPairList" }
     ],
-    "pairs": ["BTC/USDT:USDT"],
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1,
+        "price_last_balance": 0.0,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
     "strategy": "MultiAgentStrategy",
     "strategy_path": "user_data/strategies",
     "freqai": {
@@ -91,7 +110,11 @@
         "listen_ip_address": "0.0.0.0",
         "listen_port": 8080,
         "username": "admin",
-        "password": "admin"
+        "password": "admin",
+        "jwt_secret_key": "SomethingRandomVeryLongStringAtLeast32Chars!"
+    },
+    "internals": {
+        "process_throttle_secs": 5
     },
     "bot_name": "FreqTrade AI"
 }
