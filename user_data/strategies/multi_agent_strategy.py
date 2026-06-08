@@ -3,13 +3,13 @@ import pandas as pd
 import talib.abstract as ta
 
 from freqtrade.strategy import DecimalParameter, IntParameter, IStrategy
-from user_data.strategies.agents.orderflow_scorer import Calculate as calc_of
-from user_data.strategies.agents.orderflow_scorer import Input as OFInput
-from user_data.strategies.agents.regime_scorer import Calculate as calc_regime
-from user_data.strategies.agents.regime_scorer import Input as RegimeInput
-from user_data.strategies.agents.technical_scorer import Calculate as calc_tech
-from user_data.strategies.agents.technical_scorer import Input as TechInput
-from user_data.strategies.agents.trade_gate import Gate, GateConfig, GateInput
+from agents.orderflow_scorer import Calculate as calc_of
+from agents.orderflow_scorer import Input as OFInput
+from agents.regime_scorer import Calculate as calc_regime
+from agents.regime_scorer import Input as RegimeInput
+from agents.technical_scorer import Calculate as calc_tech
+from agents.technical_scorer import Input as TechInput
+from agents.trade_gate import Gate, GateConfig, Input as GateInput
 
 
 class MultiAgentStrategy(IStrategy):
