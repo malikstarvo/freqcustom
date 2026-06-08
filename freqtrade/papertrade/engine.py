@@ -18,7 +18,7 @@ from freqtrade.papertrade.executor import (
 from freqtrade.papertrade.store import PaperStore
 
 # Add user_data/strategies to path so agents can be imported
-_strategies_dir = Path(__file__).resolve().parents[3] / "user_data" / "strategies"
+_strategies_dir = Path(__file__).resolve().parents[2] / "user_data" / "strategies"
 if str(_strategies_dir) not in sys.path:
     sys.path.insert(0, str(_strategies_dir))
 
