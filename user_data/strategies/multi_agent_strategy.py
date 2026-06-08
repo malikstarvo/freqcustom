@@ -1,4 +1,4 @@
-
+import logging
 import pandas as pd
 import talib.abstract as ta
 
@@ -10,6 +10,8 @@ from agents.regime_scorer import Input as RegimeInput
 from agents.technical_scorer import Calculate as calc_tech
 from agents.technical_scorer import Input as TechInput
 from agents.trade_gate import Gate, GateConfig, Input as GateInput
+
+logger = logging.getLogger(__name__)
 
 
 class MultiAgentStrategy(IStrategy):
@@ -118,6 +120,18 @@ class MultiAgentStrategy(IStrategy):
 
             decision = self.trade_gate.evaluate(gate_input)
 
+            # Log scores every 500 candles for diagnostics
+            if idx % 500 == 0:
+                logger.info(
+                    f"BAR {idx}: tech={tech_score.technical_score:.1f} "
+                    f"of={of_score.orderflow_score:.1f} "
+                    f"regime={regime_score.regime_score:.1f} "
+                    f"label={regime_score.regime} "
+                    f"ml={ml_prob:.2f} "
+                    f"combined={decision.raw_confidence:.1f} "
+                    f"decision={decision.decision.value}"
+                )
+
             dataframe.at[dataframe.index[idx], "enter_long"] = (
                 1 if decision.decision.value != "no_trade" else 0
             )
@@ -188,6 +202,12 @@ class MultiAgentStrategy(IStrategy):
         return max(min_stake, min(adjusted, max_stake))
 
     def _get_ml_prob(self, row) -> float:
-        if self.dp.runmode.value in ("live", "dry_run"):
-            return 1.0
-        return 1.0
+        """Get FreqAI prediction probability for the positive class."""
+        try:
+            if "do_predict" in row.index and int(row["do_predict"]) == 1:
+                prob_cols = [c for c in row.index if isinstance(c, str) and "1.0" in c and not c.startswith("_")]
+                if prob_cols:
+                    return float(row[prob_cols[0]])
+        except Exception:
+            pass
+        return 1.0  # fallback: no ML prediction yet
