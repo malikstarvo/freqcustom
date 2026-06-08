@@ -415,6 +415,9 @@ class Arguments:
             start_test_pairlist,
             start_trading,
             start_webserver,
+            start_edge_study,
+            start_paper_trader,
+            start_train_report,
         )
 
         subparsers = self.parser.add_subparsers(
@@ -716,3 +719,30 @@ class Arguments:
         recursive_analayis_cmd.set_defaults(func=start_recursive_analysis)
 
         self._build_args(optionlist=ARGS_RECURSIVE_ANALYSIS, parser=recursive_analayis_cmd)
+
+        # Add edge-study subcommand
+        edge_study_cmd = subparsers.add_parser(
+            "edge-study",
+            help="Run AI edge feature study analysis (requires TimescaleDB).",
+            parents=[_common_parser],
+        )
+        edge_study_cmd.set_defaults(func=start_edge_study)
+        self._build_args(optionlist=[], parser=edge_study_cmd)
+
+        # Add paper-trader subcommand
+        paper_trader_cmd = subparsers.add_parser(
+            "paper-trader",
+            help="Run offline paper trading simulation (requires TimescaleDB).",
+            parents=[_common_parser],
+        )
+        paper_trader_cmd.set_defaults(func=start_paper_trader)
+        self._build_args(optionlist=[], parser=paper_trader_cmd)
+
+        # Add train-report subcommand
+        train_report_cmd = subparsers.add_parser(
+            "train-report",
+            help="Generate combined edge study + backtest HTML report.",
+            parents=[_common_parser],
+        )
+        train_report_cmd.set_defaults(func=start_train_report)
+        self._build_args(optionlist=[], parser=train_report_cmd)

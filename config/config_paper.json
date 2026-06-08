@@ -37,6 +37,8 @@
     },
     "strategy": "MultiAgentStrategy",
     "strategy_path": "user_data/strategies",
+    "freqaimodel": "XGBoostGridSearchModel",
+    "freqaimodel_path": "user_data/freqaimodels",
     "freqai": {
         "enabled": true,
         "purge_old_models": 3,

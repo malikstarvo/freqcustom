@@ -46,3 +46,6 @@ from freqtrade.commands.plot_commands import start_plot_dataframe, start_plot_pr
 from freqtrade.commands.strategy_utils_commands import start_strategy_update
 from freqtrade.commands.trade_commands import start_trading
 from freqtrade.commands.webserver_commands import start_webserver
+from freqtrade.commands.edge_study_commands import start_edge_study
+from freqtrade.commands.paper_commands import start_paper_trader
+from freqtrade.commands.train_report_commands import start_train_report
