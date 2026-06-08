@@ -11,7 +11,7 @@ export default function Trading() {
   const { addToast } = useToast();
 
   useEffect(() => {
-    api.trades(100).then(r => setTrades(r.trades)).catch(console.error);
+    api.trades(100).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
     subscribe(["ENTRY", "ENTRY_FILL", "EXIT", "EXIT_FILL", "STATUS"]);
   }, [subscribe]);
 
@@ -19,10 +19,10 @@ export default function Trading() {
     if (lastMessage) {
       if (lastMessage.type === "ENTRY_FILL") {
         addToast("success", "Entry Fill", "New position opened");
-        api.trades(100).then(r => setTrades(r.trades)).catch(console.error);
+        api.trades(100).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
       } else if (lastMessage.type === "EXIT_FILL") {
         addToast("info", "Exit Fill", "Position closed");
-        api.trades(100).then(r => setTrades(r.trades)).catch(console.error);
+        api.trades(100).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
       } else if (lastMessage.type === "ENTRY") {
         addToast("warning", "Entry Signal", "New entry signal detected");
       }
