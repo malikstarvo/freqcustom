@@ -46,18 +46,10 @@ class MultiAgentStrategy(IStrategy):
         self.trade_gate = Gate(self.gate_config)
 
     def set_freqai_targets(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
-        """Define FreqAI label targets."""
-        # Use forward returns at 4-bar horizon as the label
-        dataframe["&-target"] = (
-            dataframe["close"].shift(-4) / dataframe["close"] - 1
-        )
-        # Binary label: 1 if positive return, 0 otherwise
-        dataframe["&s-target"] = (dataframe["&-target"] > 0).astype(int)
-        return dataframe
-
-    def feature_engineering_expand_all(self, dataframe: pd.DataFrame, period: int,
-                                        metadata: dict) -> pd.DataFrame:
-        """Add any custom features needed by FreqAI."""
+        """Define FreqAI labels: 4-bar forward return classifier."""
+        lp = self.freqai_info.get("feature_parameters", {}).get("label_period_candles", 4)
+        future_return = dataframe["close"].shift(-lp) / dataframe["close"] - 1
+        dataframe["&s-up_or_down"] = (future_return > 0.002).astype(str)
         return dataframe
 
     def populate_indicators(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
@@ -220,9 +212,14 @@ class MultiAgentStrategy(IStrategy):
         """Get FreqAI prediction probability for the positive class."""
         try:
             if "do_predict" in row.index and int(row["do_predict"]) == 1:
-                prob_cols = [c for c in row.index if isinstance(c, str) and "1.0" in c and not c.startswith("_")]
-                if prob_cols:
-                    return float(row[prob_cols[0]])
+                # Find prediction probability columns (not label, not metadata)
+                pred_cols = [c for c in row.index
+                             if isinstance(c, str) and (c.startswith("&-") or "1.0" in str(c))
+                             and not c.startswith("&s-") and "do_predict" not in str(c)]
+                if pred_cols:
+                    val = float(row[pred_cols[0]])
+                    if 0 < val <= 1:
+                        return val
         except Exception:
             pass
-        return 1.0  # fallback: no ML prediction yet
+        return 1.0
