@@ -116,6 +116,16 @@ def _calc_liq_score(long_liq: float, short_liq: float) -> float:
 
 
 def Calculate(input: Input) -> Score:
+    # If all inputs are zero/default, data is not available — return neutral
+    if (input.funding_rate == 0.0 and input.oi_delta_pct == 0.0
+            and input.ls_ratio == 0.0 and input.long_liq_usd == 0.0
+            and input.short_liq_usd == 0.0):
+        return Score(
+            orderflow_score=50.0,
+            components=Components(funding_score=12.5, oi_score=12.5,
+                                  ls_score=12.5, liq_score=12.5),
+        )
+
     funding_score = _calc_funding_score(input.funding_rate)
     oi_score = _calc_oi_score(input.oi_delta_pct)
     ls_score = _calc_ls_score(input.ls_ratio)

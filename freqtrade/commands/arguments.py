@@ -727,7 +727,20 @@ class Arguments:
             parents=[_common_parser],
         )
         edge_study_cmd.set_defaults(func=start_edge_study)
-        self._build_args(optionlist=[], parser=edge_study_cmd)
+        edge_study_cmd.add_argument("--symbol", type=str, default=None,
+                                     help="Symbol to study (e.g. BTC/USDT:USDT)")
+        edge_study_cmd.add_argument("--symbols", type=str, default=None,
+                                     help="Comma-separated symbols")
+        edge_study_cmd.add_argument("--timeframe", type=str, default="15m",
+                                     help="Timeframe to study")
+        edge_study_cmd.add_argument("--timeframes", type=str, default=None,
+                                     help="Comma-separated timeframes")
+        edge_study_cmd.add_argument("--horizons", type=str, default="4,12,24",
+                                     help="Comma-separated label horizons (bars)")
+        edge_study_cmd.add_argument("--feature-set-id", type=int, default=1,
+                                     help="Feature set ID in TimescaleDB")
+        edge_study_cmd.add_argument("--output", type=str, default="edge_study_results",
+                                     help="Output directory for reports")
 
         # Add paper-trader subcommand
         paper_trader_cmd = subparsers.add_parser(
@@ -736,7 +749,6 @@ class Arguments:
             parents=[_common_parser],
         )
         paper_trader_cmd.set_defaults(func=start_paper_trader)
-        self._build_args(optionlist=[], parser=paper_trader_cmd)
 
         # Add train-report subcommand
         train_report_cmd = subparsers.add_parser(
@@ -745,4 +757,7 @@ class Arguments:
             parents=[_common_parser],
         )
         train_report_cmd.set_defaults(func=start_train_report)
-        self._build_args(optionlist=[], parser=train_report_cmd)
+        train_report_cmd.add_argument("--symbol", type=str, default=None,
+                                       help="Symbol to report on")
+        train_report_cmd.add_argument("--timeframe", type=str, default="15m",
+                                       help="Timeframe for report")

@@ -45,6 +45,21 @@ class MultiAgentStrategy(IStrategy):
         self.gate_config = GateConfig.default()
         self.trade_gate = Gate(self.gate_config)
 
+    def set_freqai_targets(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+        """Define FreqAI label targets."""
+        # Use forward returns at 4-bar horizon as the label
+        dataframe["&-target"] = (
+            dataframe["close"].shift(-4) / dataframe["close"] - 1
+        )
+        # Binary label: 1 if positive return, 0 otherwise
+        dataframe["&s-target"] = (dataframe["&-target"] > 0).astype(int)
+        return dataframe
+
+    def feature_engineering_expand_all(self, dataframe: pd.DataFrame, period: int,
+                                        metadata: dict) -> pd.DataFrame:
+        """Add any custom features needed by FreqAI."""
+        return dataframe
+
     def populate_indicators(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         dataframe["ema20"] = ta.EMA(dataframe, timeperiod=20)
         dataframe["ema50"] = ta.EMA(dataframe, timeperiod=50)
