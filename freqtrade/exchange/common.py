@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import random
 import time
 from collections.abc import Callable
 from functools import wraps
@@ -111,9 +112,11 @@ EXCHANGE_HAS_OPTIONAL_FUTURES: dict[str, list[str]] = {
 
 def calculate_backoff(retrycount, max_retries):
     """
-    Calculate backoff
+    Calculate backoff with jitter to prevent thundering herd.
     """
-    return (max_retries - retrycount) ** 2 + 1
+    base = (max_retries - retrycount) ** 2 + 1
+    jitter = random.uniform(0, 0.5) * base  # noqa: S311
+    return base + jitter
 
 
 def retrier_async(f):

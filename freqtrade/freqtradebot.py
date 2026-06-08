@@ -7,7 +7,7 @@ import traceback
 from copy import deepcopy
 from datetime import UTC, datetime, time, timedelta
 from math import isclose
-from threading import Lock
+from threading import RLock
 from time import sleep
 from typing import Any
 
@@ -114,6 +114,10 @@ class FreqtradeBot(LoggingMixin):
             self.margin_mode: MarginMode = self.config.get("margin_mode", MarginMode.NONE)
             self.last_process: datetime | None = None
 
+            # Protect exit-logic from force_exit and vice versa.
+            # Must be initialized BEFORE RPCManager since RPC runs in separate threads.
+            self._exit_lock = RLock()
+
             # RPC runs in separate threads, can start handling external commands just after
             # initialization, even before Freqtradebot has a chance to start its throttling,
             # so anything in the Freqtradebot instance should be ready (initialized), including
@@ -148,8 +152,6 @@ class FreqtradeBot(LoggingMixin):
             initial_state = self.config.get("initial_state")
             self.state = State[initial_state.upper()] if initial_state else State.STOPPED
 
-            # Protect exit-logic from forcesell and vice versa
-            self._exit_lock = Lock()
             timeframe_secs = timeframe_to_seconds(self.strategy.timeframe)
             self._exit_reason_cache = PeriodicCache(100, ttl=timeframe_secs)
             LoggingMixin.__init__(self, logger, timeframe_secs)
@@ -284,27 +286,26 @@ class FreqtradeBot(LoggingMixin):
         with self._measure_execution:
             self.strategy.analyze(self.active_pair_whitelist)
 
+        # Protect the entire trade processing section from collisions with force_exit
+        # and concurrent RPC commands. All trade mutations within a single process cycle
+        # must be atomic to avoid race conditions between manage/exit/position_adjust/enter.
         with self._exit_lock:
             # Check for exchange cancellations, timeouts and user requested replace
             self.manage_open_orders()
 
-        # Protect from collisions with force_exit.
-        # Without this, freqtrade may try to recreate stoploss_on_exchange orders
-        # while exiting is in process, since telegram messages arrive in an different thread.
-        with self._exit_lock:
             trades = Trade.get_open_trades()
             # First process current opened trades (positions)
             self.exit_positions(trades)
             Trade.commit()
 
-        # Check if we need to adjust our current positions before attempting to enter new trades.
-        if self.strategy.position_adjustment_enable:
-            with self._exit_lock:
+            # Check if we need to adjust our current positions before entering new trades.
+            if self.strategy.position_adjustment_enable:
                 self.process_open_trade_positions()
 
-        # Then looking for entry opportunities
-        if self.state == State.RUNNING and self.get_free_open_trades():
-            self.enter_positions()
+            # Then looking for entry opportunities
+            if self.state == State.RUNNING and self.get_free_open_trades():
+                self.enter_positions()
+
         self._schedule.run_pending()
         Trade.commit()
         self.rpc.process_msg_queue(self.dataprovider._msg_queue)
@@ -650,8 +651,7 @@ class FreqtradeBot(LoggingMixin):
         # Create entity and execute trade for each pair from whitelist
         for pair in whitelist:
             try:
-                with self._exit_lock:
-                    trades_created += self.create_trade(pair)
+                trades_created += self.create_trade(pair)
             except DependencyException as exception:
                 logger.warning("Unable to create trade for %s: %s", pair, exception)
 
@@ -729,9 +729,9 @@ class FreqtradeBot(LoggingMixin):
         """
         # Walk through each pair and check if it needs changes
         for trade in Trade.get_open_trades():
-            # If there is any open orders, wait for them to finish.
-            # TODO Remove to allow mul open orders
-            if trade.has_open_position or trade.has_open_orders:
+            # Only adjust positions that are actively open.
+            # Duplicate/similar open orders are handled by handle_similar_open_order.
+            if trade.has_open_position:
                 # Do a wallets update (will be ratelimited to once per hour)
                 self.wallets.update(False)
                 try:
@@ -789,8 +789,6 @@ class FreqtradeBot(LoggingMixin):
                 if count_of_entries > self.strategy.max_entry_position_adjustment:
                     logger.debug(f"Max adjustment entries for {trade.pair} has been reached.")
                     return
-                else:
-                    logger.debug("Max adjustment entries is set to unlimited.")
 
             self.execute_entry(
                 trade.pair,
@@ -804,6 +802,12 @@ class FreqtradeBot(LoggingMixin):
 
         if stake_amount is not None and stake_amount < 0.0:
             # We should decrease our position
+            if isclose(trade.stake_amount, 0.0, abs_tol=constants.MATH_CLOSE_PREC):
+                logger.warning(
+                    f"Cannot calculate DCA exit amount for {trade.pair}: "
+                    "stake_amount is 0."
+                )
+                return
             amount = self.exchange.amount_to_contract_precision(
                 trade.pair,
                 abs(
@@ -822,8 +826,17 @@ class FreqtradeBot(LoggingMixin):
                 )
                 return
 
+            # Cap exit amount to trade.amount to prevent negative remaining
+            amount = min(amount, trade.amount)
+            if isclose(amount, trade.amount, abs_tol=constants.MATH_CLOSE_PREC):
+                amount = trade.amount
+
             remaining = (trade.amount - amount) * current_exit_rate
-            if min_exit_stake and remaining != 0 and remaining < min_exit_stake:
+            if (
+                min_exit_stake
+                and not isclose(remaining, 0.0, abs_tol=constants.MATH_CLOSE_PREC)
+                and remaining < min_exit_stake
+            ):
                 logger.info(
                     f"Remaining amount of {remaining} would be smaller "
                     f"than the minimum of {min_exit_stake}."
@@ -857,11 +870,17 @@ class FreqtradeBot(LoggingMixin):
         asks = f"Asks: {order_book_asks}"
         delta = f"Delta: {bids_ask_delta}"
 
+        ob_bids = order_book.get("bids", [])
+        ob_asks = order_book.get("asks", [])
+        bid_price = ob_bids[0][0] if ob_bids else 0
+        ask_price = ob_asks[0][0] if ob_asks else 0
+        bid_qty = ob_bids[0][1] if ob_bids else 0
+        ask_qty = ob_asks[0][1] if ob_asks else 0
         logger.info(
             f"{bids}, {asks}, {delta}, Direction: {side.value} "
-            f"Bid Price: {order_book['bids'][0][0]}, Ask Price: {order_book['asks'][0][0]}, "
-            f"Immediate Bid Quantity: {order_book['bids'][0][1]}, "
-            f"Immediate Ask Quantity: {order_book['asks'][0][1]}."
+            f"Bid Price: {bid_price}, Ask Price: {ask_price}, "
+            f"Immediate Bid Quantity: {bid_qty}, "
+            f"Immediate Ask Quantity: {ask_qty}."
         )
         if bids_ask_delta >= conf_bids_to_ask_delta:
             logger.info(f"Bids to asks delta for {pair} DOES satisfy condition.")
@@ -920,7 +939,7 @@ class FreqtradeBot(LoggingMixin):
         amount = (stake_amount / enter_limit_requested) * leverage
         order_type = ordertype or self.strategy.order_types["entry"]
 
-        if mode == "initial" and not strategy_safe_wrapper(
+        if not strategy_safe_wrapper(
             self.strategy.confirm_trade_entry, default_retval=True
         )(
             pair=pair,
@@ -1837,7 +1856,11 @@ class FreqtradeBot(LoggingMixin):
         if trade.has_open_orders:
             oo = trade.select_order(side, True)
             if oo is not None:
-                if price == oo.price and side == oo.side and amount == oo.amount:
+                if (
+                    isclose(price, oo.price, abs_tol=constants.MATH_CLOSE_PREC)
+                    and side == oo.side
+                    and isclose(amount, oo.amount, abs_tol=constants.MATH_CLOSE_PREC)
+                ):
                     logger.info(
                         f"A similar open order was found for {trade.pair}. "
                         f"Keeping existing {trade.exit_side} order. {price=},  {amount=}"
@@ -1873,7 +1896,7 @@ class FreqtradeBot(LoggingMixin):
         order_id = order_obj.order_id
         side = trade.entry_side.capitalize()
 
-        if order["status"] not in constants.NON_OPEN_EXCHANGE_STATES:
+        if order.get("status", "unknown") not in constants.NON_OPEN_EXCHANGE_STATES:
             filled_val: float = order.get("filled", 0.0) or 0.0
             filled_stake = filled_val * trade.open_rate
             minstake = self.exchange.get_min_pair_stake_amount(
@@ -1955,7 +1978,7 @@ class FreqtradeBot(LoggingMixin):
         order_id = order_obj.order_id
         cancelled = False
         # Cancelled orders may have the status of 'canceled' or 'closed'
-        if order["status"] not in constants.NON_OPEN_EXCHANGE_STATES:
+        if order.get("status", "unknown") not in constants.NON_OPEN_EXCHANGE_STATES:
             filled_amt: float = order.get("filled", 0.0) or 0.0
             # Filled val is in quote currency (after leverage)
             filled_rem_stake = trade.stake_amount - (filled_amt * trade.open_rate / trade.leverage)
@@ -1977,7 +2000,11 @@ class FreqtradeBot(LoggingMixin):
                         order_type=self.strategy.order_types["exit"],
                         reason=reason,
                         order_id=order["id"],
-                        sub_trade=trade.amount != order["amount"],
+                        sub_trade=not isclose(
+                            trade.amount,
+                            order.get("amount", 0.0),
+                            abs_tol=constants.MATH_CLOSE_PREC,
+                        ),
                     )
                     return False
             order_obj.ft_cancel_reason = reason
@@ -2641,7 +2668,7 @@ class FreqtradeBot(LoggingMixin):
         if final_price != valid_custom_price:
             logger.info(
                 f"Custom price adjusted from {valid_custom_price} to {final_price} based on "
-                "custom_price_max_distance_ratio of {cust_p_max_dist_r}."
+                f"custom_price_max_distance_ratio of {cust_p_max_dist_r}."
             )
 
         return final_price

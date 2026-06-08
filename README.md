@@ -1,235 +1,155 @@
-# ![freqtrade](https://raw.githubusercontent.com/freqtrade/freqtrade/develop/docs/assets/freqtrade_poweredby.svg)
+# Freqtrade AI V2
 
-[![Freqtrade CI](https://github.com/freqtrade/freqtrade/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/freqtrade/freqtrade/actions/workflows/ci.yml)
-[![DOI](https://joss.theoj.org/papers/10.21105/joss.04864/status.svg)](https://doi.org/10.21105/joss.04864)
-[![codecov](https://codecov.io/gh/freqtrade/freqtrade/branch/develop/graph/badge.svg?token=AD5BG3ATKI)](https://codecov.io/gh/freqtrade/freqtrade)
-[![Documentation](https://readthedocs.org/projects/freqtrade/badge/)](https://www.freqtrade.io)
-[![Discord Server](https://img.shields.io/badge/Freqtrade_Discord-4E4E4E?logo=discord)](https://discord.gg/p7nuUNVfP7)
+**AI-powered trading system** built on [Freqtrade](https://github.com/freqtrade/freqtrade) — forked and extended with multi-agent scoring, ML pipeline, edge study, paper trading engine, and a comprehensive React dashboard.
 
-Freqtrade is a free and open source crypto trading bot written in Python. It is designed to support all major exchanges and be controlled via Telegram or webUI. It contains backtesting, plotting and money management tools as well as strategy optimization by machine learning.
+---
 
-![freqtrade](https://raw.githubusercontent.com/freqtrade/freqtrade/develop/docs/assets/freqtrade-screenshot.png)
+## Quick Start
 
-## Disclaimer
+```bash
+# 1. Clone & configure
+git clone https://github.com/malikstarvo/freqcustom.git && cd freqcustom
+cp docker/.env.example .env   # Edit passwords
 
-This software is for educational purposes only. Do not risk money which
-you are afraid to lose. USE THE SOFTWARE AT YOUR OWN RISK. THE AUTHORS
-AND ALL AFFILIATES ASSUME NO RESPONSIBILITY FOR YOUR TRADING RESULTS.
+# 2. Launch the full stack (Docker)
+docker compose -f docker/docker-compose.monitoring.yml up -d
 
-Always start by running a trading bot in Dry-Run and do not engage money
-before you understand how it works and what profit/loss you should
-expect.
-
-We strongly recommend you to have coding and Python knowledge. Do not
-hesitate to read the source code and understand the mechanism of this bot.
-
-## Supported Exchange marketplaces
-
-Please read the [exchange-specific notes](https://www.freqtrade.io/en/stable/exchanges/) to learn about special configurations that maybe needed for each exchange.
-
-### Supported Spot Exchanges
-
-- [X] [Binance](https://www.binance.com/)
-- [X] [BingX](https://bingx.com/invite/0EM9RX)
-- [X] [Bitget](https://www.bitget.com/)
-- [X] [Bitmart](https://bitmart.com/)
-- [X] [Bybit](https://bybit.com/)
-- [X] [Gate.io](https://www.gate.io/ref/6266643)
-- [X] [HTX](https://www.htx.com/)
-- [X] [Hyperliquid](https://hyperliquid.xyz/) (A decentralized exchange, or DEX)
-- [X] [Kraken](https://kraken.com/)
-- [X] [OKX](https://okx.com/)
-- [X] [MyOKX](https://okx.com/) (OKX EEA)
-- [ ] [potentially many others](https://github.com/ccxt/ccxt/). _(We cannot guarantee they will work)_
-
-### Supported Futures Exchanges
-
-- [X] [Binance](https://www.binance.com/)
-- [X] [Bitget](https://www.bitget.com/)
-- [X] [Gate.io](https://www.gate.io/ref/6266643)
-- [X] [Hyperliquid](https://hyperliquid.xyz/) (A decentralized exchange, or DEX)
-- [X] [OKX](https://okx.com/)
-- [X] [Bybit](https://bybit.com/)
-- [X] [Kraken](https://www.kraken.com/features/futures)
-
-Please make sure to read the [exchange specific notes](https://www.freqtrade.io/en/stable/exchanges/), as well as the [trading with leverage](https://www.freqtrade.io/en/stable/leverage/) documentation before diving in.
-
-### Community tested
-
-Exchanges confirmed working by the community:
-
-- [X] [Bitvavo](https://bitvavo.com/)
-- [X] [Kucoin](https://www.kucoin.com/)
-
-## Documentation
-
-We invite you to read the bot documentation to ensure you understand how the bot is working.
-
-Please find the complete documentation on the [freqtrade website](https://www.freqtrade.io).
-
-## Features
-
-- [x] **Based on Python 3.11+**: For botting on any operating system - Windows, macOS and Linux.
-- [x] **Persistence**: Persistence is achieved through sqlite.
-- [x] **Dry-run**: Run the bot without paying money.
-- [x] **Backtesting**: Run a simulation of your buy/sell strategy.
-- [x] **Strategy Optimization by machine learning**: Use machine learning to optimize your buy/sell strategy parameters with real exchange data.
-- [X] **Adaptive prediction modeling**: Build a smart strategy with FreqAI that self-trains to the market via adaptive machine learning methods. [Learn more](https://www.freqtrade.io/en/stable/freqai/)
-- [x] **Whitelist crypto-currencies**: Select which crypto-currency you want to trade or use dynamic whitelists.
-- [x] **Blacklist crypto-currencies**: Select which crypto-currency you want to avoid.
-- [x] **Builtin WebUI**: Builtin web UI to manage your bot.
-- [x] **Manageable via Telegram**: Manage the bot with Telegram.
-- [x] **Display profit/loss in fiat**: Display your profit/loss in fiat currency.
-- [x] **Performance status report**: Provide a performance status of your current trades.
-
-## Quick start
-
-Please refer to the [Docker Quickstart documentation](https://www.freqtrade.io/en/stable/docker_quickstart/) on how to get started quickly.
-
-For further (native) installation methods, please refer to the [Installation documentation page](https://www.freqtrade.io/en/stable/installation/).
-
-## Basic Usage
-
-### Bot commands
-
-```
-usage: freqtrade [-h] [-V]
-                 {trade,create-userdir,new-config,show-config,new-strategy,download-data,convert-data,convert-trade-data,trades-to-ohlcv,list-data,backtesting,backtesting-show,backtesting-analysis,edge,hyperopt,hyperopt-list,hyperopt-show,list-exchanges,list-markets,list-pairs,list-strategies,list-hyperoptloss,list-freqaimodels,list-timeframes,show-trades,test-pairlist,convert-db,install-ui,plot-dataframe,plot-profit,webserver,strategy-updater,lookahead-analysis,recursive-analysis}
-                 ...
-
-Free, open source crypto trading bot
-
-positional arguments:
-  {trade,create-userdir,new-config,show-config,new-strategy,download-data,convert-data,convert-trade-data,trades-to-ohlcv,list-data,backtesting,backtesting-show,backtesting-analysis,edge,hyperopt,hyperopt-list,hyperopt-show,list-exchanges,list-markets,list-pairs,list-strategies,list-hyperoptloss,list-freqaimodels,list-timeframes,show-trades,test-pairlist,convert-db,install-ui,plot-dataframe,plot-profit,webserver,strategy-updater,lookahead-analysis,recursive-analysis}
-    trade               Trade module.
-    create-userdir      Create user-data directory.
-    new-config          Create new config
-    show-config         Show resolved config
-    new-strategy        Create new strategy
-    download-data       Download backtesting data.
-    convert-data        Convert candle (OHLCV) data from one format to
-                        another.
-    convert-trade-data  Convert trade data from one format to another.
-    trades-to-ohlcv     Convert trade data to OHLCV data.
-    list-data           List downloaded data.
-    backtesting         Backtesting module.
-    backtesting-show    Show past Backtest results
-    backtesting-analysis
-                        Backtest Analysis module.
-    hyperopt            Hyperopt module.
-    hyperopt-list       List Hyperopt results
-    hyperopt-show       Show details of Hyperopt results
-    list-exchanges      Print available exchanges.
-    list-markets        Print markets on exchange.
-    list-pairs          Print pairs on exchange.
-    list-strategies     Print available strategies.
-    list-hyperoptloss   Print available hyperopt loss functions.
-    list-freqaimodels   Print available freqAI models.
-    list-timeframes     Print available timeframes for the exchange.
-    show-trades         Show trades.
-    test-pairlist       Test your pairlist configuration.
-    convert-db          Migrate database to different system
-    install-ui          Install FreqUI
-    plot-dataframe      Plot candles with indicators.
-    plot-profit         Generate plot showing profits.
-    webserver           Webserver module.
-    strategy-updater    updates outdated strategy files to the current version
-    lookahead-analysis  Check for potential look ahead bias.
-    recursive-analysis  Check for potential recursive formula issue.
-
-options:
-  -h, --help            show this help message and exit
-  -V, --version         show program's version number and exit
+# 3. Open the dashboard
+# → http://localhost:3000 (Dashboard)
+# → http://localhost:3001 (Grafana: admin/admin)
+# → http://localhost:8080/api/v1/ping (API)
 ```
 
-### Telegram RPC commands
+For **detailed VPS setup**, see [`docs/SETUP.md`](docs/SETUP.md).
 
-Telegram is not mandatory. However, this is a great way to control your bot. More details and the full command list on the [documentation](https://www.freqtrade.io/en/stable/telegram-usage/)
+---
 
-- `/start`: Starts the trader.
-- `/stop`: Stops the trader.
-- `/stopentry`: Stop entering new trades.
-- `/status <trade_id>|[table]`: Lists all or specific open trades.
-- `/profit [<n>]`: Lists cumulative profit from all finished trades, over the last n days.
-- `/profit_long [<n>]`: Lists cumulative profit from all finished long trades, over the last n days.
-- `/profit_short [<n>]`: Lists cumulative profit from all finished short trades, over the last n days.
-- `/forceexit <trade_id>|all`: Instantly exits the given trade (Ignoring `minimum_roi`).
-- `/fx <trade_id>|all`: Alias to `/forceexit`
-- `/performance`: Show performance of each finished trade grouped by pair
-- `/balance`: Show account balance per currency.
-- `/daily <n>`: Shows profit or loss per day, over the last n days.
-- `/help`: Show help message.
-- `/version`: Show version.
+## Architecture
 
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        FREQTRADE AI V2                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────────────────────────────┐   ┌─────────────────────────┐ │
+│  │ MULTI-AGENT SCORING SYSTEM          │   │ ML PIPELINE (FreqAI)    │ │
+│  │  • Technical Agent   — 40% weight   │   │  • XGBoost GridSearchCV │ │
+│  │  • OrderFlow Agent   — 40% weight   │   │  • 13 features (EMA,    │ │
+│  │  • Regime Agent      — 20% weight   │   │    RSI, ATR, ADX, etc) │ │
+│  │  • Trade Gate — confidence, cooldown, │   │  • Auto-optimization   │ │
+│  │    drawdown stop, ML probability    │   │  • ROC-AUC metric      │ │
+│  └─────────────────────────────────────┘   └─────────────────────────┘ │
+│                                                                         │
+│  ┌─────────────────────────────────────┐   ┌─────────────────────────┐ │
+│  │ EDGE STUDY (TimescaleDB)            │   │ PAPER TRADING ENGINE    │ │
+│  │  • Pearson/Spearman correlation     │   │  • Realistic slippage   │ │
+│  │  • Quantile profit factor & winrate   │   │  • Risk-based sizing    │ │
+│  │  • Rolling stability & decay        │   │  • Dynamic top-up       │ │
+│  │  • Regime-conditional breakdown     │   │  • Full audit trail     │ │
+│  └─────────────────────────────────────┘   └─────────────────────────┘ │
+│                                                                         │
+│  ┌─────────────────────────────────────┐   ┌─────────────────────────┐ │
+│  │ REACT DASHBOARD (14 pages)          │   │ MONITORING              │ │
+│  │  • Overview, Dashboard, Trading     │   │  • Prometheus metrics   │ │
+│  │  • Market, Data Quality, Features  │   │  • Grafana dashboards   │ │
+│  │  • Model, Backtest, Paper, Logs    │   │  • 9 custom panels      │ │
+│  │  • Config, System, Balance, Trades  │   │  • WebSocket push       │ │
+│  └─────────────────────────────────────┘   └─────────────────────────┘ │
+│                                                                         │
+│  ┌──────────────────────────────────────────────────────────────────┐ │
+│  │                    TIMESCALEDB (PostgreSQL)                       │ │
+│  │  • Hypertables: candles, features, labels, research_results      │ │
+│  │  • Paper audit: orders, fills, positions, trades, snapshots      │ │
+│  │  • Auto-compression after 7 days                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-## Development branches
+---
 
-The project is currently setup in two main branches:
+## What You Can Do
 
-- `develop` - This branch has often new features, but might also contain breaking changes. We try hard to keep this branch as stable as possible.
-- `stable` - This branch contains the latest stable release. This branch is generally well tested.
-- `feat/*` - These are feature branches, which are being worked on heavily. Please don't use these unless you want to test a specific feature.
+| Feature | Description | Command |
+|---------|-------------|---------|
+| **Live Trading** | Dry-run or live trading with multi-agent signals | `freqtrade trade --config config.json` |
+| **Backtesting** | Run historical backtests with AI strategy | `freqtrade backtesting --strategy MultiAgentStrategy` |
+| **Edge Study** | Analyze feature correlations & predictive power | `freqtrade edge-study --symbol BTCUSDT --timeframe 15m` |
+| **Paper Trading** | Simulate realistic trading with slippage | `freqtrade paper-trader --config config.json` |
+| **Training Report** | Generate HTML report combining edge + backtest | `freqtrade train-report --symbol BTCUSDT` |
+| **ML Pipeline** | Auto-optimize XGBoost with GridSearchCV | Built into strategy |
+| **Web Dashboard** | 14-page React UI with real-time charts | `http://localhost:3000` |
+| **Monitoring** | Prometheus + Grafana with pre-built dashboards | `docker compose up -d` |
+| **API Access** | 78 REST endpoints + WebSocket | `http://localhost:8080/api/v1` |
 
-## Support
+---
 
-### Help / Discord
+## Project Structure
 
-For any questions not covered by the documentation or for further information about the bot, or to simply engage with like-minded individuals, we encourage you to join the Freqtrade [discord server](https://discord.gg/p7nuUNVfP7).
+```
+freqtrade/
+├── config/
+│   ├── config_paper.json      # Full AI stack config (ready to use)
+│   └── freqai_config.json     # ML pipeline config
+├── docker/
+│   ├── docker-compose.monitoring.yml  # Full stack (DB + bot + UI + metrics)
+│   ├── .env.example           # Environment template
+│   ├── timescale_setup.sql    # TimescaleDB schema (hypertables + paper tables)
+│   ├── dashboards/freqtrade.json      # Grafana dashboard
+│   └── grafana-*.yml, prometheus.yml  # Provisioning configs
+├── docs/
+│   ├── ai-trading.md          # Architecture & features doc
+│   └── SETUP.md               # Detailed VPS setup guide
+├── freqtrade/
+│   ├── commands/
+│   │   ├── edge_study_commands.py    # CLI: edge-study
+│   │   ├── train_report_commands.py  # CLI: train-report
+│   │   ├── paper_commands.py         # CLI: paper-trader
+│   │   └── ... (34 standard Freqtrade commands)
+│   ├── rpc/api_server/
+│   │   ├── api_paper.py         # Paper trading REST API
+│   │   └── api_*.py             # 78 total endpoints
+│   ├── optimize/edge_study/     # 8 analysis modules
+│   ├── papertrade/              # Paper engine + store
+│   └── ...
+├── user_data/
+│   ├── strategies/
+│   │   ├── multi_agent_strategy.py    # Main AI strategy
+│   │   └── agents/                   # Technical, OrderFlow, Regime, TradeGate
+│   └── freqaimodels/
+│       └── XGBoostGridSearchModel.py  # ML model
+├── web/
+│   ├── src/                     # React 19 + Vite + Tailwind dashboard
+│   ├── Dockerfile              # Multi-stage build (nginx)
+│   └── nginx.conf              # Reverse proxy + WS support
+└── README.md / docs/
+```
 
-### [Bugs / Issues](https://github.com/freqtrade/freqtrade/issues?q=is%3Aissue)
+---
 
-If you discover a bug in the bot, please
-[search the issue tracker](https://github.com/freqtrade/freqtrade/issues?q=is%3Aissue)
-first. If it hasn't been reported, please
-[create a new issue](https://github.com/freqtrade/freqtrade/issues/new/choose) and
-ensure you follow the template guide so that the team can assist you as
-quickly as possible.
+## Key Technologies
 
-For every [issue](https://github.com/freqtrade/freqtrade/issues/new/choose) created, kindly follow up and mark satisfaction or reminder to close issue when equilibrium ground is reached.
+| Layer | Tech |
+|-------|------|
+| **Backend** | Python 3.11+, FastAPI, SQLAlchemy, TimescaleDB |
+| **Strategy** | Multi-agent scoring (3 agents + trade gate) |
+| **ML** | XGBoost, scikit-learn, GridSearchCV, ROC-AUC |
+| **Frontend** | React 19, Vite, Tailwind 4, Recharts, Lucide icons |
+| **Data** | TimescaleDB hypertables, auto-compression |
+| **Monitoring** | Prometheus + Grafana (auto-provisioned) |
+| **Exchange** | Bybit (USDT perpetuals) |
+| **Timeframe** | 15m (configurable) |
 
---Maintain github's [community policy](https://docs.github.com/en/site-policy/github-terms/github-community-code-of-conduct)--
+---
 
-### [Feature Requests](https://github.com/freqtrade/freqtrade/labels/enhancement)
+## License
 
-Have you a great idea to improve the bot you want to share? Please,
-first search if this feature was not [already discussed](https://github.com/freqtrade/freqtrade/labels/enhancement).
-If it hasn't been requested, please
-[create a new request](https://github.com/freqtrade/freqtrade/issues/new/choose)
-and ensure you follow the template guide so that it does not get lost
-in the bug reports.
+- **Core Freqtrade**: [GPLv3](LICENSE) (forked from `freqtrade/freqtrade`)
+- **AI Extensions**: Original work by this project
 
-### [Pull Requests](https://github.com/freqtrade/freqtrade/pulls)
+Upstream: `https://github.com/freqtrade/freqtrade.git`
+Fork: `https://github.com/malikstarvo/freqcustom.git`
 
-Feel like the bot is missing a feature? We welcome your pull requests!
+---
 
-Please read the
-[Contributing document](https://github.com/freqtrade/freqtrade/blob/develop/CONTRIBUTING.md)
-to understand the requirements before sending your pull-requests.
-
-Coding is not a necessity to contribute - maybe start with improving the documentation?
-Issues labeled [good first issue](https://github.com/freqtrade/freqtrade/labels/good%20first%20issue) can be good first contributions, and will help get you familiar with the codebase.
-
-**Note** before starting any major new feature work, *please open an issue describing what you are planning to do* or talk to us on [discord](https://discord.gg/p7nuUNVfP7) (please use the #dev channel for this). This will ensure that interested parties can give valuable feedback on the feature, and let others know that you are working on it.
-
-**Important:** Always create your PR against the `develop` branch, not `stable`.
-
-## Requirements
-
-### Up-to-date clock
-
-The clock must be accurate, synchronized to a NTP server very frequently to avoid problems with communication to the exchanges.
-
-### Minimum hardware required
-
-To run this bot we recommend you a cloud instance with a minimum of:
-
-- Minimal (advised) system requirements: 2GB RAM, 1GB disk space, 2vCPU
-
-### Software requirements
-
-- [Python >= 3.11](http://docs.python-guide.org/en/latest/starting/installation/)
-- [pip](https://pip.pypa.io/en/stable/installing/)
-- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [TA-Lib](https://ta-lib.github.io/ta-lib-python/)
-- [virtualenv](https://virtualenv.pypa.io/en/stable/installation.html) (Recommended)
-- [Docker](https://www.docker.com/products/docker) (Recommended)
+**For full VPS setup, all CLI commands, API reference, and troubleshooting — see [docs/SETUP.md](docs/SETUP.md).**

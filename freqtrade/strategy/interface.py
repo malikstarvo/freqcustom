@@ -1293,7 +1293,7 @@ class IStrategy(ABC, HyperStrategyMixin):
         try:
             latest_date_pd = dataframe["date"].max()
             latest = dataframe.loc[dataframe["date"] == latest_date_pd].iloc[-1]
-        except Exception as e:
+        except (IndexError, KeyError, ValueError, TypeError) as e:
             logger.warning(f"Unable to get latest candle (OHLCV) data for pair {pair} - {e}")
             return None, None
         # Explicitly convert to datetime object to ensure the below comparison does not fail

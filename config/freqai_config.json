@@ -1,0 +1,44 @@
+{
+    "feature_parameters": {
+        "include_timeframes": ["15m"],
+        "feature_columns": [
+            "ema20", "ema50", "ema200",
+            "rsi14", "atr14", "adx14",
+            "volume_ema20", "volatility14",
+            "funding_rate", "oi_delta_1_pct",
+            "ls_ratio", "liq_long_usd", "liq_short_usd"
+        ],
+        "label_period_candles": 4,
+        "indicator_periods_candles": [14, 20, 50, 200],
+        "include_corr_pairlist": []
+    },
+    "data_split_parameters": {
+        "test_size": 0.2,
+        "shuffle": false
+    },
+    "model_training_parameters": {
+        "max_depth": 5,
+        "learning_rate": 0.05,
+        "n_estimators": 500,
+        "subsample": 0.8,
+        "colsample_bytree": 1.0,
+        "objective": "binary:logistic",
+        "eval_metric": "auc",
+        "random_state": 42,
+        "early_stopping_rounds": 50
+    },
+    "grid_search_parameters": {
+        "max_depth": [3, 5],
+        "learning_rate": [0.03, 0.05, 0.1],
+        "n_estimators": [200, 500],
+        "subsample": [0.8, 1.0],
+        "colsample_bytree": [0.8, 1.0]
+    },
+    "identifier": "multi_agent_v1",
+    "train_period_days": 90,
+    "backtest_period_days": 30,
+    "purge_old_models": 3,
+    "freqaimodel": "XGBoostGridSearchModel",
+    "freqaimodel_path": "user_data/freqaimodels",
+    "fit_live_predictions_candles": 4
+}

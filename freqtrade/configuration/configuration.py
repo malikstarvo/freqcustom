@@ -87,8 +87,15 @@ class Configuration:
         if "internals" not in config:
             config["internals"] = {}
 
-        # Keep a copy of the original configuration file
-        config["original_config"] = deepcopy(config)
+        # Keep a copy of the original configuration file without secrets
+        original = deepcopy(config)
+        if "exchange" in original:
+            for key in ("key", "secret", "password", "uid"):
+                if key in original["exchange"]:
+                    original["exchange"][key] = "***"
+        if "db_url" in original:
+            original["db_url"] = "***"
+        config["original_config"] = original
 
         self._process_logging_options(config)
 

@@ -234,26 +234,41 @@ class ExchangeWS:
     async def _continuously_async_watch_ohlcv(
         self, pair: str, timeframe: str, candle_type: CandleType
     ) -> None:
-        try:
-            while True:
-                with self._state_lock:
-                    if (pair, timeframe, candle_type) not in self._klines_watching:
-                        break
-                start = dt_ts()
-                data = await self._ccxt_object.watch_ohlcv(pair, timeframe)
-                with self._state_lock:
-                    self._klines_last_refresh[(pair, timeframe, candle_type)] = dt_ts()
-                logger.debug(
-                    f"watch done {pair}, {timeframe}, data {len(data)} "
-                    f"in {(dt_ts() - start) / 1000:.3f}s"
+        retry_delay = 1
+        max_retries = 5
+        retries = 0
+        while retries < max_retries:
+            try:
+                while True:
+                    with self._state_lock:
+                        if (pair, timeframe, candle_type) not in self._klines_watching:
+                            break
+                    start = dt_ts()
+                    data = await self._ccxt_object.watch_ohlcv(pair, timeframe)
+                    with self._state_lock:
+                        self._klines_last_refresh[(pair, timeframe, candle_type)] = dt_ts()
+                    logger.debug(
+                        f"watch done {pair}, {timeframe}, data {len(data)} "
+                        f"in {(dt_ts() - start) / 1000:.3f}s"
+                    )
+                    # Reset retry counters on successful data
+                    retries = 0
+                    retry_delay = 1
+            except ccxt.ExchangeClosedByUser:
+                logger.debug("Exchange connection closed by user")
+                break
+            except ccxt.BaseError:
+                retries += 1
+                logger.exception(
+                    f"WebSocket error for {pair}, {timeframe}. "
+                    f"Retry {retries}/{max_retries} in {retry_delay}s"
                 )
-        except ccxt.ExchangeClosedByUser:
-            logger.debug("Exchange connection closed by user")
-        except ccxt.BaseError:
-            logger.exception(f"Exception in continuously_async_watch_ohlcv for {pair}, {timeframe}")
-        finally:
-            with self._state_lock:
-                self._klines_watching.discard((pair, timeframe, candle_type))
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 60)
+
+        # Only discard from watching if all retries exhausted
+        with self._state_lock:
+            self._klines_watching.discard((pair, timeframe, candle_type))
 
     def schedule_ohlcv(self, pair: str, timeframe: str, candle_type: CandleType) -> None:
         """

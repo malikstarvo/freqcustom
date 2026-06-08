@@ -1,0 +1,118 @@
+# Grafana dashboard for Freqtrade monitoring
+# Import this JSON into Grafana (Dashboards → Import)
+
+{
+  "dashboard": {
+    "title": "Freqtrade AI Trading V1",
+    "uid": "freqtrade-ai-v1",
+    "panels": [
+      {
+        "title": "Equity Curve",
+        "type": "timeseries",
+        "gridPos": { "x": 0, "y": 0, "w": 16, "h": 8 },
+        "targets": [
+          {
+            "expr": "freqtrade_daily_pnl_pct",
+            "legendFormat": "Daily P&L %"
+          }
+        ]
+      },
+      {
+        "title": "Open Positions",
+        "type": "stat",
+        "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
+        "targets": [
+          {
+            "expr": "freqtrade_open_positions"
+          }
+        ]
+      },
+      {
+        "title": "Bot State",
+        "type": "stat",
+        "gridPos": { "x": 16, "y": 4, "w": 8, "h": 4 },
+        "targets": [
+          {
+            "expr": "freqtrade_bot_state"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              { "type": "value", "value": "0", "text": "STOPPED" },
+              { "type": "value", "value": "1", "text": "RUNNING" },
+              { "type": "value", "value": "2", "text": "PAUSED" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Trades by Pair",
+        "type": "barchart",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(freqtrade_trades_total) by (pair)",
+            "legendFormat": "{{pair}}"
+          }
+        ]
+      },
+      {
+        "title": "Trade Profit Distribution",
+        "type": "heatmap",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(freqtrade_trade_profit_pct_bucket[5m])) by (le)"
+          }
+        ]
+      },
+      {
+        "title": "API Latency",
+        "type": "timeseries",
+        "gridPos": { "x": 0, "y": 14, "w": 8, "h": 5 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(freqtrade_api_latency_seconds_bucket[5m]))",
+            "legendFormat": "p95 {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "WebSocket Messages/sec",
+        "type": "timeseries",
+        "gridPos": { "x": 8, "y": 14, "w": 8, "h": 5 },
+        "targets": [
+          {
+            "expr": "sum(rate(freqtrade_ws_messages_total[1m])) by (type)",
+            "legendFormat": "{{type}}"
+          }
+        ]
+      },
+      {
+        "title": "Agent Scores",
+        "type": "timeseries",
+        "gridPos": { "x": 16, "y": 14, "w": 8, "h": 5 },
+        "targets": [
+          {
+            "expr": "avg(freqtrade_agent_score) by (agent)",
+            "legendFormat": "{{agent}}"
+          }
+        ]
+      },
+      {
+        "title": "ML Model Predictions",
+        "type": "histogram",
+        "gridPos": { "x": 0, "y": 19, "w": 12, "h": 5 },
+        "targets": [
+          {
+            "expr": "sum(rate(freqtrade_model_prediction_prob_bucket[5m])) by (le)",
+            "legendFormat": "{{le}}"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "time": { "from": "now-1h", "to": "now" }
+  }
+}

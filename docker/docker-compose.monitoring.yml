@@ -1,0 +1,69 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=freqtrade
+      - POSTGRES_PASSWORD=${TIMESCALE_PASSWORD:-freqtrade}
+      - POSTGRES_DB=freqtrade
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./timescale_setup.sql:/docker-entrypoint-initdb.d/01_setup.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freqtrade"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  freqtrade:
+    image: freqtradeorg/freqtrade:stable
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../user_data:/freqtrade/user_data
+      - ../config.json:/freqtrade/config.json
+    environment:
+      - FREQTRADE__TELEGRAM__ENABLED=false
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+
+  react-dashboard:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - freqtrade
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./dashboards/freqtrade.json:/etc/grafana/provisioning/dashboards/freqtrade.json
+
+volumes:
+  timescale_data:
+  grafana_data:

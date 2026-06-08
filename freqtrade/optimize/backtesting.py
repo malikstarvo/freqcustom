@@ -5,9 +5,11 @@ This module contains the backtesting logic
 """
 
 import logging
+import random
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime, timedelta
+from math import isclose
 
 from numpy import isnan, nan
 from pandas import DataFrame, Series
@@ -243,17 +245,35 @@ class Backtesting:
     def set_fee(self):
         if self.config.get("fee", None) is not None:
             self.fee = self.config["fee"]
+            self.fee_open = self.config["fee"]
+            self.fee_close = self.config["fee"]
             self.log_once(f"Using fee {self.fee:.4%} from config.")
         else:
-            fees = [
-                self.exchange.get_fee(
-                    symbol=self.pairlists.whitelist[0],
-                    taker_or_maker=mt,
-                )
-                for mt in ("taker", "maker")
-            ]
-            self.fee = max(fee for fee in fees if fee is not None)
-            self.log_once(f"Using fee {self.fee:.4%} - worst case fee from exchange (lowest tier).")
+            fees_taker = self.exchange.get_fee(
+                symbol=self.pairlists.whitelist[0],
+                taker_or_maker="taker",
+            )
+            fees_maker = self.exchange.get_fee(
+                symbol=self.pairlists.whitelist[0],
+                taker_or_maker="maker",
+            )
+            self.fee_open = fees_maker if fees_maker is not None else fees_taker
+            self.fee_close = fees_taker if fees_taker is not None else fees_maker
+            self.fee = max(
+                f for f in [fees_taker, fees_maker] if f is not None
+            )
+            self.log_once(
+                f"Using fee {self.fee:.4%} - worst case fee from exchange (lowest tier). "
+                f"Entry (maker): {self.fee_open:.4%}, Exit (taker): {self.fee_close:.4%}"
+            )
+
+        self.backtest_slippage = self.config.get("backtest_slippage", 0.0)
+        self.backtest_stoploss_slippage = self.config.get("backtest_stoploss_slippage", 0.0)
+
+        partial_fill_cfg = self.config.get("backtest_partial_fill", {})
+        self.partial_fill_enabled = partial_fill_cfg.get("enabled", False)
+        self.partial_fill_prob = partial_fill_cfg.get("probability", 0.1)
+        self.partial_fill_range = partial_fill_cfg.get("fill_range", [0.5, 0.99])
 
     @staticmethod
     def cleanup():
@@ -294,9 +314,10 @@ class Backtesting:
         # Attach Wallets to Strategy baseclass
         strategy.wallets = self.wallets
         # Set stoploss_on_exchange to false for backtesting,
-        # since a "perfect" stoploss-exit is assumed anyway
-        # And the regular "stoploss" function would not apply to that case
-        self.strategy.order_types["stoploss_on_exchange"] = False
+        # since a "perfect" stoploss-exit is assumed anyway.
+        # Can be overridden via config to simulate stoploss slippage.
+        if not self.config.get("backtest_enable_stoploss_on_exchange", False):
+            self.strategy.order_types["stoploss_on_exchange"] = False
         # Update can_short flag
         self._can_short = self.trading_mode != TradingMode.SPOT and strategy.can_short
 
@@ -561,6 +582,11 @@ class Backtesting:
         else:
             stoploss_value = trade.stop_loss
 
+        # Apply stoploss slippage: make exit price worse by a configurable percentage
+        if self.backtest_stoploss_slippage:
+            slip_dir = 1 if is_short else -1
+            stoploss_value = stoploss_value * (1 + slip_dir * self.backtest_stoploss_slippage)
+
         if is_short:
             if stoploss_value < row[LOW_IDX]:
                 return row[OPEN_IDX]
@@ -757,34 +783,53 @@ class Backtesting:
     ) -> bool:
         """
         Check if an order is open and if it should've filled.
-        :return: True if the order filled.
+        :return: True if the order filled (fully).
         """
-        if order and self._get_order_filled(order.ft_price, row):
-            order.close_bt_order(current_date, trade)
-            self._run_funding_fees(trade, current_date, force=True)
-            strategy_safe_wrapper(self.strategy.order_filled, supress_error=True)(
-                pair=trade.pair,
-                trade=trade,  # type: ignore[arg-type]
-                order=order,
-                current_time=current_date,
-            )
+        if not (order and self._get_order_filled(order.ft_price, row)):
+            return False
 
-            if self.margin_mode == MarginMode.CROSS or not (
-                order.ft_order_side == trade.exit_side and order.safe_amount == trade.amount
-            ):
-                # trade is still open or we are in cross margin mode and
-                # must update all liquidation prices
-                update_liquidation_prices(
-                    trade,
-                    exchange=self.exchange,
-                    wallets=self.wallets,
-                    stake_currency=self.config["stake_currency"],
-                    dry_run=True,
+        if self.partial_fill_enabled and not (
+            order.ft_order_side == trade.exit_side and order.safe_amount == trade.amount
+        ):
+            # Simulate partial fill for entry orders and partial exit orders
+            if random.random() < self.partial_fill_prob:  # noqa: S311
+                fill_pct = random.uniform(  # noqa: S311
+                    self.partial_fill_range[0], self.partial_fill_range[1]
                 )
-            if not (order.ft_order_side == trade.exit_side and order.safe_amount == trade.amount):
-                self._call_adjust_stop(current_date, trade, order.ft_price)
-            return True
-        return False
+                filled_amount = order.amount * fill_pct
+                if isclose(filled_amount, 0.0, abs_tol=constants.MATH_CLOSE_PREC):
+                    return False
+                order.filled = filled_amount
+                order.remaining = order.amount - filled_amount
+                order.status = "open"
+                trade.recalc_trade_from_orders()
+                if order.ft_order_side == trade.entry_side:
+                    trade.adjust_stop_loss(order.ft_price, trade.stop_loss_pct)
+                self._run_funding_fees(trade, current_date, force=True)
+                return False  # not fully filled
+
+        order.close_bt_order(current_date, trade)
+        self._run_funding_fees(trade, current_date, force=True)
+        strategy_safe_wrapper(self.strategy.order_filled, supress_error=True)(
+            pair=trade.pair,
+            trade=trade,  # type: ignore[arg-type]
+            order=order,
+            current_time=current_date,
+        )
+
+        if self.margin_mode == MarginMode.CROSS or not (
+            order.ft_order_side == trade.exit_side and order.safe_amount == trade.amount
+        ):
+            update_liquidation_prices(
+                trade,
+                exchange=self.exchange,
+                wallets=self.wallets,
+                stake_currency=self.config["stake_currency"],
+                dry_run=True,
+            )
+        if not (order.ft_order_side == trade.exit_side and order.safe_amount == trade.amount):
+            self._call_adjust_stop(current_date, trade, order.ft_price)
+        return True
 
     def _process_exit_order(
         self, order: Order, trade: LocalTrade, current_time: datetime, row: tuple, pair: str
@@ -893,15 +938,22 @@ class Backtesting:
         self.order_id_counter += 1
         exit_candle_time = sell_row[DATE_IDX].to_pydatetime()
         order_type = self.strategy.order_types["exit"]
-        close_rate = price_to_precision(
-            close_rate, trade.price_precision, trade.precision_mode_price
+
+        # Apply backtest slippage to exit rate
+        slip_dir = -1 if not trade.is_short else 1
+        close_rate_slipped = close_rate * (1 + slip_dir * self.backtest_slippage)
+
+        close_rate_slipped = price_to_precision(
+            close_rate_slipped, trade.price_precision, trade.precision_mode_price
         )
         # amount = amount or trade.amount
         amount = amount_to_contract_precision(
             amount or trade.amount, trade.amount_precision, self.precision_mode, trade.contract_size
         )
 
-        if self.handle_similar_order(trade, close_rate, amount, trade.exit_side, exit_candle_time):
+        if self.handle_similar_order(
+            trade, close_rate_slipped, amount, trade.exit_side, exit_candle_time
+        ):
             return None
 
         order = Order(
@@ -917,13 +969,13 @@ class Backtesting:
             side=trade.exit_side,
             order_type=order_type,
             status="open",
-            ft_price=close_rate,
-            price=close_rate,
-            average=close_rate,
+            ft_price=close_rate_slipped,
+            price=close_rate_slipped,
+            average=close_rate_slipped,
             amount=amount,
             filled=0,
             remaining=amount,
-            cost=amount * close_rate * (1 + self.fee),
+            cost=amount * close_rate_slipped * (1 + self.fee_close),
             ft_order_tag=exit_reason,
         )
         order._trade_bt = trade
@@ -1156,8 +1208,14 @@ class Backtesting:
                     return trade
 
             is_short = direction == "short"
-            # Necessary for Margin trading. Disabled until support is enabled.
-            # interest_rate = self.exchange.get_interest_rate()
+            # Interest rate for margin trading
+            interest_rate = self.exchange.get_interest_rate() if hasattr(
+                self.exchange, "get_interest_rate"
+            ) else 0.0
+
+            # Apply backtest slippage to entry rate
+            slip_dir = 1 if not is_short else -1
+            entry_fill_rate = propose_rate * (1 + slip_dir * self.backtest_slippage)
 
             if trade is None:
                 # Enter trade
@@ -1167,14 +1225,14 @@ class Backtesting:
                     pair=pair,
                     base_currency=base_currency,
                     stake_currency=self.config["stake_currency"],
-                    open_rate=propose_rate,
+                    open_rate=entry_fill_rate,
                     open_rate_requested=propose_rate,
                     open_date=current_time,
                     stake_amount=stake_amount,
                     amount=0,
                     amount_requested=amount,
-                    fee_open=self.fee,
-                    fee_close=self.fee,
+                    fee_open=self.fee_open,
+                    fee_close=self.fee_close,
                     is_open=True,
                     enter_tag=entry_tag,
                     timeframe=self.timeframe_min,
@@ -1182,7 +1240,7 @@ class Backtesting:
                     is_short=is_short,
                     trading_mode=self.trading_mode,
                     leverage=leverage,
-                    # interest_rate=interest_rate,
+                    interest_rate=interest_rate,
                     amount_precision=precision_amount,
                     price_precision=precision_price,
                     precision_mode=self.precision_mode,
@@ -1212,13 +1270,13 @@ class Backtesting:
                 order_date=current_time,
                 order_filled_date=current_time,
                 order_update_date=current_time,
-                ft_price=propose_rate,
+                ft_price=entry_fill_rate,
                 price=propose_rate,
-                average=propose_rate,
+                average=entry_fill_rate,
                 amount=amount,
                 filled=0,
                 remaining=amount,
-                cost=amount * propose_rate * (1 + self.fee),
+                cost=amount * entry_fill_rate * (1 + self.fee_open),
                 ft_order_tag=entry_tag,
             )
             order._trade_bt = trade

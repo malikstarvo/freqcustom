@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dashboard-bg: #0f1119;
+  --color-card-bg: #1a1d2e;
+  --color-card-border: #2a2d3e;
+  --color-accent: #00d4ff;
+  --color-accent-hover: #00b8e6;
+  --color-profit: #00ff88;
+  --color-loss: #ff4466;
+  --color-warning: #ffaa00;
+  --color-text-primary: #e4e6f0;
+  --color-text-secondary: #888a9e;
+}
+
+[data-theme="light"] {
+  --color-dashboard-bg: #f5f7fa;
+  --color-card-bg: #ffffff;
+  --color-card-border: #e2e8f0;
+  --color-accent: #0284c7;
+  --color-accent-hover: #0369a1;
+  --color-profit: #16a34a;
+  --color-loss: #dc2626;
+  --color-warning: #d97706;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--color-dashboard-bg);
+  color: var(--color-text-primary);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-card-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-card-border);
+  border-radius: 3px;
+}

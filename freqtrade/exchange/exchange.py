@@ -11,7 +11,7 @@ from collections.abc import Coroutine, Generator
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from math import floor, isnan
-from threading import Lock
+from threading import Lock, RLock
 from typing import Any, Literal, TypeGuard, TypeVar
 from uuid import uuid4
 
@@ -200,7 +200,7 @@ class Exchange:
         self._leverage_tiers: dict[str, list[LeverageTier]] = {}
         # Lock event loop. This is necessary to avoid race-conditions when using force* commands
         # Due to funding fee fetching.
-        self._loop_lock = Lock()
+        self._loop_lock = RLock()
         self.loop = self._init_async_loop()
         self._config: Config = config
 
@@ -1184,8 +1184,7 @@ class Exchange:
         if self.exchange_has("fetchL2OrderBook"):
             orderbook = self.fetch_l2_order_book(pair, 20)
         if not stop_loss and ordertype == "limit" and orderbook:
-            # Allow a 1% price difference
-            allowed_diff = 0.01
+            allowed_diff = self._config.get("dry_run_allowed_price_diff", 0.01)
             if self._dry_is_price_crossed(pair, side, rate, orderbook, allowed_diff):
                 logger.info(
                     f"Converted order {pair} to market order due to price {rate} crossing spread "
@@ -1195,7 +1194,7 @@ class Exchange:
 
         if dry_order["type"] == "market" and not dry_order.get("ft_order_type"):
             # Update market order pricing
-            slippage = 0.05
+            slippage = self._config.get("dry_run_slippage", 0.05)
             worst_rate = rate * ((1 + slippage) if side == "buy" else (1 - slippage))
             average = self.get_dry_market_fill_price(
                 pair, side, amount, rate, worst_rate, orderbook
@@ -1657,6 +1656,7 @@ class Exchange:
         except ccxt.BaseError as e:
             raise OperationalException(e) from e
 
+    @retrier
     def fetch_order_emulated(self, order_id: str, pair: str, params: dict) -> CcxtOrder:
         """
         Emulated fetch_order if the exchange doesn't support fetch_order, but requires separate
@@ -2015,12 +2015,14 @@ class Exchange:
         if cached:
             with self._cache_lock:
                 tickers = self._fetch_tickers_cache.get("fetch_bids_asks")
-            if tickers:
-                return tickers
+                if tickers:
+                    return tickers
         try:
             tickers = self._api.fetch_bids_asks(symbols)
             with self._cache_lock:
-                self._fetch_tickers_cache["fetch_bids_asks"] = tickers
+                # Only cache if another thread hasn't already populated it
+                if "fetch_bids_asks" not in self._fetch_tickers_cache:
+                    self._fetch_tickers_cache["fetch_bids_asks"] = tickers
             return tickers
         except ccxt.NotSupported as e:
             raise OperationalException(
@@ -2057,8 +2059,8 @@ class Exchange:
         if cached:
             with self._cache_lock:
                 tickers = self._fetch_tickers_cache.get(cache_key)  # type: ignore
-            if tickers:
-                return tickers
+                if tickers:
+                    return tickers
         try:
             # Re-map futures to swap
             market_types = {
@@ -2067,7 +2069,9 @@ class Exchange:
             params = {"type": market_types.get(market_type, market_type)} if market_type else {}
             tickers = self._api.fetch_tickers(symbols, params)
             with self._cache_lock:
-                self._fetch_tickers_cache[cache_key] = tickers
+                # Only cache if another thread hasn't already populated it
+                if cache_key not in self._fetch_tickers_cache:
+                    self._fetch_tickers_cache[cache_key] = tickers
             return tickers
         except ccxt.NotSupported as e:
             raise OperationalException(
@@ -2275,10 +2279,9 @@ class Exchange:
         if not refresh:
             with self._cache_lock:
                 rate = cache_rate.get(pair)
-            # Check if cache has been invalidated
-            if rate:
-                logger.debug(f"Using cached {side} rate for {pair}.")
-                return rate
+                if rate:
+                    logger.debug(f"Using cached {side} rate for {pair}.")
+                    return rate
 
         conf_strategy = self._config.get(strat_name, {})
 
@@ -2298,7 +2301,8 @@ class Exchange:
         if rate is None:
             raise PricingError(f"{name}-Rate for {pair} was empty.")
         with self._cache_lock:
-            cache_rate[pair] = rate
+            if pair not in cache_rate:
+                cache_rate[pair] = rate
 
         return rate
 
@@ -3485,13 +3489,21 @@ class Exchange:
                 self._async_get_trade_history(pair=pair, since=since, until=until, from_id=from_id)
             )
 
+            signal_handlers = []
             for sig in [signal.SIGINT, signal.SIGTERM]:
                 try:
                     self.loop.add_signal_handler(sig, task.cancel)
+                    signal_handlers.append(sig)
                 except (NotImplementedError, RuntimeError):
-                    # Not all platforms implement signals (e.g. windows)
                     pass
-            return self.loop.run_until_complete(task)
+            try:
+                return self.loop.run_until_complete(task)
+            finally:
+                for sig in signal_handlers:
+                    try:
+                        self.loop.remove_signal_handler(sig)
+                    except (NotImplementedError, RuntimeError):
+                        pass
 
     @retrier
     def _get_funding_fees_from_exchange(self, pair: str, since: datetime | int) -> float:
@@ -3999,7 +4011,10 @@ class Exchange:
                     funding_fees = self._get_funding_fees_from_exchange(pair, open_date)
                 return funding_fees
             except ExchangeError:
-                logger.warning(f"Could not update funding fees for {pair}.")
+                logger.warning(
+                    f"Could not update funding fees for {pair}. "
+                    "Funding fees will be 0 for this update cycle."
+                )
 
         return 0.0
 
