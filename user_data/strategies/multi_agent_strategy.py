@@ -81,7 +81,8 @@ class MultiAgentStrategy(IStrategy):
             if col not in dataframe.columns:
                 dataframe[col] = 0.0
 
-        dataframe = self.freqai.start(dataframe, metadata, self)
+        if self.config.get("freqai", {}).get("enabled", False):
+            dataframe = self.freqai.start(dataframe, metadata, self)
 
         return dataframe
 
