@@ -1019,7 +1019,40 @@ docker compose -f docker/docker-compose.monitoring.yml up -d
 
 ---
 
-## Cloudflare Tunnel
+## Web Access — Open Ports
+
+VPS provider firewalls (Tencent Cloud, AWS, etc.) block all ports by default. You must open inbound ports in the **Security Group**:
+
+| Port | Service | Protocol |
+|------|---------|----------|
+| **3000** | React Dashboard | TCP |
+| **3001** | Grafana | TCP |
+| **8080** | Freqtrade API | TCP |
+| **9090** | Prometheus (optional) | TCP |
+| **22** | SSH | TCP |
+
+### Tencent Cloud Security Group
+
+1. Go to **Cloud Virtual Machine (CVM)** → your instance
+2. Click **Security Group** tab
+3. Add inbound rules for ports 3000, 3001, 8080
+4. Source: `0.0.0.0/0` (or restrict to your IP)
+
+After opening ports, access the dashboard at `http://YOUR_VPS_IP:3000`.
+
+### Verify Ports Are Open
+
+```bash
+# From VPS (always open)
+curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/
+
+# From your local machine
+curl -s -o /dev/null -w '%{http_code}' http://YOUR_VPS_IP:3000/
+```
+
+---
+
+
 
 Cloudflare Tunnel allows you to securely expose your services without opening firewall ports. All traffic is encrypted and routed through Cloudflare's network.
 
