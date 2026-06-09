@@ -63,6 +63,20 @@ services:
       - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
       - ./dashboards/freqtrade.json:/etc/grafana/provisioning/dashboards/freqtrade.json
 
+  # Go collector — populates TimescaleDB with Bybit WebSocket data
+  # Uncomment and build after cloning Go collector source:
+  #   git clone <go-collector-repo> go-collector && docker build -t go-collector -f Dockerfile.collector .
+  # go-collector:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.collector
+  #   restart: unless-stopped
+  #   env_file:
+  #     - ./collector.env
+  #   depends_on:
+  #     timescaledb:
+  #       condition: service_healthy
+
 volumes:
   timescale_data:
   grafana_data:

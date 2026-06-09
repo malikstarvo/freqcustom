@@ -836,6 +836,98 @@ curl http://localhost:8080/api/v1/ping
 
 ---
 
+## Go Collector Setup (Orderflow Data)
+
+The Go collector streams real-time Bybit WebSocket data into TimescaleDB, populating the `candles` and `feature_values` tables with orderflow data (funding rate, open interest, liquidations, long/short ratio). This data is essential for the multi-agent scoring system to generate accurate entry signals.
+
+### Option 1: Run in Docker (Recommended)
+
+```bash
+# 1. Clone the Go collector source (replace with actual repo URL)
+cd ~/freqtrade/docker
+git clone <go-collector-repo-url> go-collector
+
+# 2. Build the Docker image
+docker build -t go-collector -f Dockerfile.collector .
+
+# 3. Edit collector.env with your settings
+nano collector.env
+
+# 4. Uncomment the go-collector service in docker-compose.monitoring.yml
+#    (remove the '#' before 'go-collector:' and all its lines)
+
+# 5. Start the collector
+docker compose -f docker-compose.monitoring.yml up -d go-collector
+```
+
+### Option 2: Run as Standalone Binary
+
+```bash
+# Build from Go source
+cd go-collector
+go build -o collector .
+
+# Copy binary and env file
+sudo cp collector /usr/local/bin/
+cp docker/collector.env ~/.collector.env
+
+# Create systemd service
+sudo tee /etc/systemd/system/go-collector.service << 'EOF'
+[Unit]
+Description=Go Collector for Freqtrade AI
+After=network.target timescaledb.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+EnvironmentFile=/home/ubuntu/.collector.env
+ExecStart=/usr/local/bin/collector
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable go-collector
+sudo systemctl start go-collector
+sudo systemctl status go-collector
+```
+
+### Verify Data is Flowing
+
+```bash
+# Check candles table
+docker exec docker-timescaledb-1 psql -U freqtrade -d freqtrade \
+  -c "SELECT symbol, timeframe, count(*) as candles FROM candles GROUP BY symbol, timeframe;"
+
+# Check feature_values (orderflow data)
+docker exec docker-timescaledb-1 psql -U freqtrade -d freqtrade \
+  -c "SELECT symbol, timeframe, count(*) as rows, 
+             count(funding_rate) as funding, count(oi_delta_1_pct) as oi
+      FROM feature_values GROUP BY symbol, timeframe;"
+```
+
+### Collector Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BYBIT_SYMBOLS` | `BTCUSDT,ETHUSDT,SOLUSDT` | Symbols to collect |
+| `BYBIT_TIMEFRAMES` | `15m,1h,4h` | Timeframes to aggregate |
+| `BYBIT_STREAM_OHLCV` | `true` | Stream OHLCV candles |
+| `BYBIT_STREAM_FUNDING_RATE` | `true` | Stream funding rate |
+| `BYBIT_STREAM_OPEN_INTEREST` | `true` | Stream open interest |
+| `BYBIT_STREAM_LIQUIDATIONS` | `true` | Stream liquidations |
+| `BYBIT_STREAM_LS_RATIO` | `true` | Stream long/short ratio |
+| `FEATURE_SET_ID` | `1` | Matches `config_paper.json` |
+| `COMPUTE_EMA` | `true` | Compute EMA indicators |
+| `COMPUTE_RSI` | `true` | Compute RSI indicators |
+| `COMPUTE_ATR` | `true` | Compute ATR indicators |
+
+---
+
 ## Advanced Topics
 
 ### Running Without Docker
