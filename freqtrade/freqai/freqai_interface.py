@@ -140,6 +140,7 @@ class IFreqaiModel(ABC):
         :param strategy: Strategy to train on
         """
         self.live = strategy.dp.runmode in (RunMode.DRY_RUN, RunMode.LIVE)
+        print(f"[FREQAI DEBUG START CALLED] pair={metadata['pair']}, live={self.live}, runmode={strategy.dp.runmode}")
         self.dd.set_pair_dict_info(metadata)
         self.data_provider = strategy.dp
         self.can_short = strategy.can_short
