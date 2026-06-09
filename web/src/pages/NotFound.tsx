@@ -9,7 +9,7 @@ export default function NotFound() {
         The page you are looking for doesn't exist or has been moved.
       </p>
       <Link
-        to="/dashboard"
+        href="/dashboard"
         className="px-6 py-2 bg-[--color-accent] hover:bg-[--color-accent-hover] text-[#0f1119] rounded-lg font-semibold text-sm"
       >
         Back to Dashboard
