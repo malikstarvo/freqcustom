@@ -21,7 +21,7 @@ async function ensureAuth(): Promise<void> {
       });
       if (!resp.ok) throw new Error(`Login failed: ${resp.status}`);
       const data = await resp.json();
-      authToken = data.access_token;
+      authToken = data.access_token as string;
       localStorage.setItem("freqtrade-token", authToken);
     } catch (e) {
       console.error("Auth failed:", e);
