@@ -52,15 +52,6 @@ class XGBoostGridSearchModel(BaseClassifierModel):
                 "colsample_bytree": [0.8, 1.0],
             }
 
-        base_model = XGBClassifier(
-            objective="binary:logistic",
-            eval_metric=eval_metric,
-            random_state=42,
-            early_stopping_rounds=50,
-            **{k: v for k, v in self.model_training_parameters.items()
-               if k not in gs_params},
-        )
-
         fit_params = {}
         if eval_set is not None:
             fit_params = {
