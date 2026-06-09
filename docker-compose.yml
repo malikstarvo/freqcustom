@@ -34,7 +34,9 @@ services:
 
   # ── Trading Bot ──────────────────────────────────────
   freqtrade:
-    image: freqtradeorg/freqtrade:stable
+    build:
+      context: .
+      dockerfile: Dockerfile
     # Untuk ML/FreqAI, ganti image:
     # image: freqtradeorg/freqtrade:stable_freqaitorch
     # # GPU support (uncomment untuk freqAI):
@@ -59,7 +61,6 @@ services:
       --logfile /freqtrade/user_data/logs/freqtrade.log
       --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
       --config /freqtrade/config.json
-      --strategy SampleStrategy
     depends_on:
       timescaledb:
         condition: service_healthy
