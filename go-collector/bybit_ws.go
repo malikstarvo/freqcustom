@@ -236,9 +236,9 @@ func (c *BybitClient) processLiquidation(raw []byte) {
 	if err := json.Unmarshal(raw, &msg); err != nil {
 		return
 	}
-	sz := decStr(msg.Size)
+	sz := decStr(msg.Data.Size)
 	c.mu.Lock()
-	if msg.Side == "Buy" {
+	if msg.Data.Side == "Buy" {
 		c.liqShort = c.liqShort.Add(sz)
 	} else {
 		c.liqLong = c.liqLong.Add(sz)
