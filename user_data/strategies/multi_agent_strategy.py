@@ -74,6 +74,8 @@ class MultiAgentStrategy(IStrategy):
             if col not in dataframe.columns:
                 dataframe[col] = 0.0
 
+        dataframe = self.freqai.start(dataframe, metadata, self)
+
         return dataframe
 
     def populate_entry_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:

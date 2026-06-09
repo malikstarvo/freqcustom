@@ -56,11 +56,11 @@ def _valid(v: float) -> bool:
 
 
 def _size_from_confidence(conf: float) -> float:
-    if conf >= 60:
+    if conf >= 80:
         return 1.00
-    elif conf >= 50:
+    elif conf >= 70:
         return 0.50
-    elif conf >= 40:
+    elif conf >= 60:
         return 0.25
     else:
         return 0.0
