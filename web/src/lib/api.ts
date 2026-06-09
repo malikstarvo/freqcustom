@@ -10,10 +10,14 @@ async function ensureAuth(): Promise<void> {
   if (loginPromise) return loginPromise;
   loginPromise = (async () => {
     try {
+      // Freqtrade uses HTTP Basic Auth for token login
+      const basicAuth = btoa(`${API_USER}:${API_PASS}`);
       const resp = await fetch(`${API_BASE}/token/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: API_USER, password: API_PASS }),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${basicAuth}`,
+        },
       });
       if (!resp.ok) throw new Error(`Login failed: ${resp.status}`);
       const data = await resp.json();
