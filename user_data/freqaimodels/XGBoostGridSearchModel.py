@@ -70,22 +70,36 @@ class XGBoostGridSearchModel(BaseClassifierModel):
 
         init_model = self.get_init_model(dk.pair)
 
-        grid = GridSearchCV(
-            base_model,
-            param_grid=gs_params,
-            cv=min(3, len(X) // 50),
-            scoring="roc_auc",
-            n_jobs=1,
-            verbose=0,
-        )
+        # Simplify: use plain XGBoost without GridSearchCV for first test
+        gs_params = self.freqai_info.get("grid_search_parameters", {})
+        use_grid = bool(gs_params) and len(X) > 200
 
-        grid.fit(X=X, y=y, sample_weight=train_weights,
-                 xgb_model=init_model, **fit_params)
+        if use_grid:
+            base_model = XGBClassifier(
+                objective="binary:logistic",
+                eval_metric=eval_metric,
+                random_state=42,
+                early_stopping_rounds=50,
+                **{k: v for k, v in self.model_training_parameters.items() if k not in gs_params},
+            )
+            grid = GridSearchCV(base_model, gs_params, cv=min(3, len(X)//50), scoring="roc_auc", n_jobs=1, verbose=0)
+            logger.info(f"[FREQAI] Running GridSearchCV with {len(gs_params)} param grids...")
+            grid.fit(X=X, y=y, sample_weight=train_weights, xgb_model=init_model, **fit_params)
+            logger.info(f"[FREQAI] GS best score: {grid.best_score_:.4f} | best params: {grid.best_params_}")
+            result = grid.best_estimator_
+        else:
+            logger.info(f"[FREQAI] Skipping GridSearchCV (not enough data or no params). Training plain XGBoost...")
+            plain_model = XGBClassifier(
+                objective="binary:logistic", eval_metric=eval_metric,
+                random_state=42, early_stopping_rounds=None,
+                **self.model_training_parameters,
+            )
+            plain_model.fit(X, y, sample_weight=train_weights, **fit_params)
+            logger.info(f"[FREQAI] Plain XGBoost trained successfully")
+            result = plain_model
 
-        logger.info(f"Grid search best params: {grid.best_params_}")
-        logger.info(f"Grid search best score: {grid.best_score_:.4f}")
-
-        return grid.best_estimator_
+        print(f"[FREQAI MODEL DEBUG] fit() returning model: {type(result).__name__}, is None: {result is None}")
+        return result
 
     def predict(
         self, unfiltered_df: DataFrame, dk: FreqaiDataKitchen, **kwargs

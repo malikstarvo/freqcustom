@@ -387,6 +387,7 @@ class IFreqaiModel(ABC):
                             self.dd.model_type, dk.data_path, self.activate_tensorboard
                         )
                         self.model = self.train(dataframe_train, pair, dk)
+                        print(f"[FREQAI START_BT DEBUG] after train: self.model is None={self.model is None}, type={type(self.model).__name__ if self.model else 'N/A'}")
                         self.tb_logger.close()
                     except Exception as msg:
                         logger.warning(
