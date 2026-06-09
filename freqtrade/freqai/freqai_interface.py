@@ -294,10 +294,6 @@ class IFreqaiModel(ABC):
         train_it = 0
         pair = metadata["pair"]
         print(f"[FREQAI DEBUG START_BT PRINT] {pair}: training_windows={len(dk.training_timeranges)}, backtesting_windows={len(dk.backtesting_timeranges)}")
-            f"[FREQAI DEBUG START_BT] {pair}: live={self.live}, "
-            f"training_windows={len(dk.training_timeranges)}, "
-            f"backtesting_windows={len(dk.backtesting_timeranges)}"
-        )
         populate_indicators = True
         check_features = True
         # Loop enforcing the sliding window training/backtesting paradigm
