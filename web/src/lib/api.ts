@@ -32,8 +32,10 @@ async function ensureAuth(): Promise<void> {
   return loginPromise;
 }
 
-// Auto-trigger login on load
-ensureAuth();
+// Auto-trigger login on load (browser only)
+if (typeof window !== "undefined") {
+  ensureAuth();
+}
 
 async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T> {
   await ensureAuth();
