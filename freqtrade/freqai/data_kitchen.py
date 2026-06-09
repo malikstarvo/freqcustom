@@ -95,6 +95,12 @@ class FreqaiDataKitchen:
                     config["freqai"]["train_period_days"],
                     config["freqai"]["backtest_period_days"],
                 )
+                logger.info(
+                    f"[FREQAI DEBUG] full_timerange={self.full_timerange}, "
+                    f"training windows={len(self.training_timeranges)}, "
+                    f"backtesting windows={len(self.backtesting_timeranges)}, "
+                    f"live={self.live}, backtest_live_models={self.backtest_live_models}"
+                )
 
         self.data["extra_returns_per_train"] = self.freqai_config.get("extra_returns_per_train", {})
         if not self.freqai_config.get("data_kitchen_thread_count", 0):
