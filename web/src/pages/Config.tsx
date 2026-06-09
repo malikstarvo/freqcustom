@@ -32,9 +32,9 @@ export default function Config() {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Settings className="text-[--color-accent]" /> Configuration
+          <Settings className="text-accent" /> Configuration
         </h2>
-        <p className="text-sm text-[--color-text-secondary]">Loading configuration...</p>
+        <p className="text-sm text-text-secondary">Loading configuration...</p>
       </div>
     );
   }
@@ -45,7 +45,7 @@ export default function Config() {
     children: React.ReactNode;
   }) => (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide">
+      <div className="flex items-center gap-2 text-sm font-semibold text-text-secondary uppercase tracking-wide">
         {icon}
         {title}
       </div>
@@ -56,9 +56,9 @@ export default function Config() {
   );
 
   const Row = ({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) => (
-    <div className="flex items-center justify-between py-1.5 px-3 bg-[--color-card-bg] rounded border border-[--color-card-border]/30">
-      <span className="text-xs text-[--color-text-secondary]">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? "text-[--color-accent]" : "text-[--color-text-primary]"}`}>
+    <div className="flex items-center justify-between py-1.5 px-3 bg-card-bg rounded border border-card-border/30">
+      <span className="text-xs text-text-secondary">{label}</span>
+      <span className={`text-sm font-medium ${highlight ? "text-accent" : "text-text-primary"}`}>
         {value}
       </span>
     </div>
@@ -68,7 +68,7 @@ export default function Config() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Settings className="text-[--color-accent]" /> Configuration
+          <Settings className="text-accent" /> Configuration
         </h2>
         <div className="flex items-center gap-3">
           <Badge label={config.state} variant={config.state === "running" ? "success" : "default"} />
@@ -76,7 +76,7 @@ export default function Config() {
           <button
             onClick={handleReload}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[--color-accent] hover:bg-[--color-accent-hover] text-[#0f1119] rounded-lg text-xs font-semibold disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-1.5 bg-accent hover:bg-accent-hover text-[#0f1119] rounded-lg text-xs font-semibold disabled:opacity-50"
           >
             <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Reload
           </button>
@@ -164,7 +164,7 @@ export default function Config() {
 
       {/* Raw JSON toggle */}
       <Card title="Raw Configuration">
-        <pre className="text-xs font-mono overflow-auto max-h-[50vh] bg-[--color-card-bg] p-4 rounded border border-[--color-card-border] text-[--color-text-secondary]">
+        <pre className="text-xs font-mono overflow-auto max-h-[50vh] bg-card-bg p-4 rounded border border-card-border text-text-secondary">
           {JSON.stringify(config, null, 2)}
         </pre>
       </Card>

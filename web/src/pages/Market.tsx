@@ -54,7 +54,7 @@ export default function Market() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Globe className="text-[--color-accent]" /> Market
+          <Globe className="text-accent" /> Market
         </h2>
         <div className="flex items-center gap-2">
           <Badge label={`${marketEntries.length} markets`} variant="default" />
@@ -71,8 +71,8 @@ export default function Market() {
             </div>
             <div className="overflow-auto max-h-[60vh]">
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[--color-card-bg]">
-                  <tr className="text-left text-[--color-text-secondary] border-b border-[--color-card-border]">
+                <thead className="sticky top-0 bg-card-bg">
+                  <tr className="text-left text-text-secondary border-b border-card-border">
                     <th className="pb-2 pr-4">Symbol</th>
                     <th className="pb-2 pr-4">Base</th>
                     <th className="pb-2 pr-4">Quote</th>
@@ -85,14 +85,14 @@ export default function Market() {
                   {filtered.map(([symbol, m]) => (
                     <tr
                       key={symbol}
-                      className={`border-b border-[--color-card-border]/30 cursor-pointer transition-colors ${
-                        selectedPair === symbol ? "bg-[--color-accent]/10" : "hover:bg-gray-800/50"
+                      className={`border-b border-card-border/30 cursor-pointer transition-colors ${
+                        selectedPair === symbol ? "bg-accent/10" : "hover:bg-gray-800/50"
                       }`}
                       onClick={() => setSelectedPair(symbol)}
                     >
                       <td className="py-2 pr-4 font-medium">{symbol}</td>
-                      <td className="py-2 pr-4 text-[--color-text-secondary]">{m.base}</td>
-                      <td className="py-2 pr-4 text-[--color-text-secondary]">{m.quote}</td>
+                      <td className="py-2 pr-4 text-text-secondary">{m.base}</td>
+                      <td className="py-2 pr-4 text-text-secondary">{m.quote}</td>
                       <td className="py-2 pr-4">
                         <Badge label={m.spot ? "Yes" : "No"} variant={m.spot ? "success" : "default"} />
                       </td>
@@ -106,7 +106,7 @@ export default function Market() {
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-[--color-text-secondary]">
+                      <td colSpan={6} className="py-8 text-center text-text-secondary">
                         No markets match your search
                       </td>
                     </tr>
@@ -131,8 +131,8 @@ export default function Market() {
                         onClick={() => setTimeframe(tf)}
                         className={`px-2 py-1 rounded text-xs font-medium ${
                           timeframe === tf
-                            ? "bg-[--color-accent] text-[#0f1119]"
-                            : "bg-[--color-card-bg] border border-[--color-card-border] text-[--color-text-secondary]"
+                            ? "bg-accent text-[#0f1119]"
+                            : "bg-card-bg border border-card-border text-text-secondary"
                         }`}
                       >
                         {tf}
@@ -142,12 +142,12 @@ export default function Market() {
                 </div>
 
                 {loadingCandles ? (
-                  <div className="flex items-center justify-center h-40 text-sm text-[--color-text-secondary]">
+                  <div className="flex items-center justify-center h-40 text-sm text-text-secondary">
                     <Activity size={16} className="animate-spin mr-2" /> Loading...
                   </div>
                 ) : candles ? (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-[--color-text-secondary]">
+                    <div className="flex items-center justify-between text-xs text-text-secondary">
                       <span>Data: {candles.data_start} → {candles.data_stop}</span>
                       <span>{candles.length} candles</span>
                     </div>
@@ -176,17 +176,17 @@ export default function Market() {
                         <Bar dataKey="volume" fill="#00d4ff15" yAxisId={1} />
                       </ComposedChart>
                     </ResponsiveContainer>
-                    <div className="flex items-center gap-2 text-xs text-[--color-text-secondary]">
+                    <div className="flex items-center gap-2 text-xs text-text-secondary">
                       <TrendingUp size={12} />
                       <span>Signals: {candles.enter_long_signals} long / {candles.enter_short_signals} short entries</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-[--color-text-secondary]">No candle data available</div>
+                  <div className="text-sm text-text-secondary">No candle data available</div>
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-40 text-sm text-[--color-text-secondary]">
+              <div className="flex flex-col items-center justify-center h-40 text-sm text-text-secondary">
                 <CandlestickChart size={24} className="mb-2 opacity-50" />
                 Select a market to view candles
               </div>

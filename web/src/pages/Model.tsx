@@ -102,10 +102,10 @@ export default function ModelPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Brain className="text-[--color-accent]" />
+          <Brain className="text-accent" />
           Model Monitor
         </h2>
-        <p className="text-sm text-[--color-text-secondary] mt-1">
+        <p className="text-sm text-text-secondary mt-1">
           {displayStatus.identifier} &middot; {displayStatus.model}
         </p>
       </div>
@@ -138,7 +138,7 @@ export default function ModelPage() {
             {displayFeatures.map((f, i) => (
               <div key={f.feature}>
                 <div className="flex justify-between text-xs mb-0.5">
-                  <span className="text-[--color-text-secondary]">{f.feature}</span>
+                  <span className="text-text-secondary">{f.feature}</span>
                   <span className="font-mono">{(f.importance * 100).toFixed(1)}%</span>
                 </div>
                 <div className="bar">
@@ -177,10 +177,10 @@ export default function ModelPage() {
                 <span className="text-3xl font-bold" style={{ color: aucColor }}>
                   {displayStatus.cv_auc_mean.toFixed(3)}
                 </span>
-                <span className="text-xs text-[--color-text-secondary] mt-0.5">ROC-AUC</span>
+                <span className="text-xs text-text-secondary mt-0.5">ROC-AUC</span>
               </div>
             </div>
-            <p className="text-xs text-[--color-text-secondary] mt-2">
+            <p className="text-xs text-text-secondary mt-2">
               Threshold for trade gate: &ge; 0.45 → PASS
             </p>
           </div>
@@ -191,8 +191,8 @@ export default function ModelPage() {
         <div className="grid grid-cols-4 gap-4">
           {Object.entries(displayStatus.best_params).map(([key, val]) => (
             <div key={key} className="bg-gray-800/50 rounded-lg p-3">
-              <div className="text-xs text-[--color-text-secondary] uppercase mb-1">{key}</div>
-              <div className="text-lg font-mono font-bold text-[--color-accent]">
+              <div className="text-xs text-text-secondary uppercase mb-1">{key}</div>
+              <div className="text-lg font-mono font-bold text-accent">
                 {typeof val === "number" && val < 1 ? val.toFixed(2) : val}
               </div>
             </div>
@@ -202,29 +202,29 @@ export default function ModelPage() {
 
       <Card title="Training Pipeline">
         <div className="space-y-3">
-          <div className="flex items-center gap-4 py-2 border-b border-[--color-card-border]">
-            <span className="w-8 h-8 rounded-full bg-[--color-profit]/20 text-[--color-profit] flex items-center justify-center text-sm font-bold">1</span>
+          <div className="flex items-center gap-4 py-2 border-b border-card-border">
+            <span className="w-8 h-8 rounded-full bg-profit/20 text-profit flex items-center justify-center text-sm font-bold">1</span>
             <div>
               <span className="font-medium">Edge Study</span>
-              <p className="text-xs text-[--color-text-secondary]">Rank 13 features by predictive power (pearson, quantile PF, stability)</p>
+              <p className="text-xs text-text-secondary">Rank 13 features by predictive power (pearson, quantile PF, stability)</p>
             </div>
-            <span className="ml-auto text-xs text-[--color-text-secondary]">freqtrade edge-study</span>
+            <span className="ml-auto text-xs text-text-secondary">freqtrade edge-study</span>
           </div>
-          <div className="flex items-center gap-4 py-2 border-b border-[--color-card-border]">
-            <span className="w-8 h-8 rounded-full bg-[--color-accent]/20 text-[--color-accent] flex items-center justify-center text-sm font-bold">2</span>
+          <div className="flex items-center gap-4 py-2 border-b border-card-border">
+            <span className="w-8 h-8 rounded-full bg-accent/20 text-accent flex items-center justify-center text-sm font-bold">2</span>
             <div>
               <span className="font-medium">Grid Search Training</span>
-              <p className="text-xs text-[--color-text-secondary]">5 param grid × 3-fold CV = 15 fits per iteration. Best AUC selected.</p>
+              <p className="text-xs text-text-secondary">5 param grid × 3-fold CV = 15 fits per iteration. Best AUC selected.</p>
             </div>
-            <span className="ml-auto text-xs text-[--color-text-secondary]">GridSearchCV</span>
+            <span className="ml-auto text-xs text-text-secondary">GridSearchCV</span>
           </div>
           <div className="flex items-center gap-4 py-2">
-            <span className="w-8 h-8 rounded-full bg-[--color-warning]/20 text-[--color-warning] flex items-center justify-center text-sm font-bold">3</span>
+            <span className="w-8 h-8 rounded-full bg-warning/20 text-warning flex items-center justify-center text-sm font-bold">3</span>
             <div>
               <span className="font-medium">Trade Gate</span>
-              <p className="text-xs text-[--color-text-secondary]">ML probability ≥ 0.45 required for trade execution</p>
+              <p className="text-xs text-text-secondary">ML probability ≥ 0.45 required for trade execution</p>
             </div>
-            <span className="ml-auto text-xs text-[--color-text-secondary]">MetaModelProb</span>
+            <span className="ml-auto text-xs text-text-secondary">MetaModelProb</span>
           </div>
         </div>
       </Card>

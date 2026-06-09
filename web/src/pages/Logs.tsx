@@ -48,17 +48,17 @@ export default function Logs() {
 
   const levelColor = (level: string) => {
     const l = level.toUpperCase();
-    if (l.includes("ERROR")) return "text-[--color-loss] bg-red-950/50 border-red-500/30";
-    if (l.includes("WARN")) return "text-[--color-warning] bg-yellow-950/50 border-yellow-500/30";
-    if (l.includes("INFO")) return "text-[--color-accent] bg-cyan-950/50 border-cyan-500/30";
-    return "text-[--color-text-secondary] bg-gray-800/50 border-gray-700/30";
+    if (l.includes("ERROR")) return "text-loss bg-red-950/50 border-red-500/30";
+    if (l.includes("WARN")) return "text-warning bg-yellow-950/50 border-yellow-500/30";
+    if (l.includes("INFO")) return "text-accent bg-cyan-950/50 border-cyan-500/30";
+    return "text-text-secondary bg-gray-800/50 border-gray-700/30";
   };
 
   const levelIcon = (level: string) => {
     const l = level.toUpperCase();
-    if (l.includes("ERROR")) return <XCircle size={12} className="text-[--color-loss]" />;
-    if (l.includes("WARN")) return <AlertTriangle size={12} className="text-[--color-warning]" />;
-    return <Info size={12} className="text-[--color-accent]" />;
+    if (l.includes("ERROR")) return <XCircle size={12} className="text-loss" />;
+    if (l.includes("WARN")) return <AlertTriangle size={12} className="text-warning" />;
+    return <Info size={12} className="text-accent" />;
   };
 
   const filters: LogLevel[] = ["ALL", "INFO", "WARNING", "ERROR"];
@@ -67,10 +67,10 @@ export default function Logs() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <FileText className="text-[--color-accent]" /> Logs
+          <FileText className="text-accent" /> Logs
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[--color-text-secondary]">{logCount} total lines</span>
+          <span className="text-xs text-text-secondary">{logCount} total lines</span>
           <Badge label={`${filtered.length} shown`} variant="default" />
         </div>
       </div>
@@ -84,8 +84,8 @@ export default function Logs() {
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-[--color-accent] text-[#0f1119]"
-                  : "bg-[--color-card-bg] border border-[--color-card-border] text-[--color-text-secondary] hover:text-[--color-text-primary]"
+                  ? "bg-accent text-[#0f1119]"
+                  : "bg-card-bg border border-card-border text-text-secondary hover:text-text-primary"
               }`}
             >
               {f}
@@ -102,8 +102,8 @@ export default function Logs() {
           onClick={() => setAutoScroll(!autoScroll)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             autoScroll
-              ? "bg-[--color-accent]/10 text-[--color-accent]"
-              : "bg-[--color-card-bg] border border-[--color-card-border] text-[--color-text-secondary]"
+              ? "bg-accent/10 text-accent"
+              : "bg-card-bg border border-card-border text-text-secondary"
           }`}
         >
           <ScrollText size={12} />
@@ -127,14 +127,14 @@ export default function Logs() {
                 className={`flex items-start gap-2 py-1 px-2 rounded border ${levelColor(level)}`}
               >
                 {levelIcon(level)}
-                <span className="text-[--color-text-secondary] shrink-0 w-20">{timestamp}</span>
+                <span className="text-text-secondary shrink-0 w-20">{timestamp}</span>
                 <span className="font-semibold shrink-0 w-14">{level}</span>
-                <span className="text-[--color-text-primary] break-all">{message}</span>
+                <span className="text-text-primary break-all">{message}</span>
               </div>
             );
           })}
           {filtered.length === 0 && (
-            <div className="py-8 text-center text-[--color-text-secondary]">
+            <div className="py-8 text-center text-text-secondary">
               No logs match your filter
             </div>
           )}

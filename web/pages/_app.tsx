@@ -2,50 +2,60 @@ import type { AppProps } from "next/app";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { ThemeProvider } from "@/hooks/useTheme";
+import { ThemeProvider, useTheme } from "@/hooks/useTheme";
 import { ToastProvider } from "@/hooks/useToast";
+import { Toaster } from "@/components/ui/sonner";
 import {
   LayoutDashboard, BarChart3, Wallet, ArrowRightLeft,
   Activity, FileText, Settings, Server, Cpu,
   DollarSign, Brain, Globe, Database, Sparkles, Eye, Radio,
-  Menu, X, Sun, Moon
+  Menu, X, Sun, Moon, Power, ShieldCheck
 } from "lucide-react";
 import "@/index.css";
 
 const navItems = [
-  { path: "/overview", label: "Overview", icon: Eye },
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/trading", label: "Trading", icon: Activity },
-  { path: "/trades", label: "Trades", icon: ArrowRightLeft },
-  { path: "/balance", label: "Balance", icon: Wallet },
-  { path: "/paper", label: "Paper", icon: DollarSign },
-  { path: "/market", label: "Market", icon: Globe },
-  { path: "/collector", label: "Collector", icon: Radio },
-  { path: "/data-quality", label: "Data Quality", icon: Database },
-  { path: "/features", label: "Features", icon: Sparkles },
-  { path: "/model", label: "Model", icon: Brain },
-  { path: "/backtest", label: "Backtest", icon: BarChart3 },
-  { path: "/logs", label: "Logs", icon: FileText },
-  { path: "/config", label: "Config", icon: Settings },
-  { path: "/system", label: "System", icon: Server },
+  {
+    group: "Overview",
+    items: [
+      { path: "/overview", label: "Overview", icon: Eye },
+      { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    ]
+  },
+  {
+    group: "Trading Operations",
+    items: [
+      { path: "/trading", label: "Live Trading", icon: Activity },
+      { path: "/trades", label: "Trades History", icon: ArrowRightLeft },
+      { path: "/balance", label: "Balances", icon: Wallet },
+      { path: "/paper", label: "Paper Trading", icon: DollarSign },
+    ]
+  },
+  {
+    group: "AI & Market Data",
+    items: [
+      { path: "/market", label: "Market Data", icon: Globe },
+      { path: "/collector", label: "Data Collector", icon: Radio },
+      { path: "/data-quality", label: "Data Quality", icon: Database },
+      { path: "/features", label: "AI Features", icon: Sparkles },
+      { path: "/model", label: "ML Models", icon: Brain },
+    ]
+  },
+  {
+    group: "System & Tools",
+    items: [
+      { path: "/backtest", label: "Backtesting", icon: BarChart3 },
+      { path: "/logs", label: "Bot Logs", icon: FileText },
+      { path: "/config", label: "Configuration", icon: Settings },
+      { path: "/system", label: "System Status", icon: Server },
+    ]
+  }
 ];
 
 function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [status, setStatus] = useState<string>("connecting");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  useEffect(() => {
-    const saved = localStorage.getItem("freqtrade-theme") as "dark" | "light" | null;
-    if (saved) setTheme(saved);
-    else setTheme(window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("freqtrade-theme", theme);
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
 
   useEffect(() => {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
@@ -55,57 +65,133 @@ function AppContent({ Component, pageProps }: AppProps) {
       .catch(() => setStatus("offline"));
   }, []);
 
-  const toggle = () => setTheme(t => t === "dark" ? "light" : "dark");
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans relative">
+      {/* Decorative ambient glows in background (Dark mode only) */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-1000" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-profit/5 rounded-full blur-[150px] pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-1000" />
+
+      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={closeSidebar} />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-all duration-300" onClick={closeSidebar} />
       )}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-56 bg-[--color-card-bg] border-r border-[--color-card-border] flex flex-col transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-4 border-b border-[--color-card-border] flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-[--color-accent] flex items-center gap-2">
-              <Cpu size={22} /> FreqTrade
-            </h1>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className={`w-2 h-2 rounded-full ${status === "live" ? "bg-[--color-profit]" : "bg-[--color-loss]"}`} />
-              <span className="text-xs text-[--color-text-secondary]">{status}</span>
+
+      {/* Sidebar Navigation */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border/60 flex flex-col transition-all duration-300 lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+      }`}>
+        {/* Brand header */}
+        <div className="h-16 px-6 border-b border-border/60 flex items-center justify-between bg-card/50 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+              <Cpu size={20} className="animate-pulse" />
+            </div>
+            <div>
+              <h1 className="font-bold text-sm leading-none tracking-tight">FreqTrade Custom</h1>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Dashboard Client</span>
             </div>
           </div>
-          <button onClick={closeSidebar} className="lg:hidden p-1 text-[--color-text-secondary] hover:text-[--color-text-primary]">
-            <X size={20} />
+          <button onClick={closeSidebar} className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+            <X size={16} />
           </button>
         </div>
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-          {navItems.map(({ path, label, icon: Icon }) => (
-            <Link key={path} href={path} onClick={closeSidebar}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${router.pathname === path ? "bg-[--color-accent]/10 text-[--color-accent]" : "text-[--color-text-secondary] hover:bg-gray-800 hover:text-white"}`}>
-              <Icon size={18} />{label}
-            </Link>
+
+        {/* Navigation items grouped */}
+        <nav className="flex-1 py-6 px-4 space-y-6 overflow-y-auto scrollbar-thin">
+          {navItems.map((group) => (
+            <div key={group.group} className="space-y-2">
+              <h3 className="px-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider select-none">
+                {group.group}
+              </h3>
+              <div className="space-y-0.5">
+                {group.items.map(({ path, label, icon: Icon }) => {
+                  const isActive = router.pathname === path;
+                  return (
+                    <Link
+                      key={path}
+                      href={path}
+                      onClick={closeSidebar}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      }`}
+                    >
+                      <Icon size={16} className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      }`} />
+                      <span>{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </nav>
-        <div className="p-4 border-t border-[--color-card-border] flex items-center justify-between">
-          <span className="text-xs text-[--color-text-secondary]">v1.0.0 · Freqtrade + AI</span>
-          <button onClick={toggle} className="p-1.5 rounded-md text-[--color-text-secondary] hover:bg-[--color-card-border] hover:text-[--color-text-primary] transition-colors" title={theme === "dark" ? "Switch to light" : "Switch to dark"}>
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-border/60 bg-card/50 backdrop-blur-md flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={14} className="text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground font-medium">Freqtrade AI v1.0.0</span>
+          </div>
+          <button
+            onClick={toggle}
+            className="p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto p-4 lg:p-6 min-w-0">
-        <div className="lg:hidden flex items-center gap-3 mb-4">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-md bg-[--color-card-bg] border border-[--color-card-border] text-[--color-text-secondary]">
-            <Menu size={20} />
-          </button>
-          <h1 className="text-lg font-bold text-[--color-accent]">FreqTrade</h1>
-          <div className="flex-1" />
-          <button onClick={toggle} className="p-2 rounded-md bg-[--color-card-bg] border border-[--color-card-border] text-[--color-text-secondary]">
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-        </div>
-        <Component {...pageProps} />
-      </main>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Top Header */}
+        <header className="h-16 border-b border-border/60 px-6 flex items-center justify-between bg-card/30 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Menu size={18} />
+            </button>
+            
+            {/* Page title context */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Bot Status:</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-background/50">
+                <span className={`w-2 h-2 rounded-full ${
+                  status === "live" ? "bg-profit animate-pulse" : status === "connecting" ? "bg-warning animate-bounce" : "bg-loss"
+                }`} />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{status}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Quick API status badge for mobile */}
+            <div className="sm:hidden flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border bg-background/50">
+              <span className={`w-1.5 h-1.5 rounded-full ${status === "live" ? "bg-profit animate-pulse" : "bg-loss"}`} />
+              <span className="text-[9px] font-semibold uppercase text-muted-foreground">{status}</span>
+            </div>
+
+            {/* Power Button or connection details */}
+            <div className="p-2 bg-secondary/80 rounded-lg text-muted-foreground border border-border/40 text-xs font-semibold select-none">
+              API Connection Live
+            </div>
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-thin">
+          <div className="max-w-[1600px] mx-auto w-full space-y-6">
+            <Component {...pageProps} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
@@ -115,6 +201,7 @@ export default function App(props: AppProps) {
     <ThemeProvider>
       <ToastProvider>
         <AppContent {...props} />
+        <Toaster />
       </ToastProvider>
     </ThemeProvider>
   );

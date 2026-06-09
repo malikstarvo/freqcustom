@@ -40,26 +40,26 @@ export default function Trading() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <TrendingUp className="text-[--color-accent]" />
+          <TrendingUp className="text-accent" />
           Trading Terminal
         </h2>
-        <p className="text-sm text-[--color-text-secondary] mt-1">
+        <p className="text-sm text-text-secondary mt-1">
           {openTrades.length} open &middot; {closedTrades.length} closed
         </p>
       </div>
 
       <Card title={`Open Positions (${openTrades.length})`}>
         {openTrades.length === 0 ? (
-          <p className="text-sm text-[--color-text-secondary]">No open positions</p>
+          <p className="text-sm text-text-secondary">No open positions</p>
         ) : (
           <div className="space-y-3">
             {openTrades.map(t => (
-              <div key={t.trade_id} className="flex items-center justify-between py-2 border-b border-[--color-card-border] last:border-0">
+              <div key={t.trade_id} className="flex items-center justify-between py-2 border-b border-card-border last:border-0">
                 <div className="flex items-center gap-3">
-                  {t.is_short ? <ArrowDownRight size={16} className="text-[--color-loss]" /> : <ArrowUpRight size={16} className="text-[--color-profit]" />}
+                  {t.is_short ? <ArrowDownRight size={16} className="text-loss" /> : <ArrowUpRight size={16} className="text-profit" />}
                   <div>
                     <span className="font-medium">{t.pair}</span>
-                    <span className="text-xs text-[--color-text-secondary] ml-2">
+                    <span className="text-xs text-text-secondary ml-2">
                       @ {t.open_rate.toFixed(2)}
                     </span>
                   </div>
@@ -67,7 +67,7 @@ export default function Trading() {
                 <div className="flex items-center gap-4 text-sm">
                   <Badge label={t.is_short ? "SHORT" : "LONG"} variant={t.is_short ? "danger" : "success"} />
                   <span>{t.amount.toFixed(4)}</span>
-                  <span className="text-[--color-text-secondary]">{(t.stake_amount).toFixed(2)} USDT</span>
+                  <span className="text-text-secondary">{(t.stake_amount).toFixed(2)} USDT</span>
                 </div>
               </div>
             ))}
@@ -78,15 +78,15 @@ export default function Trading() {
       <Card title="Manual Actions">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-2">
-            <div className="text-xs text-[--color-text-secondary] uppercase">Force Entry</div>
+            <div className="text-xs text-text-secondary uppercase">Force Entry</div>
             <div className="flex gap-2">
               <input
                 type="text" value={forcePair} onChange={(e) => setForcePair(e.target.value)}
-                placeholder="BTC/USDT:USDT" className="flex-1 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+                placeholder="BTC/USDT:USDT" className="flex-1 px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm focus:outline-none focus:border-accent"
               />
               <input
                 type="number" value={forcePrice} onChange={(e) => setForcePrice(e.target.value)}
-                placeholder="Price (opt)" className="w-28 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+                placeholder="Price (opt)" className="w-28 px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm focus:outline-none focus:border-accent"
               />
               <button
                 onClick={async () => {
@@ -106,11 +106,11 @@ export default function Trading() {
             </div>
           </div>
           <div className="space-y-2">
-            <div className="text-xs text-[--color-text-secondary] uppercase">Force Exit</div>
+            <div className="text-xs text-text-secondary uppercase">Force Exit</div>
             <div className="flex gap-2">
               <input
                 type="number" value={forceExitId} onChange={(e) => setForceExitId(e.target.value)}
-                placeholder="Trade ID" className="flex-1 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+                placeholder="Trade ID" className="flex-1 px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm focus:outline-none focus:border-accent"
               />
               <button
                 onClick={async () => {
@@ -136,7 +136,7 @@ export default function Trading() {
         <div className="overflow-auto max-h-96">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[--color-text-secondary] border-b border-[--color-card-border]">
+              <tr className="text-left text-text-secondary border-b border-card-border">
                 <th className="pb-2 pr-4">Pair</th>
                 <th className="pb-2 pr-4">Direction</th>
                 <th className="pb-2 pr-4">Entry</th>
@@ -148,18 +148,18 @@ export default function Trading() {
             </thead>
             <tbody>
               {closedTrades.slice(0, 50).map(t => (
-                <tr key={t.trade_id} className="border-b border-[--color-card-border]/50">
+                <tr key={t.trade_id} className="border-b border-card-border/50">
                   <td className="py-2 pr-4 font-medium">{t.pair}</td>
                   <td className="py-2 pr-4">
                     <Badge label={t.is_short ? "SHORT" : "LONG"} variant={t.is_short ? "danger" : "success"} />
                   </td>
                   <td className="py-2 pr-4">{t.open_rate.toFixed(4)}</td>
                   <td className="py-2 pr-4">{t.close_rate?.toFixed(4) ?? "—"}</td>
-                  <td className={`py-2 pr-4 ${(t.profit_pct ?? 0) >= 0 ? "text-[--color-profit]" : "text-[--color-loss]"}`}>
+                  <td className={`py-2 pr-4 ${(t.profit_pct ?? 0) >= 0 ? "text-profit" : "text-loss"}`}>
                     {(t.profit_pct ?? 0).toFixed(2)}%
                   </td>
-                  <td className="py-2 pr-4 text-xs text-[--color-text-secondary]">{t.exit_reason ?? "—"}</td>
-                  <td className="py-2 text-xs text-[--color-text-secondary]">{t.close_date ? new Date(t.close_date).toLocaleDateString() : "—"}</td>
+                  <td className="py-2 pr-4 text-xs text-text-secondary">{t.exit_reason ?? "—"}</td>
+                  <td className="py-2 text-xs text-text-secondary">{t.close_date ? new Date(t.close_date).toLocaleDateString() : "—"}</td>
                 </tr>
               ))}
             </tbody>

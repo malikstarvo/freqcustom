@@ -122,9 +122,9 @@ export default function Backtest() {
   const tradeList = (stats?.["trades"] as Array<Record<string, unknown>>) || [];
 
   const statusIcon = () => {
-    if (status?.running) return <AlertCircle size={16} className="text-[--color-warning]" />;
-    if (status?.status === "ended") return <CheckCircle size={16} className="text-[--color-profit]" />;
-    if (status?.status === "error") return <XCircle size={16} className="text-[--color-loss]" />;
+    if (status?.running) return <AlertCircle size={16} className="text-warning" />;
+    if (status?.status === "ended") return <CheckCircle size={16} className="text-profit" />;
+    if (status?.status === "error") return <XCircle size={16} className="text-loss" />;
     return null;
   };
 
@@ -132,7 +132,7 @@ export default function Backtest() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <BarChart3 className="text-[--color-accent]" /> Backtest
+          <BarChart3 className="text-accent" /> Backtest
         </h2>
         {status?.running && (
           <Badge label="Running" variant="warning" />
@@ -143,9 +143,9 @@ export default function Backtest() {
       <Card title="Backtest Runner">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Strategy</label>
+            <label className="text-xs text-text-secondary uppercase">Strategy</label>
             <select
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
               value={form.strategy}
               onChange={(e) => setForm({ ...form, strategy: e.target.value })}
             >
@@ -156,9 +156,9 @@ export default function Backtest() {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Timeframe</label>
+            <label className="text-xs text-text-secondary uppercase">Timeframe</label>
             <select
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
               value={form.timeframe}
               onChange={(e) => setForm({ ...form, timeframe: e.target.value })}
             >
@@ -168,49 +168,49 @@ export default function Backtest() {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Timerange</label>
+            <label className="text-xs text-text-secondary uppercase">Timerange</label>
             <input
               type="text"
               value={form.timerange}
               onChange={(e) => setForm({ ...form, timerange: e.target.value })}
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
               placeholder="YYYYMMDD-YYYYMMDD"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Max Trades</label>
+            <label className="text-xs text-text-secondary uppercase">Max Trades</label>
             <input
               type="text"
               value={form.max_open_trades}
               onChange={(e) => setForm({ ...form, max_open_trades: e.target.value })}
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Stake Amount</label>
+            <label className="text-xs text-text-secondary uppercase">Stake Amount</label>
             <input
               type="text"
               value={form.stake_amount}
               onChange={(e) => setForm({ ...form, stake_amount: e.target.value })}
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">Dry Wallet</label>
+            <label className="text-xs text-text-secondary uppercase">Dry Wallet</label>
             <input
               type="number"
               value={form.dry_run_wallet}
               onChange={(e) => setForm({ ...form, dry_run_wallet: Number(e.target.value) })}
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-[--color-text-secondary] uppercase">FreqAI Model</label>
+            <label className="text-xs text-text-secondary uppercase">FreqAI Model</label>
             <input
               type="text"
               value={form.freqaimodel}
               onChange={(e) => setForm({ ...form, freqaimodel: e.target.value })}
-              className="w-full px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -219,9 +219,9 @@ export default function Backtest() {
               type="checkbox"
               checked={form.enable_protections}
               onChange={(e) => setForm({ ...form, enable_protections: e.target.checked })}
-              className="w-4 h-4 rounded border-[--color-card-border] bg-[--color-card-bg] text-[--color-accent]"
+              className="w-4 h-4 rounded border-card-border bg-card-bg text-accent"
             />
-            <label htmlFor="protections" className="text-sm text-[--color-text-secondary]">Enable protections</label>
+            <label htmlFor="protections" className="text-sm text-text-secondary">Enable protections</label>
           </div>
         </div>
 
@@ -229,13 +229,13 @@ export default function Backtest() {
           <button
             onClick={startBacktest}
             disabled={!form.strategy || loading}
-            className="flex items-center gap-2 px-4 py-2 bg-[--color-accent] hover:bg-[--color-accent-hover] text-[#0f1119] rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-[#0f1119] rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Play size={14} /> {loading ? "Running..." : "Run Backtest"}
           </button>
           <button
             onClick={resetBacktest}
-            className="flex items-center gap-2 px-4 py-2 border border-[--color-card-border] hover:bg-[--color-card-border]/30 rounded-lg text-sm text-[--color-text-secondary]"
+            className="flex items-center gap-2 px-4 py-2 border border-card-border hover:bg-card-border/30 rounded-lg text-sm text-text-secondary"
           >
             <RotateCcw size={14} /> Reset
           </button>
@@ -250,8 +250,8 @@ export default function Backtest() {
         {status?.running && (
           <div className="mt-4 space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[--color-text-secondary]">{status.status_msg}</span>
-              <span className="text-[--color-accent]">{(status.progress * 100).toFixed(0)}%</span>
+              <span className="text-text-secondary">{status.status_msg}</span>
+              <span className="text-accent">{(status.progress * 100).toFixed(0)}%</span>
             </div>
             <Progress value={status.progress * 100} />
           </div>
@@ -271,36 +271,36 @@ export default function Backtest() {
               trend={returnPct !== undefined && returnPct >= 0 ? `+${returnPct.toFixed(2)}%` : returnPct !== undefined ? `${returnPct.toFixed(2)}%` : ""} />
           </div>
 
-          <h4 className="text-sm font-semibold text-[--color-text-secondary] mb-2">Trade Log</h4>
-          <div className="overflow-auto max-h-[40vh] border border-[--color-card-border] rounded-lg">
+          <h4 className="text-sm font-semibold text-text-secondary mb-2">Trade Log</h4>
+          <div className="overflow-auto max-h-[40vh] border border-card-border rounded-lg">
             <table className="w-full text-xs">
-              <thead className="bg-[--color-card-bg] sticky top-0">
+              <thead className="bg-card-bg sticky top-0">
                 <tr>
-                  <th className="px-3 py-2 text-left text-[--color-text-secondary] font-medium">Pair</th>
-                  <th className="px-3 py-2 text-left text-[--color-text-secondary] font-medium">Dir</th>
-                  <th className="px-3 py-2 text-right text-[--color-text-secondary] font-medium">Entry</th>
-                  <th className="px-3 py-2 text-right text-[--color-text-secondary] font-medium">Exit</th>
-                  <th className="px-3 py-2 text-right text-[--color-text-secondary] font-medium">P&L%</th>
-                  <th className="px-3 py-2 text-right text-[--color-text-secondary] font-medium">Bars</th>
-                  <th className="px-3 py-2 text-left text-[--color-text-secondary] font-medium">Reason</th>
+                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Pair</th>
+                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Dir</th>
+                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Entry</th>
+                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Exit</th>
+                  <th className="px-3 py-2 text-right text-text-secondary font-medium">P&L%</th>
+                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Bars</th>
+                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Reason</th>
                 </tr>
               </thead>
               <tbody>
                 {tradeList.slice(0, 50).map((t, i) => (
-                  <tr key={i} className="border-t border-[--color-card-border]/30">
+                  <tr key={i} className="border-t border-card-border/30">
                     <td className="px-3 py-1.5 font-medium">{t["pair"] as string}</td>
                     <td className="px-3 py-1.5">{(t["is_short"] as boolean) ? "Short" : "Long"}</td>
                     <td className="px-3 py-1.5 text-right">{(t["open_rate"] as number)?.toFixed(4)}</td>
                     <td className="px-3 py-1.5 text-right">{(t["close_rate"] as number)?.toFixed(4) ?? "—"}</td>
-                    <td className={`px-3 py-1.5 text-right font-medium ${((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0) >= 0 ? "text-[--color-profit]" : "text-[--color-loss]"}`}>
+                    <td className={`px-3 py-1.5 text-right font-medium ${((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0) >= 0 ? "text-profit" : "text-loss"}`}>
                       {((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0).toFixed(2)}%
                     </td>
                     <td className="px-3 py-1.5 text-right">{t["trade_duration"] as number ?? t["duration"] as number ?? "—"}</td>
-                    <td className="px-3 py-1.5 text-[--color-text-secondary]">{t["exit_reason"] as string ?? t["sell_reason"] as string ?? "—"}</td>
+                    <td className="px-3 py-1.5 text-text-secondary">{t["exit_reason"] as string ?? t["sell_reason"] as string ?? "—"}</td>
                   </tr>
                 ))}
                 {tradeList.length === 0 && (
-                  <tr><td colSpan={7} className="px-3 py-4 text-center text-[--color-text-secondary]">No trades</td></tr>
+                  <tr><td colSpan={7} className="px-3 py-4 text-center text-text-secondary">No trades</td></tr>
                 )}
               </tbody>
             </table>
@@ -311,28 +311,28 @@ export default function Backtest() {
       {/* History */}
       <Card title="Recent Backtests">
         {history.length === 0 ? (
-          <p className="text-sm text-[--color-text-secondary]">No backtest history found.</p>
+          <p className="text-sm text-text-secondary">No backtest history found.</p>
         ) : (
           <div className="space-y-2">
             {history.map((h) => (
-              <div key={h.filename} className="flex items-center justify-between p-3 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+              <div key={h.filename} className="flex items-center justify-between p-3 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <FileText size={16} className="text-[--color-text-secondary]" />
+                  <FileText size={16} className="text-text-secondary" />
                   <div>
                     <div className="text-sm font-medium">{h.filename}</div>
-                    <div className="text-xs text-[--color-text-secondary]">{h.strategy} · {h.timeframe ?? "—"}</div>
+                    <div className="text-xs text-text-secondary">{h.strategy} · {h.timeframe ?? "—"}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => loadHistoryResult(h)}
-                    className="px-3 py-1 text-xs bg-[--color-accent]/10 hover:bg-[--color-accent]/20 text-[--color-accent] rounded"
+                    className="px-3 py-1 text-xs bg-accent/10 hover:bg-accent/20 text-accent rounded"
                   >
                     View
                   </button>
                   <button
                     onClick={() => deleteHistory(h.filename)}
-                    className="px-3 py-1 text-xs bg-red-500/10 hover:bg-red-500/20 text-[--color-loss] rounded"
+                    className="px-3 py-1 text-xs bg-red-500/10 hover:bg-red-500/20 text-loss rounded"
                   >
                     <Trash2 size={12} />
                   </button>

@@ -80,7 +80,7 @@ export default function System() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Server className="text-[--color-accent]" /> System
+          <Server className="text-accent" /> System
         </h2>
         <div className="flex items-center gap-2">
           <Badge label={botState} variant={botState === "running" ? "success" : "default"} />
@@ -106,7 +106,7 @@ export default function System() {
         <button
           onClick={fetchData}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-[--color-card-border] hover:bg-[--color-card-border]/30 rounded-lg text-sm text-[--color-text-secondary]"
+          className="flex items-center gap-2 px-4 py-2 border border-card-border hover:bg-card-border/30 rounded-lg text-sm text-text-secondary"
         >
           <RotateCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
         </button>
@@ -137,7 +137,7 @@ export default function System() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Cpu size={16} className="text-[--color-accent]" />
+                <Cpu size={16} className="text-accent" />
                 <span className="text-sm font-medium">Average</span>
               </div>
               <span className="text-sm font-bold">{cpuAvg.toFixed(1)}%</span>
@@ -146,7 +146,7 @@ export default function System() {
             <div className="grid grid-cols-4 gap-2 mt-2">
               {cpuCores.slice(0, 8).map((pct: number, i: number) => (
                 <div key={i} className="space-y-1">
-                  <div className="flex justify-between text-xs text-[--color-text-secondary]">
+                  <div className="flex justify-between text-xs text-text-secondary">
                     <span>Core {i + 1}</span>
                     <span>{pct.toFixed(0)}%</span>
                   </div>
@@ -154,7 +154,7 @@ export default function System() {
                 </div>
               ))}
               {cpuCores.length === 0 && (
-                <p className="text-sm text-[--color-text-secondary] col-span-4">No CPU data available</p>
+                <p className="text-sm text-text-secondary col-span-4">No CPU data available</p>
               )}
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function System() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MemoryStick size={16} className="text-[--color-accent]" />
+                <MemoryStick size={16} className="text-accent" />
                 <span className="text-sm font-medium">RAM Usage</span>
               </div>
               <span className="text-sm font-bold">{ramPct.toFixed(1)}%</span>
@@ -173,18 +173,18 @@ export default function System() {
             <Progress value={ramPct} />
             <div className="mt-4 space-y-2">
               <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-[--color-text-secondary]" />
-                <span className="text-[--color-text-secondary]">Load avg (1m):</span>
+                <Activity size={14} className="text-text-secondary" />
+                <span className="text-text-secondary">Load avg (1m):</span>
                 <span className="font-medium">{sysinfo?.cpu_load_avg?.["1m"]?.toFixed(2) ?? "—"}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-[--color-text-secondary]" />
-                <span className="text-[--color-text-secondary]">Load avg (5m):</span>
+                <Activity size={14} className="text-text-secondary" />
+                <span className="text-text-secondary">Load avg (5m):</span>
                 <span className="font-medium">{sysinfo?.cpu_load_avg?.["5m"]?.toFixed(2) ?? "—"}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-[--color-text-secondary]" />
-                <span className="text-[--color-text-secondary]">Load avg (15m):</span>
+                <Activity size={14} className="text-text-secondary" />
+                <span className="text-text-secondary">Load avg (15m):</span>
                 <span className="font-medium">{sysinfo?.cpu_load_avg?.["15m"]?.toFixed(2) ?? "—"}</span>
               </div>
             </div>
@@ -196,27 +196,27 @@ export default function System() {
       <Card title="Health Details">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">Last Process Timestamp</span>
+            <span className="text-text-secondary text-xs block">Last Process Timestamp</span>
             <span className="font-medium">{health?.last_process_ts ?? "—"}</span>
           </div>
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">Bot Start Timestamp</span>
+            <span className="text-text-secondary text-xs block">Bot Start Timestamp</span>
             <span className="font-medium">{health?.bot_start_ts ?? "—"}</span>
           </div>
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">Bot Startup</span>
+            <span className="text-text-secondary text-xs block">Bot Startup</span>
             <span className="font-medium">{health?.bot_startup ? new Date(health.bot_startup).toLocaleString() : "—"}</span>
           </div>
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">CPU Load Average</span>
+            <span className="text-text-secondary text-xs block">CPU Load Average</span>
             <span className="font-medium">{sysinfo?.cpu_avg?.toFixed(1) ?? "—"}%</span>
           </div>
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">Logical CPUs</span>
+            <span className="text-text-secondary text-xs block">Logical CPUs</span>
             <span className="font-medium">{sysinfo?.cpu_count ?? "—"}</span>
           </div>
           <div>
-            <span className="text-[--color-text-secondary] text-xs block">RAM %</span>
+            <span className="text-text-secondary text-xs block">RAM %</span>
             <span className="font-medium">{sysinfo?.ram_pct?.toFixed(1) ?? "—"}%</span>
           </div>
         </div>
@@ -226,32 +226,32 @@ export default function System() {
       <Card title="Monitoring Hub">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <a href={window.location.origin.replace(":3000", ":3001")} target="_blank" rel="noopener noreferrer"
-            className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+            className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[--color-profit]" />
+              <span className="w-2 h-2 rounded-full bg-profit" />
               <span className="text-sm font-medium">Grafana</span>
             </div>
-            <p className="text-xs text-[--color-text-secondary]">Pre-built dashboards with 9 panels: equity curve, trade profit distribution, agent scores, ML predictions, and more.</p>
+            <p className="text-xs text-text-secondary">Pre-built dashboards with 9 panels: equity curve, trade profit distribution, agent scores, ML predictions, and more.</p>
           </a>
           <a href={window.location.origin.replace(":3000", ":9090")} target="_blank" rel="noopener noreferrer"
-            className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+            className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[--color-warning]" />
+              <span className="w-2 h-2 rounded-full bg-warning" />
               <span className="text-sm font-medium">Prometheus</span>
             </div>
-            <p className="text-xs text-[--color-text-secondary]">Metrics collection from Freqtrade API. Scrapes /metrics every 15s. Query via PromQL.</p>
+            <p className="text-xs text-text-secondary">Metrics collection from Freqtrade API. Scrapes /metrics every 15s. Query via PromQL.</p>
           </a>
-          <a href="/collector" className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+          <a href="/collector" className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[--color-accent] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-sm font-medium">Collector</span>
             </div>
-            <p className="text-xs text-[--color-text-secondary]">Go collector streams Bybit data (OHLCV, funding, OI, liquidations) into TimescaleDB.</p>
+            <p className="text-xs text-text-secondary">Go collector streams Bybit data (OHLCV, funding, OI, liquidations) into TimescaleDB.</p>
           </a>
         </div>
         <div className="mt-3 flex gap-2">
-          <span className="text-xs text-[--color-text-secondary]">
-            Prometheus metrics: <code className="text-[--color-accent] text-xs">freqtrade:8080/metrics</code>
+          <span className="text-xs text-text-secondary">
+            Prometheus metrics: <code className="text-accent text-xs">freqtrade:8080/metrics</code>
           </span>
         </div>
       </Card>

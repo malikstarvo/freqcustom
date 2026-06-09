@@ -109,19 +109,19 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <BarChart3 className="text-[--color-accent]" />
+            <BarChart3 className="text-accent" />
             Dashboard
           </h2>
-          <p className="text-sm text-[--color-text-secondary] mt-1">Real-time trading overview</p>
+          <p className="text-sm text-text-secondary mt-1">Real-time trading overview</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[--color-card-bg] border border-[--color-card-border] hover:border-[--color-accent] rounded-lg text-xs text-[--color-text-secondary] transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 bg-card-bg border border-card-border hover:border-accent rounded-lg text-xs text-text-secondary transition-colors"
           >
             <Download size={14} /> Export CSV
           </button>
-          <div className="text-xs text-[--color-text-secondary] flex items-center gap-1">
+          <div className="text-xs text-text-secondary flex items-center gap-1">
             <Clock size={12} />
             {uptime}
           </div>
@@ -194,14 +194,14 @@ export default function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[260px] text-sm text-[--color-text-secondary]">
+            <div className="flex items-center justify-center h-[260px] text-sm text-text-secondary">
               No equity data available
             </div>
           )}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2">
-              <DollarSign size={14} className="text-[--color-accent]" />
-              <span className="text-xs text-[--color-text-secondary]">Starting: {daily?.data[0]?.starting_balance.toFixed(2) ?? "—"}</span>
+              <DollarSign size={14} className="text-accent" />
+              <span className="text-xs text-text-secondary">Starting: {daily?.data[0]?.starting_balance.toFixed(2) ?? "—"}</span>
             </div>
             <Sparkline data={equitySparkline} color={pnlColor} />
           </div>
@@ -232,14 +232,14 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[260px] text-sm text-[--color-text-secondary]">
+            <div className="flex items-center justify-center h-[260px] text-sm text-text-secondary">
               No daily P&L data available
             </div>
           )}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2">
-              <Activity size={14} className="text-[--color-accent]" />
-              <span className="text-xs text-[--color-text-secondary]">
+              <Activity size={14} className="text-accent" />
+              <span className="text-xs text-text-secondary">
                 {daily?.data.reduce((s: number, d: { trade_count: number }) => s + d.trade_count, 0) ?? 0} trades over {daily?.data.length ?? 0} days
               </span>
             </div>
@@ -254,22 +254,22 @@ export default function Dashboard() {
         <Card title="Recent Activity">
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-sm">
-              <Zap size={16} className="text-[--color-accent]" />
-              <span>Last entry signal: <span className="text-[--color-accent] font-medium">{lastSignal}</span></span>
+              <Zap size={16} className="text-accent" />
+              <span>Last entry signal: <span className="text-accent font-medium">{lastSignal}</span></span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <Activity size={16} className="text-[--color-profit]" />
-              <span>Last trade exit: <span className="text-[--color-profit] font-medium">{lastTrade}</span></span>
+              <Activity size={16} className="text-profit" />
+              <span>Last trade exit: <span className="text-profit font-medium">{lastTrade}</span></span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <Shield size={16} className="text-[--color-warning]" />
-              <span>Current drawdown: <span className={profit && profit.current_drawdown < 0 ? "text-[--color-loss]" : "text-[--color-text-secondary]"}>
+              <Shield size={16} className="text-warning" />
+              <span>Current drawdown: <span className={profit && profit.current_drawdown < 0 ? "text-loss" : "text-text-secondary"}>
                 {profit ? `${(profit.current_drawdown * 100).toFixed(2)}%` : "—"}
               </span></span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <TrendingUp size={16} className="text-[--color-text-secondary]" />
-              <span>Expectancy ratio: <span className="text-[--color-text-secondary]">{profit ? `${profit.expectancy_ratio?.toFixed(3) ?? "—"}` : "—"}</span></span>
+              <TrendingUp size={16} className="text-text-secondary" />
+              <span>Expectancy ratio: <span className="text-text-secondary">{profit ? `${profit.expectancy_ratio?.toFixed(3) ?? "—"}` : "—"}</span></span>
             </div>
           </div>
         </Card>
@@ -281,15 +281,15 @@ export default function Dashboard() {
               <div key={p.pair} className="flex items-center justify-between text-sm">
                 <span className="font-medium">{p.pair}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-[--color-text-secondary] text-xs">{p.count} trades</span>
-                  <span className={`font-semibold ${p.profit_pct >= 0 ? "text-[--color-profit]" : "text-[--color-loss]"}`}>
+                  <span className="text-text-secondary text-xs">{p.count} trades</span>
+                  <span className={`font-semibold ${p.profit_pct >= 0 ? "text-profit" : "text-loss"}`}>
                     {p.profit_pct >= 0 ? "+" : ""}{p.profit_pct.toFixed(2)}%
                   </span>
                 </div>
               </div>
             ))}
             {perf.length === 0 && (
-              <p className="text-sm text-[--color-text-secondary]">No performance data yet</p>
+              <p className="text-sm text-text-secondary">No performance data yet</p>
             )}
           </div>
         </Card>
@@ -298,27 +298,27 @@ export default function Dashboard() {
         <Card title="Key Metrics">
           <div className="space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">Profit Factor</span>
+              <span className="text-text-secondary">Profit Factor</span>
               <span className="font-semibold">{profitFactor ? profitFactor.toFixed(2) : "—"}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">Sortino</span>
+              <span className="text-text-secondary">Sortino</span>
               <span className="font-semibold">{profit?.sortino ? profit.sortino.toFixed(2) : "—"}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">Calmar</span>
+              <span className="text-text-secondary">Calmar</span>
               <span className="font-semibold">{profit?.calmar ? profit.calmar.toFixed(2) : "—"}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">SQN</span>
+              <span className="text-text-secondary">SQN</span>
               <span className="font-semibold">{profit?.sqn ? profit.sqn.toFixed(2) : "—"}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">Avg Duration</span>
+              <span className="text-text-secondary">Avg Duration</span>
               <span className="font-semibold">{profit?.avg_duration ?? "—"}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[--color-text-secondary]">CAGR</span>
+              <span className="text-text-secondary">CAGR</span>
               <span className="font-semibold">{profit?.cagr ? `${(profit.cagr * 100).toFixed(1)}%` : "—"}</span>
             </div>
           </div>

@@ -36,11 +36,11 @@ export default function TradesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <ArrowRightLeft className="text-[--color-accent]" /> Trade History
+          <ArrowRightLeft className="text-accent" /> Trade History
         </h2>
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[--color-card-bg] border border-[--color-card-border] hover:border-[--color-accent] rounded-lg text-xs text-[--color-text-secondary] transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-card-bg border border-card-border hover:border-accent rounded-lg text-xs text-text-secondary transition-colors"
         >
           <Download size={14} /> Export CSV
         </button>
@@ -49,7 +49,7 @@ export default function TradesPage() {
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[--color-text-secondary] border-b border-[--color-card-border]">
+              <tr className="text-left text-text-secondary border-b border-card-border">
                 <th className="pb-2 pr-4">ID</th><th className="pb-2 pr-4">Pair</th>
                 <th className="pb-2 pr-4">Side</th><th className="pb-2 pr-4">Amount</th>
                 <th className="pb-2 pr-4">Entry</th><th className="pb-2 pr-4">Exit</th>
@@ -58,14 +58,14 @@ export default function TradesPage() {
             </thead>
             <tbody>
               {trades.map(t => (
-                <tr key={t.trade_id} className="border-b border-[--color-card-border]/50 hover:bg-gray-800/50">
+                <tr key={t.trade_id} className="border-b border-card-border/50 hover:bg-gray-800/50">
                   <td className="py-2 pr-4">{t.trade_id}</td>
                   <td className="py-2 pr-4 font-medium">{t.pair}</td>
                   <td className="py-2 pr-4"><Badge label={t.is_short ? "SHORT" : "LONG"} variant={t.is_short ? "danger" : "success"} /></td>
                   <td className="py-2 pr-4">{t.amount.toFixed(4)}</td>
                   <td className="py-2 pr-4">{t.open_rate.toFixed(4)}</td>
                   <td className="py-2 pr-4">{t.close_rate?.toFixed(4) ?? "—"}</td>
-                  <td className={`py-2 pr-4 ${(t.profit_pct ?? 0) >= 0 ? "text-[--color-profit]" : "text-[--color-loss]"}`}>{(t.profit_pct ?? 0).toFixed(2)}%</td>
+                  <td className={`py-2 pr-4 ${(t.profit_pct ?? 0) >= 0 ? "text-profit" : "text-loss"}`}>{(t.profit_pct ?? 0).toFixed(2)}%</td>
                   <td className="py-2"><Badge label={t.is_open ? "OPEN" : "CLOSED"} variant={t.is_open ? "warning" : "default"} /></td>
                 </tr>
               ))}

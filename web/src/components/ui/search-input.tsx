@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function SearchInput({ value, onChange, placeholder = "Search...", className = "" }: {
   value: string;
@@ -15,18 +16,21 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
   }, [local, onChange]);
 
   return (
-    <div className={`relative ${className}`}>
-      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[--color-text-secondary]" />
+    <div className={cn("relative flex items-center", className)}>
+      <Search size={15} className="absolute left-3 text-muted-foreground pointer-events-none" />
       <input
         type="text"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-8 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm text-[--color-text-primary] focus:outline-none focus:border-[--color-accent]"
+        className="w-full pl-9 pr-8 h-9 rounded-lg bg-secondary/80 border border-border/60 text-xs text-foreground placeholder-muted-foreground transition-all focus:outline-none focus:border-primary/80 focus:bg-background"
       />
       {local && (
-        <button onClick={() => setLocal("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[--color-text-secondary] hover:text-[--color-text-primary]">
-          <X size={14} />
+        <button
+          onClick={() => setLocal("")}
+          className="absolute right-3 text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded"
+        >
+          <X size={12} />
         </button>
       )}
     </div>
