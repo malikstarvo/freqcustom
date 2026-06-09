@@ -34,3 +34,14 @@ services:
       --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
       --config /freqtrade/user_data/config.json
       --strategy SampleStrategy
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: freqtrade-web
+    ports:
+      - "80:80"
+    depends_on:
+      - freqtrade
