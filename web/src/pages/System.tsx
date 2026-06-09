@@ -58,9 +58,9 @@ export default function System() {
     }
   };
 
-  const uptime = health?.bot_start_ts
+  const uptime = health && health.bot_start_ts
     ? (() => {
-        const diff = Date.now() - health.bot_start_ts * 1000;
+        const diff = Date.now() - health.bot_start_ts! * 1000;
         const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
@@ -68,8 +68,8 @@ export default function System() {
       })()
     : "—";
 
-  const lastProcess = health?.last_process_ts
-    ? new Date(health.last_process_ts * 1000).toLocaleString()
+  const lastProcess = health && health.last_process_ts
+    ? new Date(health.last_process_ts! * 1000).toLocaleString()
     : "—";
 
   const cpuCores = sysinfo?.cpu_load.map((c: { pct: number }) => c.pct) ?? [];
@@ -125,7 +125,7 @@ export default function System() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Uptime" value={uptime} />
-        <StatCard label="Bot Started" value={health ? new Date(health.bot_start_ts * 1000).toLocaleDateString() : "—"} />
+        <StatCard label="Bot Started" value={health && health.bot_start_ts ? new Date(health.bot_start_ts! * 1000).toLocaleDateString() : "—"} />
         <StatCard label="Last Process" value={lastProcess} />
         <StatCard label="CPU Cores" value={sysinfo?.cpu_count ?? "—"} />
       </div>
@@ -209,7 +209,7 @@ export default function System() {
           </div>
           <div>
             <span className="text-[--color-text-secondary] text-xs block">CPU Load Average</span>
-            <span className="font-medium">{sysinfo?.cpu_avg.toFixed(1) ?? "—"}%</span>
+            <span className="font-medium">{sysinfo?.cpu_avg?.toFixed(1) ?? "—"}%</span>
           </div>
           <div>
             <span className="text-[--color-text-secondary] text-xs block">Logical CPUs</span>
@@ -217,7 +217,7 @@ export default function System() {
           </div>
           <div>
             <span className="text-[--color-text-secondary] text-xs block">RAM %</span>
-            <span className="font-medium">{sysinfo?.ram_pct.toFixed(1) ?? "—"}%</span>
+            <span className="font-medium">{sysinfo?.ram_pct?.toFixed(1) ?? "—"}%</span>
           </div>
         </div>
       </Card>
