@@ -21,6 +21,8 @@ services:
     image: freqtradeorg/freqtrade:stable
     restart: unless-stopped
     command: ["trade", "--strategy", "MultiAgentStrategy"]
+    environment:
+      - FREQTRADE__FREQAI__ENABLED=false
     ports:
       - "8080:8080"
     volumes:
