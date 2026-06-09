@@ -131,6 +131,9 @@ func (c *BybitClient) handleMessage(raw []byte, db *TimescaleStore, featureSetID
 		return
 	}
 
+	// Debug: log first few messages of each type
+	log.Printf("[%s] MSG topic=%s type=%s", c.Symbol, base.Topic, base.Type)
+
 	switch {
 	case contains(base.Topic, "kline"):
 		var k klineMsg
