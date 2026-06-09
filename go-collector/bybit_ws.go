@@ -80,6 +80,22 @@ func (c *BybitClient) connect(db *TimescaleStore, featureSetID int) error {
 	}
 	log.Printf("[%s] Subscribed: %v", c.Symbol, args)
 
+	// Heartbeat: ping every 20 seconds to keep connection alive
+	done := make(chan struct{})
+	defer close(done)
+	go func() {
+		ticker := time.NewTicker(20 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				conn.WriteJSON(wsSubscription{Op: "ping"})
+			case <-done:
+				return
+			}
+		}
+	}()
+
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
