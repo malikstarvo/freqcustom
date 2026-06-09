@@ -15,7 +15,9 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
 
   const connect = useCallback(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const url = `${protocol}//${window.location.host}${wsUrl}`;
+    const token = localStorage.getItem("freqtrade-token");
+    const tokenParam = token ? `?token=${token}` : "";
+    const url = `${protocol}//${window.location.host}${wsUrl}${tokenParam}`;
 
     const ws = new WebSocket(url);
     wsRef.current = ws;
