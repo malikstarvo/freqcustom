@@ -76,6 +76,12 @@ class FreqaiDataKitchen:
         self.backtest_predictions_folder: str = "backtesting_predictions"
         self.live = live
         self.pair = pair
+        logger.info(
+            f"[FREQAI DEBUG DK INIT] live={self.live}, "
+            f"backtest_live_models={config.get('freqai_backtest_live_models', False)}, "
+            f"has_timerange={'timerange' in config}, "
+            f"pair={pair}"
+        )
         self.keras: bool = self.freqai_config.get("keras", False)
         self.set_all_pairs()
         self.backtest_live_models = config.get("freqai_backtest_live_models", False)
