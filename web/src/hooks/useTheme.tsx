@@ -11,14 +11,17 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
     const saved = localStorage.getItem("freqtrade-theme") as Theme | null;
     if (saved) return saved;
     return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
 
   useEffect(() => {
-    localStorage.setItem("freqtrade-theme", theme);
-    document.documentElement.setAttribute("data-theme", theme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("freqtrade-theme", theme);
+      document.documentElement.setAttribute("data-theme", theme);
+    }
   }, [theme]);
 
   const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
