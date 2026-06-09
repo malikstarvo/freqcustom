@@ -1,9 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { Card, StatCard, Badge } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Empty } from "@/components/ui/empty";
 import { api, PaperStatus, PaperTrade } from "@/lib/api";
 import { downloadCSV } from "@/lib/export";
 import { useToast } from "@/hooks/useToast";
-import { DollarSign, TrendingUp, TrendingDown, Clock, BarChart3, Download } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Clock, BarChart3, Download, Wallet, PiggyBank, CalendarDays, Percent } from "lucide-react";
 
 export default function Paper() {
   const [status, setStatus] = useState<PaperStatus | null>(null);
@@ -82,86 +86,84 @@ export default function Paper() {
   const barPct = pos ? Math.min((pos.bars_held / maxBars) * 100, 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <DollarSign className="text-accent" />
+          <h2 className="text-xl font-bold flex items-center gap-2.5">
+            <DollarSign className="size-5 text-primary" aria-hidden="true" />
             Paper Trading
           </h2>
-          <p className="text-sm text-text-secondary mt-1">
-            {status ? `${status.state} · ${status.bar_count} bars · ${Math.floor(status.uptime_sec / 60)}m uptime` : "Loading..."}
+          <p className="text-sm text-muted-foreground mt-1">
+            {status ? `${status.state} · ${status.bar_count} bars · ${Math.floor(status.uptime_sec / 60)}m uptime` : "Loading…"}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-1.5 bg-card-bg border border-card-border hover:border-accent rounded-lg text-xs text-text-secondary transition-colors"
-          >
-            <Download size={14} /> Export CSV
-          </button>
+          <Button variant="outline" onClick={handleExport}>
+            <Download aria-hidden="true" /> Export CSV
+          </Button>
           {topupMsg && (
-            <span className="text-xs text-profit bg-profit/10 px-3 py-1 rounded-full">
+            <span className="text-xs text-profit bg-profit/10 px-3 py-1 rounded-md">
               {topupMsg}
             </span>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
-        <StatCard label="Equity" value={status ? `$${status.equity.toFixed(0)}` : "—"} />
-        <StatCard label="Balance" value={status ? `$${status.balance.toFixed(0)}` : "—"} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+        <StatCard label="Equity" value={status ? `$${status.equity.toFixed(0)}` : "—"} icon={<Wallet className="size-4 text-muted-foreground" />} />
+        <StatCard label="Balance" value={status ? `$${status.balance.toFixed(0)}` : "—"} icon={<PiggyBank className="size-4 text-muted-foreground" />} />
         <StatCard
           label="Day P&L"
           value={status ? `$${status.day_pnl.toFixed(2)}` : "—"}
           trend={status ? `${((status.day_pnl / (status.balance - status.day_pnl)) * 100).toFixed(2)}%` : ""}
+          icon={<CalendarDays className="size-4 text-muted-foreground" />}
         />
-        <StatCard label="Total P&L" value={status ? `$${status.total_pnl.toFixed(2)}` : "—"} />
-        <StatCard label="Day Trades" value={status?.day_trades ?? "—"} />
+        <StatCard label="Total P&L" value={status ? `$${status.total_pnl.toFixed(2)}` : "—"} icon={<TrendingUp className="size-4 text-muted-foreground" />} />
+        <StatCard label="Day Trades" value={status?.day_trades ?? "—"} icon={<BarChart3 className="size-4 text-muted-foreground" />} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card title="Open Position">
           {pos ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {pos.direction === "long" ? (
-                    <TrendingUp size={20} className="text-profit" />
+                    <TrendingUp className="size-5 text-profit" aria-hidden="true" />
                   ) : (
-                    <TrendingDown size={20} className="text-loss" />
+                    <TrendingDown className="size-5 text-loss" aria-hidden="true" />
                   )}
                   <span className="font-bold text-lg">{pos.symbol}</span>
                   <Badge label={pos.direction.toUpperCase()} variant={pos.direction === "long" ? "success" : "danger"} />
                 </div>
-                <span className="text-sm text-text-secondary">
+                <span className="text-sm text-muted-foreground">
                   Entry: ${pos.entry_price.toFixed(2)} &middot; Size: {pos.quantity.toFixed(4)}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
                 <div>
-                  <span className="text-text-secondary">Stop Price</span>
+                  <span className="text-muted-foreground">Stop Price</span>
                   <p className="font-mono">${pos.stop_price.toFixed(2)}</p>
                 </div>
                 <div>
-                  <span className="text-text-secondary">Entry Fee</span>
+                  <span className="text-muted-foreground">Entry Fee</span>
                   <p className="font-mono">${pos.entry_fee.toFixed(4)}</p>
                 </div>
                 <div>
-                  <span className="text-text-secondary">Opened</span>
+                  <span className="text-muted-foreground">Opened</span>
                   <p className="font-mono text-xs">{new Date(pos.open_ts).toLocaleString()}</p>
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-text-secondary flex items-center gap-1">
-                    <Clock size={12} /> Held: {pos.bars_held} bars
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Clock className="size-3" aria-hidden="true" /> Held: {pos.bars_held} bars
                   </span>
-                  <span className="text-text-secondary">Max: {maxBars}</span>
+                  <span className="text-muted-foreground">Max: {maxBars}</span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
@@ -173,45 +175,42 @@ export default function Paper() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-text-secondary py-4 text-center">No open position</p>
+            <Empty icon={TrendingUp} title="No open position" />
           )}
         </Card>
 
         <Card title="Top-Up Balance">
-          <div className="space-y-3">
-            <p className="text-xs text-text-secondary">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-muted-foreground">
               Add simulated capital. Drawdown baseline adjusts proportionally.
             </p>
             <div className="flex gap-2">
-              <input
+              <Input
                 type="number"
                 min="1"
                 step="100"
                 value={topupAmount}
                 onChange={(e) => setTopupAmount(e.target.value)}
                 placeholder="Amount in USD"
-                className="flex-1 bg-gray-800 border border-card-border rounded px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-accent"
+                className="flex-1"
                 onKeyDown={(e) => e.key === "Enter" && handleTopUp()}
               />
-              <button
-                onClick={handleTopUp}
-                className="px-4 py-2 bg-accent text-black font-medium text-sm rounded hover:bg-accent-hover transition-colors"
-              >
+              <Button onClick={handleTopUp}>
                 Top Up
-              </button>
+              </Button>
             </div>
             {topupHistory.length > 0 && (
               <div className="mt-3">
-                <span className="text-xs text-text-secondary">Recent top-ups:</span>
-                <div className="mt-1 space-y-1">
+                <span className="text-xs text-muted-foreground">Recent top-ups:</span>
+                <div className="mt-1 flex flex-col gap-1">
                   {topupHistory.slice(0, 5).map((t, i) => (
-                    <div key={i} className="flex justify-between text-xs bg-gray-800/50 rounded px-2 py-1">
-                      <span className="text-text-secondary">
+                    <div key={i} className="flex justify-between text-xs bg-muted/30 rounded-md px-2 py-1">
+                      <span className="text-muted-foreground">
                         {new Date(t.ts).toLocaleDateString()}
                       </span>
-                      <span className="text-profit">+${t.amount.toFixed(0)}</span>
-                      <span className="text-text-secondary">
-                        ${t.balance_before.toFixed(0)} → ${t.balance_after.toFixed(0)}
+                      <span className="text-profit font-mono">+${t.amount.toFixed(0)}</span>
+                      <span className="text-muted-foreground font-mono">
+                        ${t.balance_before.toFixed(0)} &rarr; ${t.balance_after.toFixed(0)}
                       </span>
                     </div>
                   ))}
@@ -224,41 +223,41 @@ export default function Paper() {
 
       <Card title="Trade History">
         {trades.length === 0 ? (
-          <p className="text-sm text-text-secondary py-4 text-center">No trades yet</p>
+          <Empty icon={BarChart3} title="No trades yet" />
         ) : (
           <div className="overflow-auto max-h-80">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[720px]">
               <thead>
-                <tr className="text-left text-text-secondary border-b border-card-border">
-                  <th className="pb-2 pr-4">Symbol</th>
+                <tr className="text-left text-muted-foreground border-b border-border/50">
+                  <th className="pb-2 pr-4 pl-3">Symbol</th>
                   <th className="pb-2 pr-4">Direction</th>
                   <th className="pb-2 pr-4">Entry</th>
                   <th className="pb-2 pr-4">Exit</th>
                   <th className="pb-2 pr-4">Size</th>
-                  <th className="pb-2 pr-4">P&L</th>
+                  <th className="pb-2 pr-4">P&amp;L</th>
                   <th className="pb-2 pr-4">Return</th>
                   <th className="pb-2 pr-4">Bars</th>
-                  <th className="pb-2">Reason</th>
+                  <th className="pb-2 pr-3">Reason</th>
                 </tr>
               </thead>
               <tbody>
                 {trades.map((t: PaperTrade, i: number) => (
-                  <tr key={i} className="border-b border-card-border/30 hover:bg-gray-800/50">
-                    <td className="py-2 pr-4 font-medium">{t.symbol}</td>
-                    <td className="py-2 pr-4">
+                  <tr key={i} className="hover:bg-muted/30 motion-safe:transition-colors">
+                    <td className="py-2.5 pl-3 pr-4 rounded-l-lg font-medium">{t.symbol}</td>
+                    <td className="py-2.5 pr-4">
                       <Badge label={t.direction.toUpperCase()} variant={t.direction === "long" ? "success" : "danger"} />
                     </td>
-                    <td className="py-2 pr-4 font-mono text-xs">${t.entry_price.toFixed(2)}</td>
-                    <td className="py-2 pr-4 font-mono text-xs">${t.exit_price.toFixed(2)}</td>
-                    <td className="py-2 pr-4">{t.size.toFixed(4)}</td>
-                    <td className={`py-2 pr-4 ${t.net_pnl >= 0 ? "text-profit" : "text-loss"}`}>
+                    <td className="py-2.5 pr-4 font-mono text-xs">${t.entry_price.toFixed(2)}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs">${t.exit_price.toFixed(2)}</td>
+                    <td className="py-2.5 pr-4 font-mono">{t.size.toFixed(4)}</td>
+                    <td className={cn("py-2.5 pr-4 font-mono", t.net_pnl >= 0 ? "text-profit" : "text-loss")}>
                       ${t.net_pnl.toFixed(2)}
                     </td>
-                    <td className={`py-2 pr-4 ${t.return_pct >= 0 ? "text-profit" : "text-loss"}`}>
+                    <td className={cn("py-2.5 pr-4 font-mono", t.return_pct >= 0 ? "text-profit" : "text-loss")}>
                       {(t.return_pct * 100).toFixed(2)}%
                     </td>
-                    <td className="py-2 pr-4 text-text-secondary">{t.holding_bars}</td>
-                    <td className="py-2">
+                    <td className="py-2.5 pr-4 text-muted-foreground">{t.holding_bars}</td>
+                    <td className="py-2.5 pr-3 rounded-r-lg">
                       <Badge label={t.exit_reason} variant={
                         t.exit_reason === "stop_loss" ? "danger" :
                         t.exit_reason === "max_hold" ? "warning" : "default"

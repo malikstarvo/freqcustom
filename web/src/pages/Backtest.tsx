@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, StatCard, Badge } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Empty } from "@/components/ui/empty";
+import { cn } from "@/lib/utils";
 import { api, type BacktestStatus, type BacktestHistoryEntry, type StrategyListResponse } from "@/lib/api";
 import { BarChart3, Play, Trash2, RotateCcw, FileText, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
@@ -30,7 +35,6 @@ export default function Backtest() {
       const s = await api.backtest();
       setStatus(s);
       if (s.running === false && s.status !== "not_started") {
-        // Backtest finished or errored
         if (pollIntervalRef.current) {
           clearInterval(pollIntervalRef.current);
           pollIntervalRef.current = null;
@@ -122,43 +126,42 @@ export default function Backtest() {
   const tradeList = (stats?.["trades"] as Array<Record<string, unknown>>) || [];
 
   const statusIcon = () => {
-    if (status?.running) return <AlertCircle size={16} className="text-warning" />;
-    if (status?.status === "ended") return <CheckCircle size={16} className="text-profit" />;
-    if (status?.status === "error") return <XCircle size={16} className="text-loss" />;
+    if (status?.running) return <AlertCircle className="size-4 text-warning" aria-hidden="true" />;
+    if (status?.status === "ended") return <CheckCircle className="size-4 text-profit" aria-hidden="true" />;
+    if (status?.status === "error") return <XCircle className="size-4 text-loss" aria-hidden="true" />;
     return null;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <BarChart3 className="text-accent" /> Backtest
+        <h2 className="text-xl font-bold flex items-center gap-2.5">
+          <BarChart3 className="size-5 text-primary" aria-hidden="true" /> Backtest
         </h2>
         {status?.running && (
           <Badge label="Running" variant="warning" />
         )}
       </div>
 
-      {/* Runner Form */}
       <Card title="Backtest Runner">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Strategy</label>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase">Strategy</label>
             <select
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none focus:border-primary"
               value={form.strategy}
               onChange={(e) => setForm({ ...form, strategy: e.target.value })}
             >
-              <option value="">Select strategy...</option>
+              <option value="">Select strategy\u2026</option>
               {strategies.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Timeframe</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase">Timeframe</label>
             <select
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none focus:border-primary"
               value={form.timeframe}
               onChange={(e) => setForm({ ...form, timeframe: e.target.value })}
             >
@@ -167,50 +170,55 @@ export default function Backtest() {
               ))}
             </select>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Timerange</label>
-            <input
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase" htmlFor="timerange">Timerange</label>
+            <Input
+              id="timerange"
               type="text"
               value={form.timerange}
               onChange={(e) => setForm({ ...form, timerange: e.target.value })}
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full"
               placeholder="YYYYMMDD-YYYYMMDD"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Max Trades</label>
-            <input
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase" htmlFor="max_open_trades">Max Trades</label>
+            <Input
+              id="max_open_trades"
               type="text"
               value={form.max_open_trades}
               onChange={(e) => setForm({ ...form, max_open_trades: e.target.value })}
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Stake Amount</label>
-            <input
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase" htmlFor="stake_amount">Stake Amount</label>
+            <Input
+              id="stake_amount"
               type="text"
               value={form.stake_amount}
               onChange={(e) => setForm({ ...form, stake_amount: e.target.value })}
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">Dry Wallet</label>
-            <input
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase" htmlFor="dry_run_wallet">Dry Wallet</label>
+            <Input
+              id="dry_run_wallet"
               type="number"
               value={form.dry_run_wallet}
               onChange={(e) => setForm({ ...form, dry_run_wallet: Number(e.target.value) })}
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-text-secondary uppercase">FreqAI Model</label>
-            <input
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground uppercase" htmlFor="freqaimodel">FreqAI Model</label>
+            <Input
+              id="freqaimodel"
               type="text"
               value={form.freqaimodel}
               onChange={(e) => setForm({ ...form, freqaimodel: e.target.value })}
-              className="w-full px-3 py-2 bg-card-bg border border-card-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent"
+              className="w-full"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -219,123 +227,125 @@ export default function Backtest() {
               type="checkbox"
               checked={form.enable_protections}
               onChange={(e) => setForm({ ...form, enable_protections: e.target.checked })}
-              className="w-4 h-4 rounded border-card-border bg-card-bg text-accent"
+              className="size-4 rounded border-border/50 bg-muted/30 text-primary"
             />
-            <label htmlFor="protections" className="text-sm text-text-secondary">Enable protections</label>
+            <label htmlFor="protections" className="text-sm text-muted-foreground">Enable protections</label>
           </div>
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <button
+          <Button
             onClick={startBacktest}
             disabled={!form.strategy || loading}
-            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-[#0f1119] rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="default"
           >
-            <Play size={14} /> {loading ? "Running..." : "Run Backtest"}
-          </button>
-          <button
+            <Play aria-hidden="true" /> {loading ? "Running\u2026" : "Run Backtest"}
+          </Button>
+          <Button
             onClick={resetBacktest}
-            className="flex items-center gap-2 px-4 py-2 border border-card-border hover:bg-card-border/30 rounded-lg text-sm text-text-secondary"
+            variant="outline"
           >
-            <RotateCcw size={14} /> Reset
-          </button>
+            <RotateCcw aria-hidden="true" /> Reset
+          </Button>
         </div>
 
         {error && (
-          <div className="mt-3 p-3 bg-red-950/50 border border-red-500/30 rounded-lg text-sm text-red-400">
-            {error}
-          </div>
+          <Alert variant="destructive" className="mt-3">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         {status?.running && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 flex flex-col gap-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-text-secondary">{status.status_msg}</span>
-              <span className="text-accent">{(status.progress * 100).toFixed(0)}%</span>
+              <span className="text-muted-foreground">{status.status_msg}</span>
+              <span className="text-primary font-mono">{(status.progress * 100).toFixed(0)}%</span>
             </div>
             <Progress value={status.progress * 100} />
           </div>
         )}
       </Card>
 
-      {/* Results */}
-      {(result && resultData) && (
+      {result && resultData && (
         <Card title="Results">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <StatCard label="Win Rate" value={winrate !== undefined ? `${(winrate * 100).toFixed(1)}%` : "—"} />
-            <StatCard label="Profit Factor" value={profitFactor !== undefined ? profitFactor.toFixed(2) : "—"} />
-            <StatCard label="Sharpe" value={sharpe !== undefined ? sharpe.toFixed(2) : "—"} />
-            <StatCard label="Drawdown" value={drawdown !== undefined ? `${(drawdown * 100).toFixed(2)}%` : "—"} />
-            <StatCard label="Trades" value={totalTrades ?? "—"} />
-            <StatCard label="Return" value={returnPct !== undefined ? `${returnPct.toFixed(2)}%` : "—"}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <StatCard label="Win Rate" value={winrate !== undefined ? `${(winrate * 100).toFixed(1)}%` : "\u2014"} />
+            <StatCard label="Profit Factor" value={profitFactor !== undefined ? profitFactor.toFixed(2) : "\u2014"} />
+            <StatCard label="Sharpe" value={sharpe !== undefined ? sharpe.toFixed(2) : "\u2014"} />
+            <StatCard label="Drawdown" value={drawdown !== undefined ? `${(drawdown * 100).toFixed(2)}%` : "\u2014"} />
+            <StatCard label="Trades" value={totalTrades ?? "\u2014"} />
+            <StatCard label="Return" value={returnPct !== undefined ? `${returnPct.toFixed(2)}%` : "\u2014"}
               trend={returnPct !== undefined && returnPct >= 0 ? `+${returnPct.toFixed(2)}%` : returnPct !== undefined ? `${returnPct.toFixed(2)}%` : ""} />
           </div>
 
-          <h4 className="text-sm font-semibold text-text-secondary mb-2">Trade Log</h4>
-          <div className="overflow-auto max-h-[40vh] border border-card-border rounded-lg">
-            <table className="w-full text-xs">
-              <thead className="bg-card-bg sticky top-0">
-                <tr>
-                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Pair</th>
-                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Dir</th>
-                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Entry</th>
-                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Exit</th>
-                  <th className="px-3 py-2 text-right text-text-secondary font-medium">P&L%</th>
-                  <th className="px-3 py-2 text-right text-text-secondary font-medium">Bars</th>
-                  <th className="px-3 py-2 text-left text-text-secondary font-medium">Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tradeList.slice(0, 50).map((t, i) => (
-                  <tr key={i} className="border-t border-card-border/30">
-                    <td className="px-3 py-1.5 font-medium">{t["pair"] as string}</td>
-                    <td className="px-3 py-1.5">{(t["is_short"] as boolean) ? "Short" : "Long"}</td>
-                    <td className="px-3 py-1.5 text-right">{(t["open_rate"] as number)?.toFixed(4)}</td>
-                    <td className="px-3 py-1.5 text-right">{(t["close_rate"] as number)?.toFixed(4) ?? "—"}</td>
-                    <td className={`px-3 py-1.5 text-right font-medium ${((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0) >= 0 ? "text-profit" : "text-loss"}`}>
-                      {((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0).toFixed(2)}%
-                    </td>
-                    <td className="px-3 py-1.5 text-right">{t["trade_duration"] as number ?? t["duration"] as number ?? "—"}</td>
-                    <td className="px-3 py-1.5 text-text-secondary">{t["exit_reason"] as string ?? t["sell_reason"] as string ?? "—"}</td>
+          <h4 className="text-sm font-semibold text-muted-foreground mb-2">Trade Log</h4>
+          {tradeList.length === 0 ? (
+            <Empty title="No Trades" />
+          ) : (
+            <div className="overflow-auto max-h-[40vh] border border-border/50 rounded-lg">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/30 sticky top-0">
+                  <tr>
+                    <th className="px-3 py-2.5 text-left text-muted-foreground font-medium">Pair</th>
+                    <th className="px-3 py-2.5 text-left text-muted-foreground font-medium">Dir</th>
+                    <th className="px-3 py-2.5 text-right text-muted-foreground font-medium">Entry</th>
+                    <th className="px-3 py-2.5 text-right text-muted-foreground font-medium">Exit</th>
+                    <th className="px-3 py-2.5 text-right text-muted-foreground font-medium">P&amp;L%</th>
+                    <th className="px-3 py-2.5 text-right text-muted-foreground font-medium">Bars</th>
+                    <th className="px-3 py-2.5 text-left text-muted-foreground font-medium">Reason</th>
                   </tr>
-                ))}
-                {tradeList.length === 0 && (
-                  <tr><td colSpan={7} className="px-3 py-4 text-center text-text-secondary">No trades</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {tradeList.slice(0, 50).map((t, i) => (
+                    <tr key={i} className="hover:bg-muted/30 motion-safe:transition-colors">
+                      <td className="px-3 py-2.5 font-bold">{t["pair"] as string}</td>
+                      <td className="px-3 py-2.5">{(t["is_short"] as boolean) ? "Short" : "Long"}</td>
+                      <td className="px-3 py-2.5 text-right font-mono">{(t["open_rate"] as number)?.toFixed(4)}</td>
+                      <td className="px-3 py-2.5 text-right font-mono">{(t["close_rate"] as number)?.toFixed(4) ?? "\u2014"}</td>
+                      <td className={cn("px-3 py-2.5 text-right font-mono font-bold", ((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0) >= 0 ? "text-profit" : "text-loss")}>
+                        {((t["profit_pct"] as number) ?? (t["profit_ratio"] as number) ?? 0).toFixed(2)}%
+                      </td>
+                      <td className="px-3 py-2.5 text-right font-mono">{t["trade_duration"] as number ?? t["duration"] as number ?? "\u2014"}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{t["exit_reason"] as string ?? t["sell_reason"] as string ?? "\u2014"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       )}
 
-      {/* History */}
       <Card title="Recent Backtests">
         {history.length === 0 ? (
-          <p className="text-sm text-text-secondary">No backtest history found.</p>
+          <Empty title="No Backtest History" />
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {history.map((h) => (
-              <div key={h.filename} className="flex items-center justify-between p-3 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
+              <div key={h.filename} className="flex items-center justify-between p-3 bg-muted/30 border border-border/50 rounded-lg hover:bg-muted/50 motion-safe:transition-colors">
                 <div className="flex items-center gap-3">
-                  <FileText size={16} className="text-text-secondary" />
+                  <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
                   <div>
-                    <div className="text-sm font-medium">{h.filename}</div>
-                    <div className="text-xs text-text-secondary">{h.strategy} · {h.timeframe ?? "—"}</div>
+                    <div className="text-sm font-bold">{h.filename}</div>
+                    <div className="text-xs text-muted-foreground">{h.strategy} \u00b7 {h.timeframe ?? "\u2014"}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     onClick={() => loadHistoryResult(h)}
-                    className="px-3 py-1 text-xs bg-accent/10 hover:bg-accent/20 text-accent rounded"
+                    variant="default"
+                    size="sm"
                   >
                     View
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => deleteHistory(h.filename)}
-                    className="px-3 py-1 text-xs bg-red-500/10 hover:bg-red-500/20 text-loss rounded"
+                    variant="destructive"
+                    size="icon-sm"
+                    aria-label="Delete"
                   >
-                    <Trash2 size={12} />
-                  </button>
+                    <Trash2 aria-hidden="true" />
+                  </Button>
                 </div>
               </div>
             ))}

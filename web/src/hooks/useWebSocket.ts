@@ -14,10 +14,30 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
   const retriesRef = useRef(0);
 
   const connect = useCallback(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    let wsHost = window.location.host;
+    let protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    let wsPath = wsUrl;
+
+    const apiEnv = process.env.NEXT_PUBLIC_API_URL;
+    if (apiEnv && apiEnv.startsWith("http")) {
+      try {
+        const urlObj = new URL(apiEnv);
+        wsHost = urlObj.host;
+        protocol = urlObj.protocol === "https:" ? "wss:" : "ws:";
+        const basePath = urlObj.pathname.replace(/\/$/, "");
+        if (wsUrl.startsWith("/api/v1/")) {
+          wsPath = `${basePath}${wsUrl.substring(7)}`;
+        } else {
+          wsPath = `${basePath}${wsUrl}`;
+        }
+      } catch (e) {
+        console.error("Failed to parse NEXT_PUBLIC_API_URL for WebSocket:", e);
+      }
+    }
+
     const token = localStorage.getItem("freqtrade-token");
     const tokenParam = token ? `?token=${token}` : "";
-    const url = `${protocol}//${window.location.host}${wsUrl}${tokenParam}`;
+    const url = `${protocol}//${wsHost}${wsPath}${tokenParam}`;
 
     const ws = new WebSocket(url);
     wsRef.current = ws;

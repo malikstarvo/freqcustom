@@ -2,15 +2,22 @@ const API_BASE = (typeof process !== "undefined" && (process.env as any).NEXT_PU
 const API_USER = "admin";
 const API_PASS = "admin";
 
-let authToken: string | null = typeof window !== "undefined" ? localStorage.getItem("freqtrade-token") : null;
+let authToken: string | null = null;
 let loginPromise: Promise<void> | null = null;
 
+function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("freqtrade-token");
+}
+
 async function ensureAuth(): Promise<void> {
+  if (!authToken) {
+    authToken = getStoredToken();
+  }
   if (authToken) return;
   if (loginPromise) return loginPromise;
   loginPromise = (async () => {
     try {
-      // Freqtrade uses HTTP Basic Auth for token login
       const basicAuth = btoa(`${API_USER}:${API_PASS}`);
       const resp = await fetch(`${API_BASE}/token/login`, {
         method: "POST",
@@ -22,7 +29,9 @@ async function ensureAuth(): Promise<void> {
       if (!resp.ok) throw new Error(`Login failed: ${resp.status}`);
       const data = await resp.json();
       authToken = data.access_token as string;
-      localStorage.setItem("freqtrade-token", authToken);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("freqtrade-token", authToken);
+      }
     } catch (e) {
       console.error("Auth failed:", e);
     } finally {
@@ -30,11 +39,6 @@ async function ensureAuth(): Promise<void> {
     }
   })();
   return loginPromise;
-}
-
-// Auto-trigger login on load (browser only)
-if (typeof window !== "undefined") {
-  ensureAuth();
 }
 
 async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -53,7 +57,9 @@ async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T>
   if (resp.status === 401) {
     // Token expired — clear and retry once
     authToken = null;
-    localStorage.removeItem("freqtrade-token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("freqtrade-token");
+    }
     await ensureAuth();
     const retryResp = await fetch(`${API_BASE}${endpoint}`, {
       ...options,

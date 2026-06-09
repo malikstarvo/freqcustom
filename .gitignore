@@ -116,3 +116,9 @@ target/
 !config_examples/config_freqai.example.json
 
 docker-compose-*.yml
+
+# Next.js web dashboard
+web/.next/
+web/node_modules/
+web/out/
+

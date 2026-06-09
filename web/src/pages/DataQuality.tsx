@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Card, Badge } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Empty } from "@/components/ui/empty";
 import { SearchInput } from "@/components/ui/search-input";
+import { cn } from "@/lib/utils";
 import { api, type WhitelistResponse, type PairHistory } from "@/lib/api";
 import { Database, Clock, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
 
@@ -24,7 +27,7 @@ export default function DataQuality() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [timeframe, setTimeframe] = useState("1h");
-  const [lastCheck, setLastCheck] = useState<string>("—");
+  const [lastCheck, setLastCheck] = useState<string>("\u2014");
 
   const checkData = async () => {
     setLoading(true);
@@ -33,7 +36,7 @@ export default function DataQuality() {
       const wl = await api.whitelist();
       setWhitelist(wl);
       const items: DataQualityItem[] = [];
-      const pairs = wl.whitelist.slice(0, 20); // Limit to avoid too many API calls
+      const pairs = wl.whitelist.slice(0, 20);
       for (const pair of pairs) {
         try {
           const hist = await api.pairCandles(pair, timeframe, 1);
@@ -57,10 +60,10 @@ export default function DataQuality() {
           items.push({
             pair,
             timeframe,
-            lastCandle: "—",
+            lastCandle: "\u2014",
             candleCount: 0,
-            dataStart: "—",
-            dataStop: "—",
+            dataStart: "\u2014",
+            dataStop: "\u2014",
             ageHours: Infinity,
             status: "missing",
           });
@@ -90,142 +93,137 @@ export default function DataQuality() {
   const total = qualityData.length || 1;
 
   const statusConfig = {
-    fresh: { color: "text-profit", bg: "bg-green-950/50", border: "border-green-500/30", icon: <CheckCircle size={14} /> },
-    stale: { color: "text-warning", bg: "bg-yellow-950/50", border: "border-yellow-500/30", icon: <AlertTriangle size={14} /> },
-    missing: { color: "text-loss", bg: "bg-red-950/50", border: "border-red-500/30", icon: <AlertTriangle size={14} /> },
+    fresh: { color: "text-profit", bg: "bg-profit/10", border: "border-profit/25", icon: <CheckCircle className="size-3.5" /> },
+    stale: { color: "text-warning", bg: "bg-warning/10", border: "border-warning/25", icon: <AlertTriangle className="size-3.5" /> },
+    missing: { color: "text-loss", bg: "bg-loss/10", border: "border-loss/25", icon: <AlertTriangle className="size-3.5" /> },
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Database className="text-accent" /> Data Quality
+        <h2 className="text-xl font-bold flex items-center gap-2.5">
+          <Database className="size-5 text-primary" aria-hidden="true" /> Data Quality
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-secondary">Last check: {lastCheck}</span>
-          <button
+          <span className="text-xs text-muted-foreground">Last check: {lastCheck}</span>
+          <Button
             onClick={checkData}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 bg-accent hover:bg-accent-hover text-[#0f1119] rounded-lg text-xs font-semibold disabled:opacity-50"
+            variant="default"
+            size="sm"
           >
-            <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Check
-          </button>
+            <RefreshCw aria-hidden="true" className={loading ? "animate-spin" : ""} /> Check
+          </Button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-card-bg border border-green-500/30 rounded-lg p-4">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-muted/30 border border-profit/25 rounded-lg p-4">
           <div className="flex items-center gap-2 text-profit mb-1">
-            <CheckCircle size={16} />
-            <span className="text-xs uppercase font-medium">Fresh</span>
+            <CheckCircle className="size-4" aria-hidden="true" />
+            <span className="text-xs uppercase font-bold">Fresh</span>
           </div>
-          <div className="text-2xl font-bold">{freshCount}</div>
-          <div className="text-xs text-text-secondary">{(freshCount / total * 100).toFixed(0)}% coverage</div>
+          <div className="text-2xl font-bold font-mono">{freshCount}</div>
+          <div className="text-xs text-muted-foreground">{(freshCount / total * 100).toFixed(0)}% coverage</div>
         </div>
-        <div className="bg-card-bg border border-yellow-500/30 rounded-lg p-4">
+        <div className="bg-muted/30 border border-warning/25 rounded-lg p-4">
           <div className="flex items-center gap-2 text-warning mb-1">
-            <AlertTriangle size={16} />
-            <span className="text-xs uppercase font-medium">Stale</span>
+            <AlertTriangle className="size-4" aria-hidden="true" />
+            <span className="text-xs uppercase font-bold">Stale</span>
           </div>
-          <div className="text-2xl font-bold">{staleCount}</div>
-          <div className="text-xs text-text-secondary">{(staleCount / total * 100).toFixed(0)}% coverage</div>
+          <div className="text-2xl font-bold font-mono">{staleCount}</div>
+          <div className="text-xs text-muted-foreground">{(staleCount / total * 100).toFixed(0)}% coverage</div>
         </div>
-        <div className="bg-card-bg border border-red-500/30 rounded-lg p-4">
+        <div className="bg-muted/30 border border-loss/25 rounded-lg p-4">
           <div className="flex items-center gap-2 text-loss mb-1">
-            <AlertTriangle size={16} />
-            <span className="text-xs uppercase font-medium">Missing</span>
+            <AlertTriangle className="size-4" aria-hidden="true" />
+            <span className="text-xs uppercase font-bold">Missing</span>
           </div>
-          <div className="text-2xl font-bold">{missingCount}</div>
-          <div className="text-xs text-text-secondary">{(missingCount / total * 100).toFixed(0)}% coverage</div>
+          <div className="text-2xl font-bold font-mono">{missingCount}</div>
+          <div className="text-xs text-muted-foreground">{(missingCount / total * 100).toFixed(0)}% coverage</div>
         </div>
       </div>
 
-      {/* Coverage Bar */}
       <Card title="Coverage Overview">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-text-secondary">Overall data quality</span>
-            <span className="font-medium">{freshCount}/{qualityData.length} pairs fresh</span>
+            <span className="text-muted-foreground">Overall data quality</span>
+            <span className="font-bold">{freshCount}/{qualityData.length} pairs fresh</span>
           </div>
-          <div className="w-full h-3 bg-card-border rounded-full overflow-hidden flex">
+          <div className="w-full h-3 bg-muted rounded-full overflow-hidden flex">
             <div className="h-full bg-profit" style={{ width: `${(freshCount / total) * 100}%` }} />
             <div className="h-full bg-warning" style={{ width: `${(staleCount / total) * 100}%` }} />
             <div className="h-full bg-loss" style={{ width: `${(missingCount / total) * 100}%` }} />
           </div>
-          <div className="flex items-center gap-4 text-xs text-text-secondary">
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-profit" /> Fresh</div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-warning" /> Stale</div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-loss" /> Missing</div>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-profit" /> Fresh</div>
+            <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-warning" /> Stale</div>
+            <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-loss" /> Missing</div>
           </div>
         </div>
       </Card>
 
-      {/* Controls */}
       <div className="flex items-center gap-3">
         <div className="flex gap-1">
           {TIMEFRAMES.map(tf => (
-            <button
+            <Button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
-                timeframe === tf
-                  ? "bg-accent text-[#0f1119]"
-                  : "bg-card-bg border border-card-border text-text-secondary"
-              }`}
+              variant={timeframe === tf ? "default" : "outline"}
+              size="sm"
             >
               {tf}
-            </button>
+            </Button>
           ))}
         </div>
-        <SearchInput value={search} onChange={setSearch} placeholder="Search pair..." className="max-w-xs" />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search pair\u2026" className="max-w-xs" />
       </div>
 
-      {/* Data Quality Table */}
       <Card title={`Pair Data Quality (${filtered.length} shown)`}>
-        <div className="overflow-auto max-h-[60vh]">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-card-bg">
-              <tr className="text-left text-text-secondary border-b border-card-border">
-                <th className="pb-2 pr-4">Pair</th>
-                <th className="pb-2 pr-4">Status</th>
-                <th className="pb-2 pr-4">Last Candle</th>
-                <th className="pb-2 pr-4">Age</th>
-                <th className="pb-2 pr-4">Candles</th>
-                <th className="pb-2">Range</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((d) => {
-                const cfg = statusConfig[d.status];
-                return (
-                  <tr key={d.pair} className={`border-b border-card-border/30 ${cfg.bg}`}>
-                    <td className="py-2 pr-4 font-medium">{d.pair}</td>
-                    <td className="py-2 pr-4">
-                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${cfg.border} ${cfg.color}`}>
-                        {cfg.icon}
-                        {d.status.toUpperCase()}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-4 text-text-secondary">{d.lastCandle}</td>
-                    <td className="py-2 pr-4">
-                      {d.ageHours === Infinity ? "—" : (
-                        <span className={d.ageHours > 6 ? "text-warning" : "text-profit"}>
-                          {d.ageHours > 24 ? `${(d.ageHours / 24).toFixed(1)}d` : `${d.ageHours.toFixed(1)}h`}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2 pr-4">{d.candleCount}</td>
-                    <td className="py-2 text-xs text-text-secondary">{d.dataStart} → {d.dataStop}</td>
-                  </tr>
-                );
-              })}
-              {filtered.length === 0 && !loading && (
-                <tr><td colSpan={6} className="py-8 text-center text-text-secondary">No data</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {filtered.length === 0 && !loading ? (
+          <Empty title="No Data" />
+        ) : (
+          <div className="overflow-auto max-h-[60vh]">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/30 sticky top-0">
+                <tr>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Pair</th>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Status</th>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Last Candle</th>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Age</th>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Candles</th>
+                  <th className="py-2.5 px-3 text-left text-muted-foreground font-medium">Range</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((d) => {
+                  const cfg = statusConfig[d.status];
+                  return (
+                    <tr key={d.pair} className="hover:bg-muted/30 motion-safe:transition-colors">
+                      <td className="py-2.5 px-3 font-bold">{d.pair}</td>
+                      <td className="py-2.5 px-3">
+                        <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border w-fit", cfg.border, cfg.color)}>
+                          {cfg.icon}
+                          {d.status.toUpperCase()}
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3 text-muted-foreground font-mono">{d.lastCandle}</td>
+                      <td className="py-2.5 px-3 font-mono">
+                        {d.ageHours === Infinity ? "\u2014" : (
+                          <span className={d.ageHours > 6 ? "text-warning" : "text-profit"}>
+                            {d.ageHours > 24 ? `${(d.ageHours / 24).toFixed(1)}d` : `${d.ageHours.toFixed(1)}h`}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono">{d.candleCount}</td>
+                      <td className="py-2.5 px-3 text-xs text-muted-foreground font-mono">{d.dataStart} \u2192 {d.dataStop}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
     </div>
   );

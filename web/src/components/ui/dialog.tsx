@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
@@ -74,8 +72,7 @@ function DialogContent({
               className="absolute top-2 right-2"
               size="icon-sm"
             >
-              <XIcon
-              />
+              <XIcon data-icon="inline-start" aria-hidden="true" />
               <span className="sr-only">Close</span>
             </Button>
           </DialogPrimitive.Close>

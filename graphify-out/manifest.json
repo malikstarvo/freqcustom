@@ -1758,5 +1758,670 @@
     "mtime": 1780887841.2594879,
     "ast_hash": "5d652a2f3ec2cdb454d75afa0a6af9a4",
     "semantic_hash": "5d652a2f3ec2cdb454d75afa0a6af9a4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\javascripts\\config.js": {
+    "mtime": 1780887840.799145,
+    "ast_hash": "bf8fc4da94dfe46888e4da36f1d54891",
+    "semantic_hash": "bf8fc4da94dfe46888e4da36f1d54891"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\SETUP.md": {
+    "mtime": 1780978038.7434962,
+    "ast_hash": "855c32304ad99fd80117d1ef2f0e3c9d",
+    "semantic_hash": "855c32304ad99fd80117d1ef2f0e3c9d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\advanced-backtesting.md": {
+    "mtime": 1780887840.5074918,
+    "ast_hash": "b7286779a60f3819950587fead55ad2e",
+    "semantic_hash": "b7286779a60f3819950587fead55ad2e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\advanced-hyperopt.md": {
+    "mtime": 1780887840.509016,
+    "ast_hash": "3affafb6d0f3661bf509ce4ba9ed7fdb",
+    "semantic_hash": "3affafb6d0f3661bf509ce4ba9ed7fdb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\advanced-orderflow.md": {
+    "mtime": 1780887840.511033,
+    "ast_hash": "9ef145e5b259c75f53dbe4e702e65bf3",
+    "semantic_hash": "9ef145e5b259c75f53dbe4e702e65bf3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\advanced-setup.md": {
+    "mtime": 1780887840.5120282,
+    "ast_hash": "13b627d354efa6fa33ffe3e19cdc29dc",
+    "semantic_hash": "13b627d354efa6fa33ffe3e19cdc29dc"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\ai-trading.md": {
+    "mtime": 1780900199.5368924,
+    "ast_hash": "df8d2830c5e7619248f4c29359c4e6d1",
+    "semantic_hash": "df8d2830c5e7619248f4c29359c4e6d1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\backtesting.md": {
+    "mtime": 1780887840.6680079,
+    "ast_hash": "ac059a9478b862eb54783e767899f051",
+    "semantic_hash": "ac059a9478b862eb54783e767899f051"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\bot-basics.md": {
+    "mtime": 1780887840.6706371,
+    "ast_hash": "289c4c335786f30d05854cd405c30638",
+    "semantic_hash": "289c4c335786f30d05854cd405c30638"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\bot-usage.md": {
+    "mtime": 1780887840.6737492,
+    "ast_hash": "aab76ec9ff9401e2175273580731a639",
+    "semantic_hash": "aab76ec9ff9401e2175273580731a639"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\backtesting-analysis.md": {
+    "mtime": 1780887840.678373,
+    "ast_hash": "d560397b75ad5a97a179dbe2000ca1a9",
+    "semantic_hash": "d560397b75ad5a97a179dbe2000ca1a9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\backtesting-show.md": {
+    "mtime": 1780887840.6800346,
+    "ast_hash": "c25ee5054493b504fd7d96739d314a0a",
+    "semantic_hash": "c25ee5054493b504fd7d96739d314a0a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\backtesting.md": {
+    "mtime": 1780887840.683143,
+    "ast_hash": "f211304d64d9951318e5afd39cc9f3b7",
+    "semantic_hash": "f211304d64d9951318e5afd39cc9f3b7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\convert-data.md": {
+    "mtime": 1780887840.6850307,
+    "ast_hash": "a642be25239dd480d65e22d174274cdb",
+    "semantic_hash": "a642be25239dd480d65e22d174274cdb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\convert-db.md": {
+    "mtime": 1780887840.6871407,
+    "ast_hash": "bf479708e74ddc8aaf2b3538071b5e82",
+    "semantic_hash": "bf479708e74ddc8aaf2b3538071b5e82"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\convert-trade-data.md": {
+    "mtime": 1780887840.6881275,
+    "ast_hash": "bcd00b16fd2d6786b2bc4b0fd26d724a",
+    "semantic_hash": "bcd00b16fd2d6786b2bc4b0fd26d724a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\create-userdir.md": {
+    "mtime": 1780887840.6896713,
+    "ast_hash": "c493d34c37408ccdda316d19b07079ae",
+    "semantic_hash": "c493d34c37408ccdda316d19b07079ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\download-data.md": {
+    "mtime": 1780887840.6916716,
+    "ast_hash": "e7fcb946a706fb8e4561693a00dfc534",
+    "semantic_hash": "e7fcb946a706fb8e4561693a00dfc534"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\edge.md": {
+    "mtime": 1780887840.6937983,
+    "ast_hash": "2679233a7fc6dccb88b0ebd4617a0285",
+    "semantic_hash": "2679233a7fc6dccb88b0ebd4617a0285"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\freqtrade-client.md": {
+    "mtime": 1780887840.6966646,
+    "ast_hash": "6d5f22855b47b406db92aa95c5472249",
+    "semantic_hash": "6d5f22855b47b406db92aa95c5472249"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\hyperopt-list.md": {
+    "mtime": 1780887840.700206,
+    "ast_hash": "d50e7af615bdc14dc6473e4d93642a4d",
+    "semantic_hash": "d50e7af615bdc14dc6473e4d93642a4d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\hyperopt-show.md": {
+    "mtime": 1780887840.7022111,
+    "ast_hash": "471b8bbc33991439038c769661471efe",
+    "semantic_hash": "471b8bbc33991439038c769661471efe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\hyperopt.md": {
+    "mtime": 1780887840.7032125,
+    "ast_hash": "eeaca44e85ec1333026061d6f14861e6",
+    "semantic_hash": "eeaca44e85ec1333026061d6f14861e6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\install-ui.md": {
+    "mtime": 1780887840.704228,
+    "ast_hash": "9092ce4b5cf69f0ca83ea46ddd35ad1e",
+    "semantic_hash": "9092ce4b5cf69f0ca83ea46ddd35ad1e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-data.md": {
+    "mtime": 1780887840.7057438,
+    "ast_hash": "2955107a7633ff3ac2d053e749c379c4",
+    "semantic_hash": "2955107a7633ff3ac2d053e749c379c4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-exchanges.md": {
+    "mtime": 1780887840.7067525,
+    "ast_hash": "23bf96873dd04730fa67af52d863142f",
+    "semantic_hash": "23bf96873dd04730fa67af52d863142f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-freqaimodels.md": {
+    "mtime": 1780887840.7088246,
+    "ast_hash": "2c1e767d9795396bf10ad69d765732ad",
+    "semantic_hash": "2c1e767d9795396bf10ad69d765732ad"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-hyperoptloss.md": {
+    "mtime": 1780887840.7098417,
+    "ast_hash": "27c828e107f7505d19e12f62a30b3144",
+    "semantic_hash": "27c828e107f7505d19e12f62a30b3144"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-markets.md": {
+    "mtime": 1780887840.7118547,
+    "ast_hash": "a88dc590850f1034b66919901d485fc9",
+    "semantic_hash": "a88dc590850f1034b66919901d485fc9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-pairs.md": {
+    "mtime": 1780887840.7138405,
+    "ast_hash": "7af631bfb841f659b742e5822f5ed0ea",
+    "semantic_hash": "7af631bfb841f659b742e5822f5ed0ea"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-strategies.md": {
+    "mtime": 1780887840.714842,
+    "ast_hash": "5cc3185a14d8cd26e826bb87068faf89",
+    "semantic_hash": "5cc3185a14d8cd26e826bb87068faf89"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\list-timeframes.md": {
+    "mtime": 1780887840.7168527,
+    "ast_hash": "c961dd5afc2cb4dd48102bfee0a9c870",
+    "semantic_hash": "c961dd5afc2cb4dd48102bfee0a9c870"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\lookahead-analysis.md": {
+    "mtime": 1780887840.7188523,
+    "ast_hash": "3d016bef068c4ade380256e398f540fd",
+    "semantic_hash": "3d016bef068c4ade380256e398f540fd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\main.md": {
+    "mtime": 1780887840.7201443,
+    "ast_hash": "6c9f5f1c7b6b98fb7fa3d1f5779040d2",
+    "semantic_hash": "6c9f5f1c7b6b98fb7fa3d1f5779040d2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\new-config.md": {
+    "mtime": 1780887840.7211692,
+    "ast_hash": "a06839ec15e2d993cf7919e8cf599e5b",
+    "semantic_hash": "a06839ec15e2d993cf7919e8cf599e5b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\new-strategy.md": {
+    "mtime": 1780887840.7221658,
+    "ast_hash": "a1c3aca8a6797057e454a3326996c4aa",
+    "semantic_hash": "a1c3aca8a6797057e454a3326996c4aa"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\plot-dataframe.md": {
+    "mtime": 1780887840.7231512,
+    "ast_hash": "0eccff54acfc757e855972b49fd5552f",
+    "semantic_hash": "0eccff54acfc757e855972b49fd5552f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\plot-profit.md": {
+    "mtime": 1780887840.724151,
+    "ast_hash": "dd9028e77ed0d11d603e99e1610029a6",
+    "semantic_hash": "dd9028e77ed0d11d603e99e1610029a6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\recursive-analysis.md": {
+    "mtime": 1780887840.7261512,
+    "ast_hash": "7db8d0f27c30fcd1407c3ba44e57064e",
+    "semantic_hash": "7db8d0f27c30fcd1407c3ba44e57064e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\show-config.md": {
+    "mtime": 1780887840.7281704,
+    "ast_hash": "c901489c804254719b9a709b4e6119fd",
+    "semantic_hash": "c901489c804254719b9a709b4e6119fd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\show-trades.md": {
+    "mtime": 1780887840.7291658,
+    "ast_hash": "9b7aa59175371a7684c522f427e30dd6",
+    "semantic_hash": "9b7aa59175371a7684c522f427e30dd6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\strategy-updater.md": {
+    "mtime": 1780887840.7313604,
+    "ast_hash": "23aae76f5413cb37f03ea6f0751c4443",
+    "semantic_hash": "23aae76f5413cb37f03ea6f0751c4443"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\test-pairlist.md": {
+    "mtime": 1780887840.7333484,
+    "ast_hash": "3f8147b8432e83094dbb62dec9a2b3c4",
+    "semantic_hash": "3f8147b8432e83094dbb62dec9a2b3c4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\trade.md": {
+    "mtime": 1780887840.7343504,
+    "ast_hash": "440775a86dda14232eff79581839ab60",
+    "semantic_hash": "440775a86dda14232eff79581839ab60"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\trades-to-ohlcv.md": {
+    "mtime": 1780887840.736361,
+    "ast_hash": "dafbd879c3a11a6046616b108ed4c189",
+    "semantic_hash": "dafbd879c3a11a6046616b108ed4c189"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\commands\\webserver.md": {
+    "mtime": 1780887840.7373488,
+    "ast_hash": "aed1bd9ed8d9965fbbb11a0faef20af4",
+    "semantic_hash": "aed1bd9ed8d9965fbbb11a0faef20af4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\configuration.md": {
+    "mtime": 1780887840.7398846,
+    "ast_hash": "4f8d0994b96a7e0d6c25de6260d3be15",
+    "semantic_hash": "4f8d0994b96a7e0d6c25de6260d3be15"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\data-analysis.md": {
+    "mtime": 1780887840.741881,
+    "ast_hash": "f522c2c179be2a4b78ed69d0002de04a",
+    "semantic_hash": "f522c2c179be2a4b78ed69d0002de04a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\data-download.md": {
+    "mtime": 1780887840.7428968,
+    "ast_hash": "5943c564121a780dc3002a8e34f7a863",
+    "semantic_hash": "5943c564121a780dc3002a8e34f7a863"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\deprecated.md": {
+    "mtime": 1780887840.7448962,
+    "ast_hash": "a91e375bcb5ef2b4790f2a8f1d07f8d9",
+    "semantic_hash": "a91e375bcb5ef2b4790f2a8f1d07f8d9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\developer.md": {
+    "mtime": 1780887840.7468975,
+    "ast_hash": "e9d2f2dd6ac54b06487ee19fe907650b",
+    "semantic_hash": "e9d2f2dd6ac54b06487ee19fe907650b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\docker_quickstart.md": {
+    "mtime": 1780887840.7486386,
+    "ast_hash": "3686b8b74a6ead646ddc8d1707f063d0",
+    "semantic_hash": "3686b8b74a6ead646ddc8d1707f063d0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\exchanges.md": {
+    "mtime": 1780887840.7502456,
+    "ast_hash": "fee161accfa3c781d3c3c308728c3e9f",
+    "semantic_hash": "fee161accfa3c781d3c3c308728c3e9f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\faq.md": {
+    "mtime": 1780887840.7532427,
+    "ast_hash": "a287ca0c75563f23c41add42445df09a",
+    "semantic_hash": "a287ca0c75563f23c41add42445df09a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freq-ui.md": {
+    "mtime": 1780887840.7542284,
+    "ast_hash": "c648d98dd91be46a2e7de6496a3f3b3d",
+    "semantic_hash": "c648d98dd91be46a2e7de6496a3f3b3d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-configuration.md": {
+    "mtime": 1780887840.7549584,
+    "ast_hash": "9a2a432554d43c601eae7624f3d13006",
+    "semantic_hash": "9a2a432554d43c601eae7624f3d13006"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-developers.md": {
+    "mtime": 1780887840.7549584,
+    "ast_hash": "7b0af7460937e361a1796ba799164c5f",
+    "semantic_hash": "7b0af7460937e361a1796ba799164c5f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-feature-engineering.md": {
+    "mtime": 1780887840.7589595,
+    "ast_hash": "7d3e865b881d60c0d529aaf781378ede",
+    "semantic_hash": "7d3e865b881d60c0d529aaf781378ede"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-parameter-table.md": {
+    "mtime": 1780887840.7621431,
+    "ast_hash": "480e793eb80714c34cc0a5268dc3521c",
+    "semantic_hash": "480e793eb80714c34cc0a5268dc3521c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-reinforcement-learning.md": {
+    "mtime": 1780887840.7651427,
+    "ast_hash": "bb3fabd073e6ac01263ba4eba4fb089e",
+    "semantic_hash": "bb3fabd073e6ac01263ba4eba4fb089e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai-running.md": {
+    "mtime": 1780887840.7671578,
+    "ast_hash": "686c7fd4ad957b22a105439201b9bf2b",
+    "semantic_hash": "686c7fd4ad957b22a105439201b9bf2b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\freqai.md": {
+    "mtime": 1780887840.7693858,
+    "ast_hash": "7370ed4d6e6584702a442912716445f6",
+    "semantic_hash": "7370ed4d6e6584702a442912716445f6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\hyperopt.md": {
+    "mtime": 1780887840.7724066,
+    "ast_hash": "16dbdfe85b9dc7b543ac29aec31ebc79",
+    "semantic_hash": "16dbdfe85b9dc7b543ac29aec31ebc79"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\cors.md": {
+    "mtime": 1780887840.7771893,
+    "ast_hash": "405ed2714fcbf74d363dbd006194ae3c",
+    "semantic_hash": "405ed2714fcbf74d363dbd006194ae3c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\exchange-features.md": {
+    "mtime": 1780887840.7771893,
+    "ast_hash": "6bcfba1fd2dbb3e5b9786aeca051e3e1",
+    "semantic_hash": "6bcfba1fd2dbb3e5b9786aeca051e3e1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\pairlists.md": {
+    "mtime": 1780887840.779189,
+    "ast_hash": "84aa9cd6f46b1f8f77eb7c50825e52c4",
+    "semantic_hash": "84aa9cd6f46b1f8f77eb7c50825e52c4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\pricing.md": {
+    "mtime": 1780887840.783124,
+    "ast_hash": "ee22f7f75f8a0935b4460800e0faa6b2",
+    "semantic_hash": "ee22f7f75f8a0935b4460800e0faa6b2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\protections.md": {
+    "mtime": 1780887840.7841425,
+    "ast_hash": "48fa54a2acf5ab36c0c45303c2c37e38",
+    "semantic_hash": "48fa54a2acf5ab36c0c45303c2c37e38"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\release_template.md": {
+    "mtime": 1780887840.7861261,
+    "ast_hash": "182d771a09eee75c2655b151cad567a1",
+    "semantic_hash": "182d771a09eee75c2655b151cad567a1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\showcase.md": {
+    "mtime": 1780887840.7871404,
+    "ast_hash": "f75eee38241973b33aad037c2e5f9944",
+    "semantic_hash": "f75eee38241973b33aad037c2e5f9944"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\strategy-exit-comparisons.md": {
+    "mtime": 1780887840.7891307,
+    "ast_hash": "4c261df54fd5116a4f8e0d8e7dc40cf9",
+    "semantic_hash": "4c261df54fd5116a4f8e0d8e7dc40cf9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\includes\\strategy-imports.md": {
+    "mtime": 1780887840.7912104,
+    "ast_hash": "d5a85de150f483c98930398cd482a134",
+    "semantic_hash": "d5a85de150f483c98930398cd482a134"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\index.md": {
+    "mtime": 1780887840.7936215,
+    "ast_hash": "002f7ff74b843295359ad485a7d88d21",
+    "semantic_hash": "002f7ff74b843295359ad485a7d88d21"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\installation.md": {
+    "mtime": 1780887840.7966099,
+    "ast_hash": "4a976693dbcf9a13b26163a678dadfc0",
+    "semantic_hash": "4a976693dbcf9a13b26163a678dadfc0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\leverage.md": {
+    "mtime": 1780887840.800163,
+    "ast_hash": "620b477d8e44902c9cbc84844f3c0fdc",
+    "semantic_hash": "620b477d8e44902c9cbc84844f3c0fdc"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\lookahead-analysis.md": {
+    "mtime": 1780887840.8021724,
+    "ast_hash": "794e3fe7d4f70deff47e4bd62e934e16",
+    "semantic_hash": "794e3fe7d4f70deff47e4bd62e934e16"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\overrides\\main.html": {
+    "mtime": 1780887840.8051734,
+    "ast_hash": "66d1b6b3e2e4c789e72dd30f1a48b70d",
+    "semantic_hash": "66d1b6b3e2e4c789e72dd30f1a48b70d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\plotting.md": {
+    "mtime": 1780887840.8071637,
+    "ast_hash": "a0263f82413a76cbdf5eebcadac04aed",
+    "semantic_hash": "a0263f82413a76cbdf5eebcadac04aed"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\plugins.md": {
+    "mtime": 1780887840.808692,
+    "ast_hash": "ce0781d55e5a175237f7320663af0944",
+    "semantic_hash": "ce0781d55e5a175237f7320663af0944"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\producer-consumer.md": {
+    "mtime": 1780887840.8102305,
+    "ast_hash": "2551b71240eb4b77824930e67702b3e7",
+    "semantic_hash": "2551b71240eb4b77824930e67702b3e7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\recursive-analysis.md": {
+    "mtime": 1780887840.8112411,
+    "ast_hash": "28b96898604db111a2862fddb423dcc8",
+    "semantic_hash": "28b96898604db111a2862fddb423dcc8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\requirements-docs.txt": {
+    "mtime": 1780887840.812241,
+    "ast_hash": "c6e5f1ce67ff85145bd4bbcccb6de7eb",
+    "semantic_hash": "c6e5f1ce67ff85145bd4bbcccb6de7eb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\rest-api.md": {
+    "mtime": 1780887840.812241,
+    "ast_hash": "59ae84586ffb656e58bbdf26ae578eda",
+    "semantic_hash": "59ae84586ffb656e58bbdf26ae578eda"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\sql_cheatsheet.md": {
+    "mtime": 1780887840.8142414,
+    "ast_hash": "9fb8c60c275e2e8d3f1f8c1792709a11",
+    "semantic_hash": "9fb8c60c275e2e8d3f1f8c1792709a11"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\stoploss.md": {
+    "mtime": 1780887840.8142414,
+    "ast_hash": "d4b2f1a0c0a6130d8e25e08cd1ad735a",
+    "semantic_hash": "d4b2f1a0c0a6130d8e25e08cd1ad735a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy-101.md": {
+    "mtime": 1780887840.8152397,
+    "ast_hash": "c403b0d2ee63ca64a377557cee279ebe",
+    "semantic_hash": "c403b0d2ee63ca64a377557cee279ebe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy-advanced.md": {
+    "mtime": 1780887840.8172257,
+    "ast_hash": "2ba89b818f57d0836ce3a4147d220215",
+    "semantic_hash": "2ba89b818f57d0836ce3a4147d220215"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy-callbacks.md": {
+    "mtime": 1780887840.818746,
+    "ast_hash": "b0f10ac12b6f7e0617786b50d4a89207",
+    "semantic_hash": "b0f10ac12b6f7e0617786b50d4a89207"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy-customization.md": {
+    "mtime": 1780887840.8207588,
+    "ast_hash": "f6b44d82a75f06c509d6a7cbbff169bf",
+    "semantic_hash": "f6b44d82a75f06c509d6a7cbbff169bf"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy_analysis_example.md": {
+    "mtime": 1780887840.8217745,
+    "ast_hash": "1f77ab280bfb387b61e5debb0a290369",
+    "semantic_hash": "1f77ab280bfb387b61e5debb0a290369"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\strategy_migration.md": {
+    "mtime": 1780887840.8237681,
+    "ast_hash": "a0a282e44307d2928de997b428ce2f6a",
+    "semantic_hash": "a0a282e44307d2928de997b428ce2f6a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\telegram-usage.md": {
+    "mtime": 1780887840.8257763,
+    "ast_hash": "c21f408100e6d6d53d868aef5a7942e2",
+    "semantic_hash": "c21f408100e6d6d53d868aef5a7942e2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\trade-object.md": {
+    "mtime": 1780887840.8267744,
+    "ast_hash": "18f776f9d363eb1b3ea88867c40a7eab",
+    "semantic_hash": "18f776f9d363eb1b3ea88867c40a7eab"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\updating.md": {
+    "mtime": 1780887840.8277748,
+    "ast_hash": "50051699a596c0eaa2cd95168cd7be72",
+    "semantic_hash": "50051699a596c0eaa2cd95168cd7be72"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\utils.md": {
+    "mtime": 1780887840.829311,
+    "ast_hash": "21836572de6342d04ef4622c73b42ede",
+    "semantic_hash": "21836572de6342d04ef4622c73b42ede"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\webhook-config.md": {
+    "mtime": 1780887840.8313115,
+    "ast_hash": "4b0ba1e466aaf64b69a34305e52a7598",
+    "semantic_hash": "4b0ba1e466aaf64b69a34305e52a7598"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\binance_futures_settings.png": {
+    "mtime": 1780887840.515032,
+    "ast_hash": "e2b08df54a281e708788e19c257615dd",
+    "semantic_hash": "e2b08df54a281e708788e19c257615dd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\ccxt-logo.svg": {
+    "mtime": 1780887840.5160356,
+    "ast_hash": "7ddbdc15e4163506096aba75c6a70b9e",
+    "semantic_hash": "7ddbdc15e4163506096aba75c6a70b9e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\discord_notification.png": {
+    "mtime": 1780887840.5180311,
+    "ast_hash": "52cd53a409af931b343fc6d7f66a972e",
+    "semantic_hash": "52cd53a409af931b343fc6d7f66a972e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-backtesting-dark.png": {
+    "mtime": 1780887840.5209699,
+    "ast_hash": "6bbe3a1c49a79379aac43b6fb85f0d24",
+    "semantic_hash": "6bbe3a1c49a79379aac43b6fb85f0d24"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-backtesting-light.png": {
+    "mtime": 1780887840.5231957,
+    "ast_hash": "4b904b6ec874cbfb0b4d6ad5396ce237",
+    "semantic_hash": "4b904b6ec874cbfb0b4d6ad5396ce237"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-chart-annotations-dark.png": {
+    "mtime": 1780887840.5257638,
+    "ast_hash": "096ac48905564e439367bc3d3d26eba7",
+    "semantic_hash": "096ac48905564e439367bc3d3d26eba7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-chart-annotations-light.png": {
+    "mtime": 1780887840.526775,
+    "ast_hash": "66200499de0df2ce506f8c626509d876",
+    "semantic_hash": "66200499de0df2ce506f8c626509d876"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-plot-configurator-dark.png": {
+    "mtime": 1780887840.5292952,
+    "ast_hash": "2924b8b2ade9e3beb508c18eef35d46e",
+    "semantic_hash": "2924b8b2ade9e3beb508c18eef35d46e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-plot-configurator-light.png": {
+    "mtime": 1780887840.5325468,
+    "ast_hash": "94d73651d5e356afa9ba06a3162c44dc",
+    "semantic_hash": "94d73651d5e356afa9ba06a3162c44dc"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-trade-pane-dark.png": {
+    "mtime": 1780887840.5360646,
+    "ast_hash": "0a99d50a242a5cadc703f37530bd8fb9",
+    "semantic_hash": "0a99d50a242a5cadc703f37530bd8fb9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-trade-pane-light.png": {
+    "mtime": 1780887840.5402422,
+    "ast_hash": "23122682eae086517fc49e9609c3ce98",
+    "semantic_hash": "23122682eae086517fc49e9609c3ce98"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqUI-trade-pane.png": {
+    "mtime": 1780887840.5431383,
+    "ast_hash": "8ae779be3902dbf95941d1e2989e8b6e",
+    "semantic_hash": "8ae779be3902dbf95941d1e2989e8b6e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_DI.jpg": {
+    "mtime": 1780887840.547329,
+    "ast_hash": "9e7072b059e392549e34528605ed2e90",
+    "semantic_hash": "9e7072b059e392549e34528605ed2e90"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_algo.jpg": {
+    "mtime": 1780887840.5540426,
+    "ast_hash": "04b7962ae88464f387d5de91509afca6",
+    "semantic_hash": "04b7962ae88464f387d5de91509afca6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_algorithm-diagram.jpg": {
+    "mtime": 1780887840.5621543,
+    "ast_hash": "3964adfb6b953d992f69bbf7d03fb587",
+    "semantic_hash": "3964adfb6b953d992f69bbf7d03fb587"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_dbscan.jpg": {
+    "mtime": 1780887840.5640543,
+    "ast_hash": "92e8f19fdae8a0a910ae5adffa1bdfb3",
+    "semantic_hash": "92e8f19fdae8a0a910ae5adffa1bdfb3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_doc_logo.svg": {
+    "mtime": 1780887840.589188,
+    "ast_hash": "0827745b49a6afdc4e10c7f5a0f33dff",
+    "semantic_hash": "0827745b49a6afdc4e10c7f5a0f33dff"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_inlier-metric.jpg": {
+    "mtime": 1780887840.5962234,
+    "ast_hash": "47a1c7e3222aee51e7fb792252a16e4e",
+    "semantic_hash": "47a1c7e3222aee51e7fb792252a16e4e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_moving-window.jpg": {
+    "mtime": 1780887840.600749,
+    "ast_hash": "66e6a059c46d7b9fbff6b1c94add75f9",
+    "semantic_hash": "66e6a059c46d7b9fbff6b1c94add75f9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_pytorch-diagram.png": {
+    "mtime": 1780887840.602754,
+    "ast_hash": "a852f354d08d976ae5e9e566c6bfad56",
+    "semantic_hash": "a852f354d08d976ae5e9e566c6bfad56"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqai_weight-factor.jpg": {
+    "mtime": 1780887840.60683,
+    "ast_hash": "ee4411d1df3eca4a055622641cdab6d4",
+    "semantic_hash": "ee4411d1df3eca4a055622641cdab6d4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqtrade-screenshot.png": {
+    "mtime": 1780887840.6099024,
+    "ast_hash": "0a5122794f8fbcc0556daf8d678bafbb",
+    "semantic_hash": "0a5122794f8fbcc0556daf8d678bafbb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\freqtrade_poweredby.svg": {
+    "mtime": 1780887840.6129177,
+    "ast_hash": "77dd35caa1d5e70b869d6ff0657ca015",
+    "semantic_hash": "77dd35caa1d5e70b869d6ff0657ca015"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\frequi-login-CORS-light.png": {
+    "mtime": 1780887840.6169057,
+    "ast_hash": "17c55c10a2bdccd0656538814d0c3cb4",
+    "semantic_hash": "17c55c10a2bdccd0656538814d0c3cb4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\frequi-login-CORS.png": {
+    "mtime": 1780887840.6187563,
+    "ast_hash": "4bdb26c82760302db1c64b893ee419a4",
+    "semantic_hash": "4bdb26c82760302db1c64b893ee419a4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\frequi-settings-dark.png": {
+    "mtime": 1780887840.622458,
+    "ast_hash": "53db6d7d2ab784823272b431cf549f48",
+    "semantic_hash": "53db6d7d2ab784823272b431cf549f48"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\frequi-settings-light.png": {
+    "mtime": 1780887840.6240475,
+    "ast_hash": "75cecfd2683b09dc415284e90d8d6d51",
+    "semantic_hash": "75cecfd2683b09dc415284e90d8d6d51"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\frequi_url.png": {
+    "mtime": 1780887840.6260753,
+    "ast_hash": "d05a662aa5af4ae96ea2b14e8f68b089",
+    "semantic_hash": "d05a662aa5af4ae96ea2b14e8f68b089"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\plot-dataframe.png": {
+    "mtime": 1780887840.6329598,
+    "ast_hash": "33f05ba56e5ca633803bf867cdb8c6e5",
+    "semantic_hash": "33f05ba56e5ca633803bf867cdb8c6e5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\plot-dataframe2.png": {
+    "mtime": 1780887840.6378205,
+    "ast_hash": "84f83027a944975bf29ba42a14a18968",
+    "semantic_hash": "84f83027a944975bf29ba42a14a18968"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\plot-profit.png": {
+    "mtime": 1780887840.6403067,
+    "ast_hash": "4853b527aef20ce70df16154539c1427",
+    "semantic_hash": "4853b527aef20ce70df16154539c1427"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\pycharm_debug.png": {
+    "mtime": 1780887840.6432035,
+    "ast_hash": "efcc960d5c75f3cd6694b9ee2ea59b0d",
+    "semantic_hash": "efcc960d5c75f3cd6694b9ee2ea59b0d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\show-config-output.png": {
+    "mtime": 1780887840.6441967,
+    "ast_hash": "0db9345a5db0718653ee75826d1b38ce",
+    "semantic_hash": "0db9345a5db0718653ee75826d1b38ce"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\telegram_forcebuy.png": {
+    "mtime": 1780887840.6472137,
+    "ast_hash": "95f05314dff99a201486eaab305921af",
+    "semantic_hash": "95f05314dff99a201486eaab305921af"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\tensorboard.jpg": {
+    "mtime": 1780887840.6588814,
+    "ast_hash": "eb9a564985697b4a9aec8614168c79ad",
+    "semantic_hash": "eb9a564985697b4a9aec8614168c79ad"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\assets\\windows_install.png": {
+    "mtime": 1780887840.663896,
+    "ast_hash": "8514e7cc0c4f6f6fff2a3f6346073be6",
+    "semantic_hash": "8514e7cc0c4f6f6fff2a3f6346073be6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\docs\\images\\logo.png": {
+    "mtime": 1780887840.7750726,
+    "ast_hash": "b143163d7769137b664adfe70cb30362",
+    "semantic_hash": "b143163d7769137b664adfe70cb30362"
   }
 }

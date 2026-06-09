@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center h-[80vh] text-center space-y-4">
+    <div className="flex flex-col items-center justify-center h-[80vh] text-center gap-4"> 
       <span className="text-8xl font-bold text-card-border">404</span>
       <h1 className="text-2xl font-bold">Page Not Found</h1>
       <p className="text-text-secondary max-w-md">
@@ -10,7 +10,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/dashboard"
-        className="px-6 py-2 bg-accent hover:bg-accent-hover text-[#0f1119] rounded-lg font-semibold text-sm"
+        className="px-6 py-2 bg-accent hover:bg-accent-hover text-primary-foreground rounded-lg font-semibold text-sm"
       >
         Back to Dashboard
       </Link>

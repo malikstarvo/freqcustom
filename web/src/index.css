@@ -121,24 +121,53 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--background);
   color: var(--foreground);
   transition: background 0.2s ease, color 0.2s ease;
+  touch-action: manipulation;
+  min-height: 100dvh;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, html {
+    transition: none;
+    scroll-behavior: auto;
+  }
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--card);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }
 
 @layer base {
@@ -150,5 +179,6 @@ body {
   }
   html {
     @apply font-sans;
+    color-scheme: dark;
   }
 }

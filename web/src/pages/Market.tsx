@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import { Card, Badge } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Empty } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
 import { SearchInput } from "@/components/ui/search-input";
 import { api, type MarketResponse, type WhitelistResponse, type PairHistory, type MarketModel } from "@/lib/api";
-import { Globe, TrendingUp, Activity, CandlestickChart } from "lucide-react";
+import { Globe, TrendingUp, CandlestickChart } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ComposedChart, Bar
@@ -16,10 +20,13 @@ export default function Market() {
   const [candles, setCandles] = useState<PairHistory | null>(null);
   const [timeframe, setTimeframe] = useState("1h");
   const [loadingCandles, setLoadingCandles] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.markets().then(setMarkets).catch(console.error);
-    api.whitelist().then(setWhitelist).catch(console.error);
+    Promise.all([
+      api.markets().then(setMarkets),
+      api.whitelist().then(setWhitelist),
+    ]).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -51,10 +58,10 @@ export default function Market() {
   const TIMEFRAMES = ["1m", "5m", "15m", "30m", "1h", "4h", "1d"];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Globe className="text-accent" /> Market
+        <h2 className="text-xl font-bold flex items-center gap-2.5">
+          <Globe className="size-5 text-primary" aria-hidden="true" /> Market
         </h2>
         <div className="flex items-center gap-2">
           <Badge label={`${marketEntries.length} markets`} variant="default" />
@@ -62,96 +69,104 @@ export default function Market() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Market List */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 flex flex-col gap-4">
           <Card title="Market List">
+            {loading ? (
+              <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">Loading markets…</div>
+            ) : (
+            <>
             <div className="mb-3">
-              <SearchInput value={search} onChange={setSearch} placeholder="Search symbol, base, quote..." />
+              <SearchInput value={search} onChange={setSearch} placeholder="Search symbol, base, quote…" />
             </div>
             <div className="overflow-auto max-h-[60vh]">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-card-bg">
-                  <tr className="text-left text-text-secondary border-b border-card-border">
-                    <th className="pb-2 pr-4">Symbol</th>
+              <table className="w-full text-sm min-w-[600px]">
+                <thead className="sticky top-0 bg-muted/30">
+                  <tr className="text-left text-muted-foreground border-b border-border/50">
+                    <th className="pb-2 pr-4 pl-3">Symbol</th>
                     <th className="pb-2 pr-4">Base</th>
                     <th className="pb-2 pr-4">Quote</th>
                     <th className="pb-2 pr-4">Spot</th>
                     <th className="pb-2 pr-4">Swap</th>
-                    <th className="pb-2">Status</th>
+                    <th className="pb-2 pr-3">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(([symbol, m]) => (
                     <tr
                       key={symbol}
-                      className={`border-b border-card-border/30 cursor-pointer transition-colors ${
-                        selectedPair === symbol ? "bg-accent/10" : "hover:bg-gray-800/50"
-                      }`}
+                      className={cn(
+                        "cursor-pointer hover:bg-muted/30 motion-safe:transition-colors",
+                        selectedPair === symbol ? "bg-primary/10" : ""
+                      )}
                       onClick={() => setSelectedPair(symbol)}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPair(symbol); } }}
                     >
-                      <td className="py-2 pr-4 font-medium">{symbol}</td>
-                      <td className="py-2 pr-4 text-text-secondary">{m.base}</td>
-                      <td className="py-2 pr-4 text-text-secondary">{m.quote}</td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2.5 pl-3 pr-4 rounded-l-lg font-medium">{symbol}</td>
+                      <td className="py-2.5 pr-4 text-muted-foreground">{m.base}</td>
+                      <td className="py-2.5 pr-4 text-muted-foreground">{m.quote}</td>
+                      <td className="py-2.5 pr-4">
                         <Badge label={m.spot ? "Yes" : "No"} variant={m.spot ? "success" : "default"} />
                       </td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2.5 pr-4">
                         <Badge label={m.swap ? "Yes" : "No"} variant={m.swap ? "success" : "default"} />
                       </td>
-                      <td className="py-2">
+                      <td className="py-2.5 pr-3 rounded-r-lg">
                         <Badge label={isWhitelisted(symbol) ? "Active" : "Inactive"} variant={isWhitelisted(symbol) ? "success" : "default"} />
                       </td>
                     </tr>
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-text-secondary">
-                        No markets match your search
+                      <td colSpan={6} className="py-8">
+                        <Empty icon={Globe} title="No markets match your search" />
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
+            </>
+          )}
           </Card>
         </div>
 
         {/* Candle Preview */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Card title="Candle Preview">
             {selectedPair ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{selectedPair}</span>
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1">
                     {TIMEFRAMES.map(tf => (
-                      <button
+                      <Button
                         key={tf}
+                        variant={timeframe === tf ? "default" : "ghost"}
+                        size="sm"
                         onClick={() => setTimeframe(tf)}
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          timeframe === tf
-                            ? "bg-accent text-[#0f1119]"
-                            : "bg-card-bg border border-card-border text-text-secondary"
-                        }`}
                       >
                         {tf}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
 
                 {loadingCandles ? (
-                  <div className="flex items-center justify-center h-40 text-sm text-text-secondary">
-                    <Activity size={16} className="animate-spin mr-2" /> Loading...
+                  <div className="flex items-center justify-center h-40 text-sm text-muted-foreground gap-2">
+                    <Spinner /> Loading…
                   </div>
                 ) : candles ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-text-secondary">
-                      <span>Data: {candles.data_start} → {candles.data_stop}</span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Data: {candles.data_start} &rarr; {candles.data_stop}</span>
                       <span>{candles.length} candles</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={200}>
+                <div className="h-48 sm:h-56">
+                    <ResponsiveContainer width="100%" height="100%">
                       <ComposedChart data={candles.data.slice(-50).map((row: Array<number | string | null>) => {
                         const dateIdx = candles.columns.indexOf("date");
                         const openIdx = candles.columns.indexOf("open");
@@ -176,20 +191,18 @@ export default function Market() {
                         <Bar dataKey="volume" fill="#00d4ff15" yAxisId={1} />
                       </ComposedChart>
                     </ResponsiveContainer>
-                    <div className="flex items-center gap-2 text-xs text-text-secondary">
-                      <TrendingUp size={12} />
+                  </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <TrendingUp className="size-3" aria-hidden="true" />
                       <span>Signals: {candles.enter_long_signals} long / {candles.enter_short_signals} short entries</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-text-secondary">No candle data available</div>
+                  <Empty icon={CandlestickChart} title="No candle data available" />
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-40 text-sm text-text-secondary">
-                <CandlestickChart size={24} className="mb-2 opacity-50" />
-                Select a market to view candles
-              </div>
+              <Empty icon={CandlestickChart} title="Select a market to view candles" />
             )}
           </Card>
         </div>

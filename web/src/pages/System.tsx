@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, StatCard, Badge } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { api, type Health, type SysInfo } from "@/lib/api";
-import { Server, Cpu, MemoryStick, Activity, Power, Square, RotateCw, Clock, Zap } from "lucide-react";
+import { Server, Cpu, MemoryStick, Activity, Power, Square, RotateCw, Clock } from "lucide-react";
 
 export default function System() {
   const [health, setHealth] = useState<Health | null>(null);
@@ -10,6 +13,13 @@ export default function System() {
   const [botState, setBotState] = useState<string>("unknown");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [grafanaUrl, setGrafanaUrl] = useState("");
+  const [prometheusUrl, setPrometheusUrl] = useState("");
+
+  useEffect(() => {
+    setGrafanaUrl(window.location.origin.replace(":3000", ":3001"));
+    setPrometheusUrl(window.location.origin.replace(":3000", ":9090"));
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -66,21 +76,21 @@ export default function System() {
         const mins = Math.floor((diff % 3600000) / 60000);
         return `${days}d ${hours}h ${mins}m`;
       })()
-    : "—";
+    : "\u2014";
 
   const lastProcess = health && health.last_process_ts
     ? new Date(health.last_process_ts! * 1000).toLocaleString()
-    : "—";
+    : "\u2014";
 
   const cpuCores = sysinfo?.cpu_load.map((c: { pct: number }) => c.pct) ?? [];
   const cpuAvg = sysinfo?.cpu_avg ?? 0;
   const ramPct = sysinfo?.ram_pct ?? 0;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Server className="text-accent" /> System
+        <h2 className="text-xl font-bold flex items-center gap-2.5">
+          <Server className="size-5 text-primary" aria-hidden="true" /> System
         </h2>
         <div className="flex items-center gap-2">
           <Badge label={botState} variant={botState === "running" ? "success" : "default"} />
@@ -89,72 +99,83 @@ export default function System() {
 
       {/* State Control */}
       <div className="flex items-center gap-3">
-        <button
+        <Button
           onClick={handleStart}
           disabled={loading || botState === "running"}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Power size={14} /> Start
-        </button>
-        <button
+          <Power data-icon="inline-start" aria-hidden="true" /> Start
+        </Button>
+        <Button
           onClick={handleStop}
           disabled={loading || botState !== "running"}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="destructive"
         >
-          <Square size={14} /> Stop
-        </button>
-        <button
+          <Square data-icon="inline-start" aria-hidden="true" /> Stop
+        </Button>
+        <Button
           onClick={fetchData}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-card-border hover:bg-card-border/30 rounded-lg text-sm text-text-secondary"
+          variant="outline"
         >
-          <RotateCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
-        </button>
+          <RotateCw data-icon="inline-start" aria-hidden="true" className={loading ? "animate-spin" : ""} /> Refresh
+        </Button>
       </div>
 
       {message && (
-        <div className={`p-3 rounded-lg text-sm ${
-          message.includes("started") || message.includes("stopped")
-            ? "bg-green-950/50 text-green-400 border border-green-500/30"
-            : "bg-red-950/50 text-red-400 border border-red-500/30"
-        }`}>
-          {message}
-        </div>
+        <Alert variant={message.includes("started") || message.includes("stopped") ? "success" : "destructive"}>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Uptime" value={uptime} />
-        <StatCard label="Bot Started" value={health && health.bot_start_ts ? new Date(health.bot_start_ts! * 1000).toLocaleDateString() : "—"} />
-        <StatCard label="Last Process" value={lastProcess} />
-        <StatCard label="CPU Cores" value={sysinfo?.cpu_count ?? "—"} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="Uptime"
+          value={uptime}
+          icon={<Clock size={14} />}
+        />
+        <StatCard
+          label="Bot Started"
+          value={health && health.bot_start_ts ? new Date(health.bot_start_ts! * 1000).toLocaleDateString() : "\u2014"}
+          icon={<Power size={14} />}
+        />
+        <StatCard
+          label="Last Process"
+          value={lastProcess}
+          icon={<RotateCw size={14} />}
+        />
+        <StatCard
+          label="CPU Cores"
+          value={sysinfo?.cpu_count ?? "\u2014"}
+          icon={<Cpu size={14} />}
+        />
       </div>
 
       {/* CPU & RAM */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* CPU */}
         <Card title="CPU Load">
-          <div className="space-y-3">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Cpu size={16} className="text-accent" />
+                <Cpu size={16} className="text-primary" aria-hidden="true" />
                 <span className="text-sm font-medium">Average</span>
               </div>
-              <span className="text-sm font-bold">{cpuAvg.toFixed(1)}%</span>
+              <span className="text-sm font-bold font-mono">{cpuAvg.toFixed(1)}%</span>
             </div>
             <Progress value={cpuAvg} />
             <div className="grid grid-cols-4 gap-2 mt-2">
               {cpuCores.slice(0, 8).map((pct: number, i: number) => (
-                <div key={i} className="space-y-1">
-                  <div className="flex justify-between text-xs text-text-secondary">
+                <div key={i} className="flex flex-col gap-1 rounded-lg py-1 px-2 hover:bg-muted/30 motion-safe:transition-colors">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Core {i + 1}</span>
-                    <span>{pct.toFixed(0)}%</span>
+                    <span className="font-mono">{pct.toFixed(0)}%</span>
                   </div>
                   <Progress value={pct} />
                 </div>
               ))}
               {cpuCores.length === 0 && (
-                <p className="text-sm text-text-secondary col-span-4">No CPU data available</p>
+                <p className="text-sm text-muted-foreground col-span-4">\u2014</p>
               )}
             </div>
           </div>
@@ -162,30 +183,30 @@ export default function System() {
 
         {/* RAM */}
         <Card title="Memory">
-          <div className="space-y-3">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MemoryStick size={16} className="text-accent" />
+                <MemoryStick size={16} className="text-primary" aria-hidden="true" />
                 <span className="text-sm font-medium">RAM Usage</span>
               </div>
-              <span className="text-sm font-bold">{ramPct.toFixed(1)}%</span>
+              <span className="text-sm font-bold font-mono">{ramPct.toFixed(1)}%</span>
             </div>
             <Progress value={ramPct} />
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-text-secondary" />
-                <span className="text-text-secondary">Load avg (1m):</span>
-                <span className="font-medium">{sysinfo?.cpu_load_avg?.["1m"]?.toFixed(2) ?? "—"}</span>
+            <div className="mt-4 flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-sm rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+                <Activity size={14} className="text-muted-foreground shrink-0" aria-hidden="true" />
+                <span className="text-muted-foreground">Load avg (1m):</span>
+                <span className="font-mono font-medium">{sysinfo?.cpu_load_avg?.["1m"]?.toFixed(2) ?? "\u2014"}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-text-secondary" />
-                <span className="text-text-secondary">Load avg (5m):</span>
-                <span className="font-medium">{sysinfo?.cpu_load_avg?.["5m"]?.toFixed(2) ?? "—"}</span>
+              <div className="flex items-center gap-2 text-sm rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+                <Activity size={14} className="text-muted-foreground shrink-0" aria-hidden="true" />
+                <span className="text-muted-foreground">Load avg (5m):</span>
+                <span className="font-mono font-medium">{sysinfo?.cpu_load_avg?.["5m"]?.toFixed(2) ?? "\u2014"}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Activity size={14} className="text-text-secondary" />
-                <span className="text-text-secondary">Load avg (15m):</span>
-                <span className="font-medium">{sysinfo?.cpu_load_avg?.["15m"]?.toFixed(2) ?? "—"}</span>
+              <div className="flex items-center gap-2 text-sm rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+                <Activity size={14} className="text-muted-foreground shrink-0" aria-hidden="true" />
+                <span className="text-muted-foreground">Load avg (15m):</span>
+                <span className="font-mono font-medium">{sysinfo?.cpu_load_avg?.["15m"]?.toFixed(2) ?? "\u2014"}</span>
               </div>
             </div>
           </div>
@@ -195,63 +216,63 @@ export default function System() {
       {/* Health Details */}
       <Card title="Health Details">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <span className="text-text-secondary text-xs block">Last Process Timestamp</span>
-            <span className="font-medium">{health?.last_process_ts ?? "—"}</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">Last Process Timestamp</span>
+            <span className="font-mono font-medium">{health?.last_process_ts ?? "\u2014"}</span>
           </div>
-          <div>
-            <span className="text-text-secondary text-xs block">Bot Start Timestamp</span>
-            <span className="font-medium">{health?.bot_start_ts ?? "—"}</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">Bot Start Timestamp</span>
+            <span className="font-mono font-medium">{health?.bot_start_ts ?? "\u2014"}</span>
           </div>
-          <div>
-            <span className="text-text-secondary text-xs block">Bot Startup</span>
-            <span className="font-medium">{health?.bot_startup ? new Date(health.bot_startup).toLocaleString() : "—"}</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">Bot Startup</span>
+            <span className="font-medium">{health?.bot_startup ? new Date(health.bot_startup).toLocaleString() : "\u2014"}</span>
           </div>
-          <div>
-            <span className="text-text-secondary text-xs block">CPU Load Average</span>
-            <span className="font-medium">{sysinfo?.cpu_avg?.toFixed(1) ?? "—"}%</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">CPU Load Average</span>
+            <span className="font-mono font-medium">{sysinfo?.cpu_avg?.toFixed(1) ?? "\u2014"}%</span>
           </div>
-          <div>
-            <span className="text-text-secondary text-xs block">Logical CPUs</span>
-            <span className="font-medium">{sysinfo?.cpu_count ?? "—"}</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">Logical CPUs</span>
+            <span className="font-mono font-medium">{sysinfo?.cpu_count ?? "\u2014"}</span>
           </div>
-          <div>
-            <span className="text-text-secondary text-xs block">RAM %</span>
-            <span className="font-medium">{sysinfo?.ram_pct?.toFixed(1) ?? "—"}%</span>
+          <div className="rounded-lg py-2 px-3 hover:bg-muted/30 motion-safe:transition-colors">
+            <span className="text-muted-foreground text-xs block">RAM %</span>
+            <span className="font-mono font-medium">{sysinfo?.ram_pct?.toFixed(1) ?? "\u2014"}%</span>
           </div>
         </div>
       </Card>
 
-      {/* Prometheus Link */}
+      {/* Monitoring Hub */}
       <Card title="Monitoring Hub">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <a href={window.location.origin.replace(":3000", ":3001")} target="_blank" rel="noopener noreferrer"
-            className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a href={grafanaUrl} target="_blank" rel="noopener noreferrer"
+            className="rounded-lg border border-border/50 p-4 hover:bg-muted/30 motion-safe:transition-colors hover:border-primary/30">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-profit" />
+              <span className="size-2 rounded-full bg-profit" />
               <span className="text-sm font-medium">Grafana</span>
             </div>
-            <p className="text-xs text-text-secondary">Pre-built dashboards with 9 panels: equity curve, trade profit distribution, agent scores, ML predictions, and more.</p>
+            <p className="text-xs text-muted-foreground">Pre-built dashboards with 9 panels: equity curve, trade profit distribution, agent scores, ML predictions, and more.</p>
           </a>
-          <a href={window.location.origin.replace(":3000", ":9090")} target="_blank" rel="noopener noreferrer"
-            className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
+          <a href={prometheusUrl} target="_blank" rel="noopener noreferrer"
+            className="rounded-lg border border-border/50 p-4 hover:bg-muted/30 motion-safe:transition-colors hover:border-primary/30">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-warning" />
+              <span className="size-2 rounded-full bg-warning" />
               <span className="text-sm font-medium">Prometheus</span>
             </div>
-            <p className="text-xs text-text-secondary">Metrics collection from Freqtrade API. Scrapes /metrics every 15s. Query via PromQL.</p>
+            <p className="text-xs text-muted-foreground">Metrics collection from Freqtrade API. Scrapes /metrics every 15s. Query via PromQL.</p>
           </a>
-          <a href="/collector" className="p-4 bg-card-bg border border-card-border rounded-lg hover:border-accent/50 transition-colors">
+          <Link href="/collector" className="rounded-lg border border-border/50 p-4 hover:bg-muted/30 motion-safe:transition-colors hover:border-primary/30">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span className="size-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium">Collector</span>
             </div>
-            <p className="text-xs text-text-secondary">Go collector streams Bybit data (OHLCV, funding, OI, liquidations) into TimescaleDB.</p>
-          </a>
+            <p className="text-xs text-muted-foreground">Go collector streams Bybit data (OHLCV, funding, OI, liquidations) into TimescaleDB.</p>
+          </Link>
         </div>
         <div className="mt-3 flex gap-2">
-          <span className="text-xs text-text-secondary">
-            Prometheus metrics: <code className="text-accent text-xs">freqtrade:8080/metrics</code>
+          <span className="text-xs text-muted-foreground">
+            Prometheus metrics: <code className="text-primary text-xs font-mono">freqtrade:8080/metrics</code>
           </span>
         </div>
       </Card>

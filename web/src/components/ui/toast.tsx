@@ -15,7 +15,7 @@ export function ToastContainer({ toasts, onDismiss }: {
   onDismiss: (id: string) => void;
 }) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2" role="status" aria-live="polite">
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />
       ))}
@@ -35,17 +35,17 @@ function ToastItem({ toast, onDismiss }: {
   }, [toast.id, onDismiss]);
 
   const colors = {
-    success: "border-green-500/50 bg-green-950/80 text-green-400",
-    error: "border-red-500/50 bg-red-950/80 text-red-400",
-    warning: "border-yellow-500/50 bg-yellow-950/80 text-yellow-400",
-    info: "border-cyan-500/50 bg-cyan-950/80 text-cyan-400",
+    success: "border-profit/25 bg-profit/10 text-profit",
+    error: "border-loss/25 bg-loss/10 text-loss",
+    warning: "border-warning/25 bg-warning/10 text-warning",
+    info: "border-primary/25 bg-primary/10 text-primary",
   };
 
   const icons = {
-    success: <CheckCircle size={16} />,
-    error: <AlertTriangle size={16} />,
-    warning: <AlertTriangle size={16} />,
-    info: <Info size={16} />,
+    success: <CheckCircle size={16} aria-hidden="true" />,
+    error: <AlertTriangle size={16} aria-hidden="true" />,
+    warning: <AlertTriangle size={16} aria-hidden="true" />,
+    info: <Info size={16} aria-hidden="true" />,
   };
 
   return (
@@ -58,8 +58,8 @@ function ToastItem({ toast, onDismiss }: {
         <div className="font-semibold text-sm">{toast.title}</div>
         {toast.message && <div className="text-xs opacity-80 mt-0.5">{toast.message}</div>}
       </div>
-      <button onClick={() => onDismiss(toast.id)} className="opacity-60 hover:opacity-100">
-        <X size={14} />
+      <button onClick={() => onDismiss(toast.id)} className="opacity-60 hover:opacity-100" aria-label="Dismiss">
+        <X size={14} aria-hidden="true" />
       </button>
     </div>
   );

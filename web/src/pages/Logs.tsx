@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { Card, Badge } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Empty } from "@/components/ui/empty";
 import { SearchInput } from "@/components/ui/search-input";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { FileText, ScrollText, AlertTriangle, Info, XCircle } from "lucide-react";
 
 type LogLevel = "ALL" | "INFO" | "WARNING" | "ERROR";
@@ -12,6 +15,7 @@ export default function Logs() {
   const [search, setSearch] = useState("");
   const [autoScroll, setAutoScroll] = useState(true);
   const [logCount, setLogCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchLogs = async () => {
@@ -25,7 +29,7 @@ export default function Logs() {
   };
 
   useEffect(() => {
-    fetchLogs();
+    fetchLogs().finally(() => setLoading(false));
     const interval = setInterval(fetchLogs, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -48,97 +52,93 @@ export default function Logs() {
 
   const levelColor = (level: string) => {
     const l = level.toUpperCase();
-    if (l.includes("ERROR")) return "text-loss bg-red-950/50 border-red-500/30";
-    if (l.includes("WARN")) return "text-warning bg-yellow-950/50 border-yellow-500/30";
-    if (l.includes("INFO")) return "text-accent bg-cyan-950/50 border-cyan-500/30";
-    return "text-text-secondary bg-gray-800/50 border-gray-700/30";
+    if (l.includes("ERROR")) return "text-loss bg-loss/10 border-loss/25";
+    if (l.includes("WARN")) return "text-warning bg-warning/10 border-warning/25";
+    if (l.includes("INFO")) return "text-primary bg-primary/10 border-primary/25";
+    return "text-muted-foreground bg-muted/50 border-border/30";
   };
 
   const levelIcon = (level: string) => {
     const l = level.toUpperCase();
-    if (l.includes("ERROR")) return <XCircle size={12} className="text-loss" />;
-    if (l.includes("WARN")) return <AlertTriangle size={12} className="text-warning" />;
-    return <Info size={12} className="text-accent" />;
+    if (l.includes("ERROR")) return <XCircle className="size-3.5 text-loss" />;
+    if (l.includes("WARN")) return <AlertTriangle className="size-3.5 text-warning" />;
+    return <Info className="size-3.5 text-primary" />;
   };
 
   const filters: LogLevel[] = ["ALL", "INFO", "WARNING", "ERROR"];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <FileText className="text-accent" /> Logs
+        <h2 className="text-xl font-bold flex items-center gap-2.5">
+          <FileText className="size-5 text-primary" aria-hidden="true" /> Logs
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-secondary">{logCount} total lines</span>
+          <span className="text-xs text-muted-foreground">{logCount} total lines</span>
           <Badge label={`${filtered.length} shown`} variant="default" />
         </div>
       </div>
 
-      {/* Controls */}
       <div className="flex flex-col md:flex-row gap-3">
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {filters.map((f) => (
-            <button
+            <Button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                filter === f
-                  ? "bg-accent text-[#0f1119]"
-                  : "bg-card-bg border border-card-border text-text-secondary hover:text-text-primary"
-              }`}
+              variant={filter === f ? "default" : "outline"}
+              size="sm"
             >
               {f}
-            </button>
+            </Button>
           ))}
         </div>
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search logs..."
+          placeholder="Search logs\u2026"
           className="flex-1 max-w-md"
         />
-        <button
+        <Button
           onClick={() => setAutoScroll(!autoScroll)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            autoScroll
-              ? "bg-accent/10 text-accent"
-              : "bg-card-bg border border-card-border text-text-secondary"
-          }`}
+          variant={autoScroll ? "default" : "outline"}
+          size="sm"
         >
-          <ScrollText size={12} />
+          <ScrollText data-icon="inline-start" aria-hidden="true" />
           {autoScroll ? "Auto-scroll ON" : "Auto-scroll OFF"}
-        </button>
+        </Button>
       </div>
 
-      {/* Log List */}
       <Card title="Bot Logs">
-        <div
-          ref={scrollRef}
-          className="overflow-auto max-h-[70vh] font-mono text-xs space-y-0.5"
-        >
-          {filtered.map((entry, i) => {
-            const level = entry[1] ?? "";
-            const timestamp = entry[0] ?? "";
-            const message = entry.slice(2).join(" ");
-            return (
-              <div
-                key={i}
-                className={`flex items-start gap-2 py-1 px-2 rounded border ${levelColor(level)}`}
-              >
-                {levelIcon(level)}
-                <span className="text-text-secondary shrink-0 w-20">{timestamp}</span>
-                <span className="font-semibold shrink-0 w-14">{level}</span>
-                <span className="text-text-primary break-all">{message}</span>
-              </div>
-            );
-          })}
-          {filtered.length === 0 && (
-            <div className="py-8 text-center text-text-secondary">
-              No logs match your filter
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
+            Loading logs\u2026
+          </div>
+        ) : (
+          <div
+            ref={scrollRef}
+            className="overflow-auto max-h-[70vh] font-mono text-xs flex flex-col gap-0.5"
+          >
+            {filtered.map((entry, i) => {
+              const level = entry[1] ?? "";
+              const timestamp = entry[0] ?? "";
+              const message = entry.slice(2).join(" ");
+              return (
+                <div
+                  key={i}
+                  className={cn("flex items-start gap-2 px-2.5 py-2 rounded-lg border", levelColor(level))}
+                >
+                  {levelIcon(level)}
+                  <span className="text-muted-foreground shrink-0 w-20">{timestamp}</span>
+                  <span className="font-semibold shrink-0 w-14">{level}</span>
+                  <span className="break-all">{message}</span>
+                </div>
+              );
+            })}
+            {filtered.length === 0 && (
+              <Empty icon={FileText} title="No Logs" description="No logs match your filter" />
+            )}
+          </div>
+        )}
       </Card>
     </div>
   );
