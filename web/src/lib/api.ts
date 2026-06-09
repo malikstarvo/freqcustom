@@ -1,10 +1,63 @@
 const API_BASE = "/api/v1";
+const API_USER = "admin";
+const API_PASS = "admin";
+
+let authToken: string | null = localStorage.getItem("freqtrade-token");
+let loginPromise: Promise<void> | null = null;
+
+async function ensureAuth(): Promise<void> {
+  if (authToken) return;
+  if (loginPromise) return loginPromise;
+  loginPromise = (async () => {
+    try {
+      const resp = await fetch(`${API_BASE}/token/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: API_USER, password: API_PASS }),
+      });
+      if (!resp.ok) throw new Error(`Login failed: ${resp.status}`);
+      const data = await resp.json();
+      authToken = data.access_token;
+      localStorage.setItem("freqtrade-token", authToken);
+    } catch (e) {
+      console.error("Auth failed:", e);
+    } finally {
+      loginPromise = null;
+    }
+  })();
+  return loginPromise;
+}
+
+// Auto-trigger login on load
+ensureAuth();
 
 async function fetchJSON<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  await ensureAuth();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+  const mergedHeaders = { ...headers, ...options?.headers };
   const resp = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: mergedHeaders,
   });
+  if (resp.status === 401) {
+    // Token expired — clear and retry once
+    authToken = null;
+    localStorage.removeItem("freqtrade-token");
+    await ensureAuth();
+    const retryResp = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers: { ...headers, "Authorization": `Bearer ${authToken}`, ...options?.headers },
+    });
+    if (!retryResp.ok) {
+      throw new Error(`API ${endpoint}: ${retryResp.status} ${retryResp.statusText}`);
+    }
+    return retryResp.json() as Promise<T>;
+  }
   if (!resp.ok) {
     throw new Error(`API ${endpoint}: ${resp.status} ${resp.statusText}`);
   }
