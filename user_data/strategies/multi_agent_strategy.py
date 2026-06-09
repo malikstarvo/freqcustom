@@ -52,6 +52,13 @@ class MultiAgentStrategy(IStrategy):
         dataframe["&s-up_or_down"] = (future_return > 0.002).astype(str)
         return dataframe
 
+    def feature_engineering_standard(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+        """Add % prefix to feature columns so FreqAI recognizes them."""
+        for col in self.freqai_info.get("feature_parameters", {}).get("feature_columns", []):
+            if col in dataframe.columns:
+                dataframe[f"%{col}"] = dataframe[col]
+        return dataframe
+
     def populate_indicators(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         print(f"[POPULATE INDICATORS CALLED] pair={metadata['pair']}, rows={len(dataframe)}")
         dataframe["ema20"] = ta.EMA(dataframe, timeperiod=20)
