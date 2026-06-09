@@ -1,1 +1,3 @@
-export { default } from "@/pages/Dashboard";
+import dynamic from "next/dynamic";
+const Dashboard = dynamic(() => import("@/pages/Dashboard"), { ssr: false });
+export default Dashboard;
