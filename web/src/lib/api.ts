@@ -1,8 +1,8 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+const API_BASE = (typeof process !== "undefined" && (process.env as any).NEXT_PUBLIC_API_URL) || "/api/v1";
 const API_USER = "admin";
 const API_PASS = "admin";
 
-let authToken: string | null = localStorage.getItem("freqtrade-token");
+let authToken: string | null = typeof window !== "undefined" ? localStorage.getItem("freqtrade-token") : null;
 let loginPromise: Promise<void> | null = null;
 
 async function ensureAuth(): Promise<void> {

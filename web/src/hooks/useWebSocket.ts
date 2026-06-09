@@ -10,7 +10,7 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
   const [readyState, setReadyState] = useState<number>(WebSocket.CONNECTING);
   const [subscriptions, setSubscriptions] = useState<string[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectRef = useRef<number | null>(null);
   const retriesRef = useRef(0);
 
   const connect = useCallback(() => {
@@ -43,7 +43,7 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
       setReadyState(WebSocket.CLOSED);
       const delay = Math.min(1000 * Math.pow(2, retriesRef.current), 30000);
       retriesRef.current++;
-      reconnectRef.current = setTimeout(connect, delay);
+      reconnectRef.current = window.setTimeout(connect, delay);
     };
 
     ws.onerror = () => {
@@ -54,7 +54,7 @@ export function useWebSocket(wsUrl: string = "/api/v1/message/ws") {
   useEffect(() => {
     connect();
     return () => {
-      clearTimeout(reconnectRef.current);
+      if (reconnectRef.current !== null) clearTimeout(reconnectRef.current);
       wsRef.current?.close();
     };
   }, [connect]);
