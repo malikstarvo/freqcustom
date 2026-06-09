@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "out",
+  "framework": "nextjs",
+  "rewrites": [{ "source": "/api/(.*)", "destination": "http://YOUR_VPS_IP:8080/api/$1" }]
+}

@@ -1,0 +1,1762 @@
+{
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\__init__.py": {
+    "mtime": 1780887840.8343155,
+    "ast_hash": "dbd87bb2dc75b80192e9f8c81215c5ae",
+    "semantic_hash": "dbd87bb2dc75b80192e9f8c81215c5ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\__main__.py": {
+    "mtime": 1780887840.8353198,
+    "ast_hash": "a07ef74693b66332eaafdd0030679360",
+    "semantic_hash": "a07ef74693b66332eaafdd0030679360"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\__init__.py": {
+    "mtime": 1780912801.7859669,
+    "ast_hash": "0f18a90ddb6fd9feccc72651a52cbe52",
+    "semantic_hash": "0f18a90ddb6fd9feccc72651a52cbe52"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\analyze_commands.py": {
+    "mtime": 1780887840.8378208,
+    "ast_hash": "e258a0ad5d9a85838d1589e2d09c0981",
+    "semantic_hash": "e258a0ad5d9a85838d1589e2d09c0981"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\arguments.py": {
+    "mtime": 1780914742.2856388,
+    "ast_hash": "c35051122152ea02e48c8601390dfe0c",
+    "semantic_hash": "c35051122152ea02e48c8601390dfe0c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\build_config_commands.py": {
+    "mtime": 1780887840.8399327,
+    "ast_hash": "706424c16656a1072984b9334f01d7be",
+    "semantic_hash": "706424c16656a1072984b9334f01d7be"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\cli_options.py": {
+    "mtime": 1780887840.8419492,
+    "ast_hash": "868afa5395617ae4f46af2850b549503",
+    "semantic_hash": "868afa5395617ae4f46af2850b549503"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\data_commands.py": {
+    "mtime": 1780887840.842949,
+    "ast_hash": "6da1694341a084d6043fcb8180b912e3",
+    "semantic_hash": "6da1694341a084d6043fcb8180b912e3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\db_commands.py": {
+    "mtime": 1780887840.8449354,
+    "ast_hash": "3ca5d3eac00489952a59b4ad5ee23c10",
+    "semantic_hash": "3ca5d3eac00489952a59b4ad5ee23c10"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\deploy_commands.py": {
+    "mtime": 1780887840.8459342,
+    "ast_hash": "a2c0e73334c3f68699cb7b335aae80e2",
+    "semantic_hash": "a2c0e73334c3f68699cb7b335aae80e2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\deploy_ui.py": {
+    "mtime": 1780887840.8459342,
+    "ast_hash": "b985b9d68543db5f14acd9a41d397451",
+    "semantic_hash": "b985b9d68543db5f14acd9a41d397451"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\edge_study_commands.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "4f1a46f0e0dc9a7aaccb361858fce274",
+    "semantic_hash": "4f1a46f0e0dc9a7aaccb361858fce274"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\hyperopt_commands.py": {
+    "mtime": 1780887840.8469493,
+    "ast_hash": "d2a12f58dbfe4dcde1c9bfe87eed8ac1",
+    "semantic_hash": "d2a12f58dbfe4dcde1c9bfe87eed8ac1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\list_commands.py": {
+    "mtime": 1780887840.8479495,
+    "ast_hash": "c30198f7e3c2b092f5500d80c7a331f3",
+    "semantic_hash": "c30198f7e3c2b092f5500d80c7a331f3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\optimize_commands.py": {
+    "mtime": 1780887840.8494866,
+    "ast_hash": "feb3b9db4947d1e489c4c90322cf6357",
+    "semantic_hash": "feb3b9db4947d1e489c4c90322cf6357"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\pairlist_commands.py": {
+    "mtime": 1780887840.8504963,
+    "ast_hash": "95f21a425300b18e65b97105bec657f0",
+    "semantic_hash": "95f21a425300b18e65b97105bec657f0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\paper_commands.py": {
+    "mtime": 1780898171.4734004,
+    "ast_hash": "10b631565042023011ad1301ac83a493",
+    "semantic_hash": "10b631565042023011ad1301ac83a493"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\plot_commands.py": {
+    "mtime": 1780887840.8519394,
+    "ast_hash": "46dc32300863c0e201069fb6ae3c51fe",
+    "semantic_hash": "46dc32300863c0e201069fb6ae3c51fe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\strategy_utils_commands.py": {
+    "mtime": 1780887840.8519394,
+    "ast_hash": "1f0a3c24f5fa0d9fcb360bc6b2d47438",
+    "semantic_hash": "1f0a3c24f5fa0d9fcb360bc6b2d47438"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\trade_commands.py": {
+    "mtime": 1780887840.8530822,
+    "ast_hash": "c118e29b8bfff030553b5ad6bfaec190",
+    "semantic_hash": "c118e29b8bfff030553b5ad6bfaec190"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\train_report_commands.py": {
+    "mtime": 1780899779.5001228,
+    "ast_hash": "1f0d8a4b6405027aec5b9dced1bb529c",
+    "semantic_hash": "1f0d8a4b6405027aec5b9dced1bb529c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\commands\\webserver_commands.py": {
+    "mtime": 1780887840.8540628,
+    "ast_hash": "8616599a6f50eeb917188f1757dddd1e",
+    "semantic_hash": "8616599a6f50eeb917188f1757dddd1e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\config_schema\\__init__.py": {
+    "mtime": 1780887840.8548756,
+    "ast_hash": "dc8749d8b16131a23e3d5983400646d3",
+    "semantic_hash": "dc8749d8b16131a23e3d5983400646d3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\config_schema\\config_schema.py": {
+    "mtime": 1780887840.856422,
+    "ast_hash": "5e89a4ef5cb7b6c425c9173d892a951b",
+    "semantic_hash": "5e89a4ef5cb7b6c425c9173d892a951b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\__init__.py": {
+    "mtime": 1780887840.8574204,
+    "ast_hash": "64ca9a024e83e868df83a0f43258c28a",
+    "semantic_hash": "64ca9a024e83e868df83a0f43258c28a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\config_setup.py": {
+    "mtime": 1780887840.8599339,
+    "ast_hash": "e1deafbabeb13576ece3ef9e3c56a069",
+    "semantic_hash": "e1deafbabeb13576ece3ef9e3c56a069"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\config_validation.py": {
+    "mtime": 1780887840.8599339,
+    "ast_hash": "1efed00cff120bae954ee464fc33376a",
+    "semantic_hash": "1efed00cff120bae954ee464fc33376a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\configuration.py": {
+    "mtime": 1780891984.9358375,
+    "ast_hash": "0570cf6ad287810e29fca0b0469bd2fb",
+    "semantic_hash": "0570cf6ad287810e29fca0b0469bd2fb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\deploy_config.py": {
+    "mtime": 1780887840.8619473,
+    "ast_hash": "a91597bcb8956c35b8c37bf676c1ed05",
+    "semantic_hash": "a91597bcb8956c35b8c37bf676c1ed05"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\deprecated_settings.py": {
+    "mtime": 1780887840.8629348,
+    "ast_hash": "62737a138cda96d3892a344c82f513f2",
+    "semantic_hash": "62737a138cda96d3892a344c82f513f2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\detect_environment.py": {
+    "mtime": 1780887840.863948,
+    "ast_hash": "6b1976c98356b3779f4dc43c4ece2c4d",
+    "semantic_hash": "6b1976c98356b3779f4dc43c4ece2c4d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\directory_operations.py": {
+    "mtime": 1780887840.8649483,
+    "ast_hash": "7db447aa421460b6b28a755c2ccb6577",
+    "semantic_hash": "7db447aa421460b6b28a755c2ccb6577"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\edge_study_schema.py": {
+    "mtime": 1780894115.511044,
+    "ast_hash": "bb0325bf78cd587e475deb9a21363921",
+    "semantic_hash": "bb0325bf78cd587e475deb9a21363921"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\environment_vars.py": {
+    "mtime": 1780887840.8659372,
+    "ast_hash": "0d729d1eff2d6a1b0ca56e9f847452e4",
+    "semantic_hash": "0d729d1eff2d6a1b0ca56e9f847452e4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\load_config.py": {
+    "mtime": 1780887840.867948,
+    "ast_hash": "d2cd1aaa82a9dfd9d126e2d2c2e35245",
+    "semantic_hash": "d2cd1aaa82a9dfd9d126e2d2c2e35245"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\configuration\\timerange.py": {
+    "mtime": 1780887840.8689473,
+    "ast_hash": "6dde9b2de1b01936856ccccf3f7cf156",
+    "semantic_hash": "6dde9b2de1b01936856ccccf3f7cf156"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\constants.py": {
+    "mtime": 1780887840.869486,
+    "ast_hash": "8739738c88b3fe1fe11a6384cd142eaa",
+    "semantic_hash": "8739738c88b3fe1fe11a6384cd142eaa"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\__init__.py": {
+    "mtime": 1780887840.871493,
+    "ast_hash": "7900f2fcfb0eb16512661c4fd207bb17",
+    "semantic_hash": "7900f2fcfb0eb16512661c4fd207bb17"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\btanalysis\\__init__.py": {
+    "mtime": 1780887840.8724854,
+    "ast_hash": "d228e17cda0df8ae77980db48fb3665b",
+    "semantic_hash": "d228e17cda0df8ae77980db48fb3665b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\btanalysis\\bt_fileutils.py": {
+    "mtime": 1780887840.874494,
+    "ast_hash": "89f6973473f3c3e0cc4b4064e6c4d91a",
+    "semantic_hash": "89f6973473f3c3e0cc4b4064e6c4d91a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\btanalysis\\historic_precision.py": {
+    "mtime": 1780887840.875493,
+    "ast_hash": "6ac26807fdd339d657d28df7872de194",
+    "semantic_hash": "6ac26807fdd339d657d28df7872de194"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\btanalysis\\trade_parallelism.py": {
+    "mtime": 1780887840.8775032,
+    "ast_hash": "04b1be976a5646540f271946d71fe6bf",
+    "semantic_hash": "04b1be976a5646540f271946d71fe6bf"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\converter\\__init__.py": {
+    "mtime": 1780887840.8790176,
+    "ast_hash": "41210fdc7528bb9ac37f33c857239917",
+    "semantic_hash": "41210fdc7528bb9ac37f33c857239917"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\converter\\converter.py": {
+    "mtime": 1780887840.8800278,
+    "ast_hash": "f3fe2d8f3ece35e205436c300cccf324",
+    "semantic_hash": "f3fe2d8f3ece35e205436c300cccf324"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\converter\\orderflow.py": {
+    "mtime": 1780887840.8810256,
+    "ast_hash": "916c7d820637d6ed9fc6bceba7eef04f",
+    "semantic_hash": "916c7d820637d6ed9fc6bceba7eef04f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\converter\\trade_converter.py": {
+    "mtime": 1780887840.8821814,
+    "ast_hash": "01725d596d6c0b4d95ef3ecd51d3d9c9",
+    "semantic_hash": "01725d596d6c0b4d95ef3ecd51d3d9c9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\converter\\trade_converter_kraken.py": {
+    "mtime": 1780887840.8832214,
+    "ast_hash": "cb1c6ca80ac3426858316a197cb35c47",
+    "semantic_hash": "cb1c6ca80ac3426858316a197cb35c47"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\dataprovider.py": {
+    "mtime": 1780887840.8851962,
+    "ast_hash": "1d3e94ad8739b9bb30e79c233aa5e58d",
+    "semantic_hash": "1d3e94ad8739b9bb30e79c233aa5e58d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\entryexitanalysis.py": {
+    "mtime": 1780887840.886201,
+    "ast_hash": "d5a2d80f6ac43cfba05f06134fd2bd15",
+    "semantic_hash": "d5a2d80f6ac43cfba05f06134fd2bd15"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\__init__.py": {
+    "mtime": 1780887840.887394,
+    "ast_hash": "ce82730060124079f42707a59e955572",
+    "semantic_hash": "ce82730060124079f42707a59e955572"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\datahandlers\\__init__.py": {
+    "mtime": 1780887840.8888974,
+    "ast_hash": "d46cebef10dc91a6512953de37126fe3",
+    "semantic_hash": "d46cebef10dc91a6512953de37126fe3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\datahandlers\\featherdatahandler.py": {
+    "mtime": 1780887840.8899043,
+    "ast_hash": "af426a3921f6ea9c18ad9c3e41b098a9",
+    "semantic_hash": "af426a3921f6ea9c18ad9c3e41b098a9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\datahandlers\\idatahandler.py": {
+    "mtime": 1780887840.8909068,
+    "ast_hash": "a8539a7f659b78308639a2e41951feb6",
+    "semantic_hash": "a8539a7f659b78308639a2e41951feb6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\datahandlers\\jsondatahandler.py": {
+    "mtime": 1780887840.892906,
+    "ast_hash": "13f4b0b86f7adab0124a858e6b858cea",
+    "semantic_hash": "13f4b0b86f7adab0124a858e6b858cea"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\datahandlers\\parquetdatahandler.py": {
+    "mtime": 1780887840.8939018,
+    "ast_hash": "69d41c7aa75fba6094bed73757ab72c6",
+    "semantic_hash": "69d41c7aa75fba6094bed73757ab72c6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\history\\history_utils.py": {
+    "mtime": 1780887840.8949013,
+    "ast_hash": "966f870273ff622ac9e62fb9312e449e",
+    "semantic_hash": "966f870273ff622ac9e62fb9312e449e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\data\\metrics.py": {
+    "mtime": 1780887840.8949013,
+    "ast_hash": "3f6f9c51a489ad4a88e76d2d01b05c14",
+    "semantic_hash": "3f6f9c51a489ad4a88e76d2d01b05c14"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\__init__.py": {
+    "mtime": 1780887840.8969002,
+    "ast_hash": "1a3ff243573ac1587eaf9c48d14fb53e",
+    "semantic_hash": "1a3ff243573ac1587eaf9c48d14fb53e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\backteststate.py": {
+    "mtime": 1780887840.8979166,
+    "ast_hash": "3961cea42c513d0bc1ec781991d0ba85",
+    "semantic_hash": "3961cea42c513d0bc1ec781991d0ba85"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\candletype.py": {
+    "mtime": 1780887840.8989067,
+    "ast_hash": "98ee9796a5c29a5be8d77e6f8951d16d",
+    "semantic_hash": "98ee9796a5c29a5be8d77e6f8951d16d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\exitchecktuple.py": {
+    "mtime": 1780887840.9002166,
+    "ast_hash": "ebc72de286441290ca0da672a977ded0",
+    "semantic_hash": "ebc72de286441290ca0da672a977ded0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\exittype.py": {
+    "mtime": 1780887840.9012241,
+    "ast_hash": "a83b9e9969a513036e228d3ee4690ec5",
+    "semantic_hash": "a83b9e9969a513036e228d3ee4690ec5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\hyperoptstate.py": {
+    "mtime": 1780887840.902223,
+    "ast_hash": "ddea1306a257b06579d7cb6addda60b2",
+    "semantic_hash": "ddea1306a257b06579d7cb6addda60b2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\marginmode.py": {
+    "mtime": 1780887840.902223,
+    "ast_hash": "091269a0eee321e48b028bcc7daf75ce",
+    "semantic_hash": "091269a0eee321e48b028bcc7daf75ce"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\marketstatetype.py": {
+    "mtime": 1780887840.903239,
+    "ast_hash": "ab8ce15b05e2d24e5769b6b1c3f164d2",
+    "semantic_hash": "ab8ce15b05e2d24e5769b6b1c3f164d2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\ordertypevalue.py": {
+    "mtime": 1780887840.9042397,
+    "ast_hash": "02c1a9e590c1e186918f4d83c800b3a4",
+    "semantic_hash": "02c1a9e590c1e186918f4d83c800b3a4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\pricetype.py": {
+    "mtime": 1780887840.9053981,
+    "ast_hash": "28594f2d07f3ae22b818fc5d208825c6",
+    "semantic_hash": "28594f2d07f3ae22b818fc5d208825c6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\rpcmessagetype.py": {
+    "mtime": 1780887840.9063964,
+    "ast_hash": "20fe019b622674c84f494b125c87c8ae",
+    "semantic_hash": "20fe019b622674c84f494b125c87c8ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\runmode.py": {
+    "mtime": 1780887840.9074006,
+    "ast_hash": "2c58390373e73f912130ec9138516093",
+    "semantic_hash": "2c58390373e73f912130ec9138516093"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\signaltype.py": {
+    "mtime": 1780887840.9074006,
+    "ast_hash": "e5a686b3eb2380bb2b51d0b45658e7ce",
+    "semantic_hash": "e5a686b3eb2380bb2b51d0b45658e7ce"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\state.py": {
+    "mtime": 1780887840.9083922,
+    "ast_hash": "a60f64c119ee9818db29f9772cc77532",
+    "semantic_hash": "a60f64c119ee9818db29f9772cc77532"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\enums\\tradingmode.py": {
+    "mtime": 1780887840.9088943,
+    "ast_hash": "ec9e4bf36d195a22b1f6b31dbf3bcbd0",
+    "semantic_hash": "ec9e4bf36d195a22b1f6b31dbf3bcbd0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exceptions.py": {
+    "mtime": 1780887840.909897,
+    "ast_hash": "8edbf7d39652ae83d55d0b21f492b5fd",
+    "semantic_hash": "8edbf7d39652ae83d55d0b21f492b5fd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\__init__.py": {
+    "mtime": 1780887840.910905,
+    "ast_hash": "7a797943cff559f730e56c78de682205",
+    "semantic_hash": "7a797943cff559f730e56c78de682205"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\binance.py": {
+    "mtime": 1780887840.9119115,
+    "ast_hash": "a1b2b52e303ff0e19fba40fa2d07446b",
+    "semantic_hash": "a1b2b52e303ff0e19fba40fa2d07446b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\binance_leverage_tiers.json": {
+    "mtime": 1780887840.9342134,
+    "ast_hash": "0438a6a0688bea3aa6c54222107fc4f0",
+    "semantic_hash": "0438a6a0688bea3aa6c54222107fc4f0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\binance_public_data.py": {
+    "mtime": 1780887840.9361997,
+    "ast_hash": "2034a58df4cc3910db05e04fda031c2c",
+    "semantic_hash": "2034a58df4cc3910db05e04fda031c2c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bingx.py": {
+    "mtime": 1780887840.9372158,
+    "ast_hash": "790d0e7d57b06ffd70b6462631f8877b",
+    "semantic_hash": "790d0e7d57b06ffd70b6462631f8877b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bitget.py": {
+    "mtime": 1780887840.9397452,
+    "ast_hash": "ee505fea8224538a8fe5edc24b5b326e",
+    "semantic_hash": "ee505fea8224538a8fe5edc24b5b326e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bitmart.py": {
+    "mtime": 1780887840.9407487,
+    "ast_hash": "467abcfdf9332b5f64206b88a10337b7",
+    "semantic_hash": "467abcfdf9332b5f64206b88a10337b7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bitpanda.py": {
+    "mtime": 1780887840.9417343,
+    "ast_hash": "12277a0652015619e1253ffe39d35b03",
+    "semantic_hash": "12277a0652015619e1253ffe39d35b03"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bitvavo.py": {
+    "mtime": 1780887840.9427412,
+    "ast_hash": "099d6e6300926fb4cfe60eb379b8ae9c",
+    "semantic_hash": "099d6e6300926fb4cfe60eb379b8ae9c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\bybit.py": {
+    "mtime": 1780887840.9437287,
+    "ast_hash": "0e6989880cfd737527cde757bcc9fb13",
+    "semantic_hash": "0e6989880cfd737527cde757bcc9fb13"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\check_exchange.py": {
+    "mtime": 1780887840.9457278,
+    "ast_hash": "8f5e47281d64ae60b468827b2f088da9",
+    "semantic_hash": "8f5e47281d64ae60b468827b2f088da9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\coinex.py": {
+    "mtime": 1780887840.946728,
+    "ast_hash": "521677137693c7203522dcdb0ad19646",
+    "semantic_hash": "521677137693c7203522dcdb0ad19646"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\common.py": {
+    "mtime": 1780891910.4369757,
+    "ast_hash": "567df12992fb0be4a84776f13f81ee03",
+    "semantic_hash": "567df12992fb0be4a84776f13f81ee03"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\cryptocom.py": {
+    "mtime": 1780887840.9487293,
+    "ast_hash": "a8d5f19b7416dddcaec09a785695d208",
+    "semantic_hash": "a8d5f19b7416dddcaec09a785695d208"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\exchange.py": {
+    "mtime": 1780892059.0886626,
+    "ast_hash": "9357ecfcf845514f991a2ac1c175d453",
+    "semantic_hash": "9357ecfcf845514f991a2ac1c175d453"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\exchange_types.py": {
+    "mtime": 1780887840.9507675,
+    "ast_hash": "dfeec378b98ff01776615ba58f3cb1cf",
+    "semantic_hash": "dfeec378b98ff01776615ba58f3cb1cf"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\exchange_utils.py": {
+    "mtime": 1780887840.951784,
+    "ast_hash": "187ebae848d5ded6d3c17aafcae08900",
+    "semantic_hash": "187ebae848d5ded6d3c17aafcae08900"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\exchange_utils_timeframe.py": {
+    "mtime": 1780887840.951784,
+    "ast_hash": "bc56a75c69f5f4f900f21c5b1406ca83",
+    "semantic_hash": "bc56a75c69f5f4f900f21c5b1406ca83"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\exchange_ws.py": {
+    "mtime": 1780891892.0629134,
+    "ast_hash": "14d759448fdd6059fdc334ee8d2d6216",
+    "semantic_hash": "14d759448fdd6059fdc334ee8d2d6216"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\gate.py": {
+    "mtime": 1780887840.9547837,
+    "ast_hash": "a4f5443edd4db7db5cdbf2e0c22c6d81",
+    "semantic_hash": "a4f5443edd4db7db5cdbf2e0c22c6d81"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\hitbtc.py": {
+    "mtime": 1780887840.9560921,
+    "ast_hash": "91ab894bdb88cc7a578d40f3f29fdf03",
+    "semantic_hash": "91ab894bdb88cc7a578d40f3f29fdf03"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\htx.py": {
+    "mtime": 1780887840.957087,
+    "ast_hash": "19965c4caf752c14979a0917711e307a",
+    "semantic_hash": "19965c4caf752c14979a0917711e307a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\hyperliquid.py": {
+    "mtime": 1780887840.9580867,
+    "ast_hash": "db428b481246f01d035f32b624d5f326",
+    "semantic_hash": "db428b481246f01d035f32b624d5f326"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\idex.py": {
+    "mtime": 1780887840.9590924,
+    "ast_hash": "432d0f52b41bfd421fbef4e19234f7ba",
+    "semantic_hash": "432d0f52b41bfd421fbef4e19234f7ba"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\kraken.py": {
+    "mtime": 1780887840.9612381,
+    "ast_hash": "cddccdb22cb3c9f111dae44b491b63e2",
+    "semantic_hash": "cddccdb22cb3c9f111dae44b491b63e2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\krakenfutures.py": {
+    "mtime": 1780887840.9622283,
+    "ast_hash": "3ee198a3d14193ec452c6f40bbf3941e",
+    "semantic_hash": "3ee198a3d14193ec452c6f40bbf3941e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\kucoin.py": {
+    "mtime": 1780887840.9632223,
+    "ast_hash": "8b30d42bcdfe7577681f7bbc77e7990c",
+    "semantic_hash": "8b30d42bcdfe7577681f7bbc77e7990c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\lbank.py": {
+    "mtime": 1780887840.9642403,
+    "ast_hash": "2c93275885fccb30e3ef4f09af8565ea",
+    "semantic_hash": "2c93275885fccb30e3ef4f09af8565ea"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\luno.py": {
+    "mtime": 1780887840.9642403,
+    "ast_hash": "e97161d20e2d3172b847629298a027a8",
+    "semantic_hash": "e97161d20e2d3172b847629298a027a8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\modetrade.py": {
+    "mtime": 1780887840.9662275,
+    "ast_hash": "085828000cffbdf8ffdcd5f39c4c0941",
+    "semantic_hash": "085828000cffbdf8ffdcd5f39c4c0941"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\exchange\\okx.py": {
+    "mtime": 1780887840.9672284,
+    "ast_hash": "0ecee8a5bb6a69438494a87bae0b82fd",
+    "semantic_hash": "0ecee8a5bb6a69438494a87bae0b82fd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\Base3ActionRLEnv.py": {
+    "mtime": 1780887840.9707472,
+    "ast_hash": "3e1f70b647602eea20f77405aa7cbe44",
+    "semantic_hash": "3e1f70b647602eea20f77405aa7cbe44"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\Base4ActionRLEnv.py": {
+    "mtime": 1780887840.971747,
+    "ast_hash": "c9d9b944902153bd64e7df986eb28040",
+    "semantic_hash": "c9d9b944902153bd64e7df986eb28040"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\Base5ActionRLEnv.py": {
+    "mtime": 1780887840.9737468,
+    "ast_hash": "8212a886d5ec0b3470cd081bea575e1a",
+    "semantic_hash": "8212a886d5ec0b3470cd081bea575e1a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\BaseEnvironment.py": {
+    "mtime": 1780887840.9750853,
+    "ast_hash": "c72d6c0b1af8b30204c575c159733396",
+    "semantic_hash": "c72d6c0b1af8b30204c575c159733396"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\BaseReinforcementLearningModel.py": {
+    "mtime": 1780887840.9760711,
+    "ast_hash": "042a93c0cb7c4944931a2cf4a54c6630",
+    "semantic_hash": "042a93c0cb7c4944931a2cf4a54c6630"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\RL\\__init__.py": {
+    "mtime": 1780887840.977065,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\__init__.py": {
+    "mtime": 1780887840.977065,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\BaseClassifierModel.py": {
+    "mtime": 1780974890.319787,
+    "ast_hash": "cc5a1afdd4658375e44b9f8095573eae",
+    "semantic_hash": "cc5a1afdd4658375e44b9f8095573eae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\BasePyTorchClassifier.py": {
+    "mtime": 1780887840.9795997,
+    "ast_hash": "2c392bb4b02c14fb3c58b8ce56e31a67",
+    "semantic_hash": "2c392bb4b02c14fb3c58b8ce56e31a67"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\BasePyTorchModel.py": {
+    "mtime": 1780887840.9815977,
+    "ast_hash": "042d4512efd3e0d3fdf8682b3434814d",
+    "semantic_hash": "042d4512efd3e0d3fdf8682b3434814d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\BasePyTorchRegressor.py": {
+    "mtime": 1780887840.9825966,
+    "ast_hash": "23d462e5819341a09843c391c9e348c3",
+    "semantic_hash": "23d462e5819341a09843c391c9e348c3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\BaseRegressionModel.py": {
+    "mtime": 1780887840.9835978,
+    "ast_hash": "c3eca7d64c5d0e67e9118000c3b6c9fe",
+    "semantic_hash": "c3eca7d64c5d0e67e9118000c3b6c9fe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\FreqaiMultiOutputClassifier.py": {
+    "mtime": 1780887840.9845915,
+    "ast_hash": "686be790ac239f85611c3c3a6ef5d031",
+    "semantic_hash": "686be790ac239f85611c3c3a6ef5d031"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\base_models\\FreqaiMultiOutputRegressor.py": {
+    "mtime": 1780887840.985591,
+    "ast_hash": "d1919414824a1ac1f7b5a160f08631a7",
+    "semantic_hash": "d1919414824a1ac1f7b5a160f08631a7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\data_drawer.py": {
+    "mtime": 1780887840.9865901,
+    "ast_hash": "06abcb747851690f177055b7b841a58e",
+    "semantic_hash": "06abcb747851690f177055b7b841a58e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\data_kitchen.py": {
+    "mtime": 1780973058.1952536,
+    "ast_hash": "820c4e3c68bee7a59e4cca2486f8c35a",
+    "semantic_hash": "820c4e3c68bee7a59e4cca2486f8c35a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\freqai_interface.py": {
+    "mtime": 1780974907.5785635,
+    "ast_hash": "8cec27c7664c668c5c1c8f87bde0725a",
+    "semantic_hash": "8cec27c7664c668c5c1c8f87bde0725a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\LightGBMClassifier.py": {
+    "mtime": 1780887840.9911177,
+    "ast_hash": "7e5d25b2bfc83348a4b5ffd50c927c7f",
+    "semantic_hash": "7e5d25b2bfc83348a4b5ffd50c927c7f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\LightGBMClassifierMultiTarget.py": {
+    "mtime": 1780887840.99212,
+    "ast_hash": "5fe2f4e09cbc315207ab2d5357232a61",
+    "semantic_hash": "5fe2f4e09cbc315207ab2d5357232a61"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\LightGBMRegressor.py": {
+    "mtime": 1780887840.9937985,
+    "ast_hash": "d3fbbcd8b8f96f13d97d90e7563e3f71",
+    "semantic_hash": "d3fbbcd8b8f96f13d97d90e7563e3f71"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\LightGBMRegressorMultiTarget.py": {
+    "mtime": 1780887840.9948251,
+    "ast_hash": "46e24a5467c2866f218df5882cd94e75",
+    "semantic_hash": "46e24a5467c2866f218df5882cd94e75"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\PyTorchMLPClassifier.py": {
+    "mtime": 1780887840.9958224,
+    "ast_hash": "ca1c15f319a6ab2d9bb6c59a0d4a9455",
+    "semantic_hash": "ca1c15f319a6ab2d9bb6c59a0d4a9455"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\PyTorchMLPRegressor.py": {
+    "mtime": 1780887840.9968305,
+    "ast_hash": "61e26caec0d627808e772f5dff0b85e0",
+    "semantic_hash": "61e26caec0d627808e772f5dff0b85e0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\PyTorchTransformerRegressor.py": {
+    "mtime": 1780887840.9987671,
+    "ast_hash": "f94d356a5dabdf5f25e61a404146a743",
+    "semantic_hash": "f94d356a5dabdf5f25e61a404146a743"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\ReinforcementLearner.py": {
+    "mtime": 1780887840.9987671,
+    "ast_hash": "8c2b612b8b9b71f0a5dfd2fb37ccd078",
+    "semantic_hash": "8c2b612b8b9b71f0a5dfd2fb37ccd078"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\ReinforcementLearner_multiproc.py": {
+    "mtime": 1780887840.9997754,
+    "ast_hash": "943d972384e116bef17b61c55746dcc5",
+    "semantic_hash": "943d972384e116bef17b61c55746dcc5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\SKLearnRandomForestClassifier.py": {
+    "mtime": 1780887841.0007818,
+    "ast_hash": "698039b63b12ec594bf068a4afc26559",
+    "semantic_hash": "698039b63b12ec594bf068a4afc26559"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\XGBoostClassifier.py": {
+    "mtime": 1780887841.0027983,
+    "ast_hash": "e124ed5fa142045a254b5d19396b4452",
+    "semantic_hash": "e124ed5fa142045a254b5d19396b4452"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\XGBoostRFClassifier.py": {
+    "mtime": 1780887841.0037959,
+    "ast_hash": "f30a87a20b29cc38404e59582531219c",
+    "semantic_hash": "f30a87a20b29cc38404e59582531219c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\XGBoostRFRegressor.py": {
+    "mtime": 1780887841.0050175,
+    "ast_hash": "bc362a31260a3222d60dc6dbc5ab7c18",
+    "semantic_hash": "bc362a31260a3222d60dc6dbc5ab7c18"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\XGBoostRegressor.py": {
+    "mtime": 1780887841.0050175,
+    "ast_hash": "80107a7ad8caa9d34a17ee68a3e39a22",
+    "semantic_hash": "80107a7ad8caa9d34a17ee68a3e39a22"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\XGBoostRegressorMultiTarget.py": {
+    "mtime": 1780887841.006205,
+    "ast_hash": "4264f48dd76bd36b8ffcdaa7770eb4ae",
+    "semantic_hash": "4264f48dd76bd36b8ffcdaa7770eb4ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\prediction_models\\__init__.py": {
+    "mtime": 1780887841.006205,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\tensorboard\\TensorboardCallback.py": {
+    "mtime": 1780887841.0072086,
+    "ast_hash": "5b0279e22e38fd95761abb96dfd070ca",
+    "semantic_hash": "5b0279e22e38fd95761abb96dfd070ca"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\tensorboard\\__init__.py": {
+    "mtime": 1780887841.0093176,
+    "ast_hash": "6e18ea05cce8c1612a177def36516a7c",
+    "semantic_hash": "6e18ea05cce8c1612a177def36516a7c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\tensorboard\\base_tensorboard.py": {
+    "mtime": 1780887841.0103345,
+    "ast_hash": "d70bfd5aa4608f008ef1706338efb922",
+    "semantic_hash": "d70bfd5aa4608f008ef1706338efb922"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\tensorboard\\lightgbm_callback.py": {
+    "mtime": 1780887841.011743,
+    "ast_hash": "0f78256bb74fb181a8e15c09f895cc49",
+    "semantic_hash": "0f78256bb74fb181a8e15c09f895cc49"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\tensorboard\\tensorboard.py": {
+    "mtime": 1780887841.011743,
+    "ast_hash": "f4c8af0809d391d5ceca602a83fc48a3",
+    "semantic_hash": "f4c8af0809d391d5ceca602a83fc48a3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\PyTorchDataConvertor.py": {
+    "mtime": 1780887841.0138278,
+    "ast_hash": "fe861d18a3ae97c3142abaf65bede627",
+    "semantic_hash": "fe861d18a3ae97c3142abaf65bede627"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\PyTorchMLPModel.py": {
+    "mtime": 1780887841.0138278,
+    "ast_hash": "80f1aa42b62cf0e5c876b2c12256d2f4",
+    "semantic_hash": "80f1aa42b62cf0e5c876b2c12256d2f4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\PyTorchModelTrainer.py": {
+    "mtime": 1780887841.0158334,
+    "ast_hash": "0c23ac0ea37f02ba88eba8f9c50587a0",
+    "semantic_hash": "0c23ac0ea37f02ba88eba8f9c50587a0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\PyTorchTrainerInterface.py": {
+    "mtime": 1780887841.0168326,
+    "ast_hash": "151cc6691e682916e05bea94cd75ecc6",
+    "semantic_hash": "151cc6691e682916e05bea94cd75ecc6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\PyTorchTransformerModel.py": {
+    "mtime": 1780887841.0178332,
+    "ast_hash": "9d6b7490756d14ac4970dbab4ce89cfb",
+    "semantic_hash": "9d6b7490756d14ac4970dbab4ce89cfb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\__init__.py": {
+    "mtime": 1780887841.0185697,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\torch\\datasets.py": {
+    "mtime": 1780887841.0191052,
+    "ast_hash": "8b5032f187611a3a77dc2e2b68414366",
+    "semantic_hash": "8b5032f187611a3a77dc2e2b68414366"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqai\\utils.py": {
+    "mtime": 1780887841.0201402,
+    "ast_hash": "485fbbfb75236fe53b6c23a9a029b97f",
+    "semantic_hash": "485fbbfb75236fe53b6c23a9a029b97f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\freqtradebot.py": {
+    "mtime": 1780891866.4877775,
+    "ast_hash": "bb7ff38d7aec881355e434b3ff5baee3",
+    "semantic_hash": "bb7ff38d7aec881355e434b3ff5baee3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\ft_types\\__init__.py": {
+    "mtime": 1780887841.0231545,
+    "ast_hash": "bdc75311abd064755aea3a5792fcd538",
+    "semantic_hash": "bdc75311abd064755aea3a5792fcd538"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\ft_types\\backtest_result_type.py": {
+    "mtime": 1780887841.0243478,
+    "ast_hash": "3feaf9ec23019e560f130e37aa81b419",
+    "semantic_hash": "3feaf9ec23019e560f130e37aa81b419"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\ft_types\\plot_annotation_type.py": {
+    "mtime": 1780887841.0243478,
+    "ast_hash": "810340a5f72263bd2d5172b1b1ab99fe",
+    "semantic_hash": "810340a5f72263bd2d5172b1b1ab99fe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\ft_types\\valid_exchanges_type.py": {
+    "mtime": 1780887841.0255077,
+    "ast_hash": "ce3dcb8ec4a6eb23c77a34a03ca60e41",
+    "semantic_hash": "ce3dcb8ec4a6eb23c77a34a03ca60e41"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\leverage\\__init__.py": {
+    "mtime": 1780887841.0265198,
+    "ast_hash": "cc64458a202d05a0cb1b21a82643f6a8",
+    "semantic_hash": "cc64458a202d05a0cb1b21a82643f6a8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\leverage\\interest.py": {
+    "mtime": 1780887841.0275185,
+    "ast_hash": "0abdc2034a8426c0154325f5677f1dbf",
+    "semantic_hash": "0abdc2034a8426c0154325f5677f1dbf"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\leverage\\liquidation_price.py": {
+    "mtime": 1780887841.0290318,
+    "ast_hash": "dda27ad4a8712c9054ecdac74c607d9e",
+    "semantic_hash": "dda27ad4a8712c9054ecdac74c607d9e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\__init__.py": {
+    "mtime": 1780887841.03107,
+    "ast_hash": "3c7c301c5830947f629a02be8237e5ae",
+    "semantic_hash": "3c7c301c5830947f629a02be8237e5ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\buffering_handler.py": {
+    "mtime": 1780887841.032071,
+    "ast_hash": "2d4f2f1a9a6d11fccb3d4a89324fab39",
+    "semantic_hash": "2d4f2f1a9a6d11fccb3d4a89324fab39"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\ft_rich_handler.py": {
+    "mtime": 1780887841.0330696,
+    "ast_hash": "6362dcf3a698f01c3a9809b34a8090ed",
+    "semantic_hash": "6362dcf3a698f01c3a9809b34a8090ed"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\json_formatter.py": {
+    "mtime": 1780887841.035067,
+    "ast_hash": "f6b778836dc939738b9eab68e6bc7c24",
+    "semantic_hash": "f6b778836dc939738b9eab68e6bc7c24"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\rich_console.py": {
+    "mtime": 1780887841.0360706,
+    "ast_hash": "f70c76ff4e203b23f6978923c3f0b693",
+    "semantic_hash": "f70c76ff4e203b23f6978923c3f0b693"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\set_log_levels.py": {
+    "mtime": 1780887841.0370698,
+    "ast_hash": "66db041a103e0817d7d4370d13c1f83f",
+    "semantic_hash": "66db041a103e0817d7d4370d13c1f83f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\loggers\\std_err_stream_handler.py": {
+    "mtime": 1780887841.0390663,
+    "ast_hash": "2d1bab0180905934ba651c2daf83d9a4",
+    "semantic_hash": "2d1bab0180905934ba651c2daf83d9a4"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\main.py": {
+    "mtime": 1780887841.039575,
+    "ast_hash": "1c9fff632cbc62328c231a288cecca8e",
+    "semantic_hash": "1c9fff632cbc62328c231a288cecca8e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\misc.py": {
+    "mtime": 1780887841.0405943,
+    "ast_hash": "46ef4625d3a3d44e2a75e5cbf2c34e34",
+    "semantic_hash": "46ef4625d3a3d44e2a75e5cbf2c34e34"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\mixins\\__init__.py": {
+    "mtime": 1780887841.042596,
+    "ast_hash": "da03e340172ffb2daf9937cd343a859e",
+    "semantic_hash": "da03e340172ffb2daf9937cd343a859e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\mixins\\logging_mixin.py": {
+    "mtime": 1780887841.0435913,
+    "ast_hash": "1f51868a76447b8e064140d7a68ab699",
+    "semantic_hash": "1f51868a76447b8e064140d7a68ab699"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\__init__.py": {
+    "mtime": 1780887841.0455935,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\__init__.py": {
+    "mtime": 1780887841.0465906,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\base_analysis.py": {
+    "mtime": 1780887841.0475879,
+    "ast_hash": "1baa34d0a4ada560e7b11d690e25d667",
+    "semantic_hash": "1baa34d0a4ada560e7b11d690e25d667"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\lookahead.py": {
+    "mtime": 1780887841.0475879,
+    "ast_hash": "60883f649f6969e5bcbf316e6d0cb3c0",
+    "semantic_hash": "60883f649f6969e5bcbf316e6d0cb3c0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\lookahead_helpers.py": {
+    "mtime": 1780887841.0497484,
+    "ast_hash": "82a9b9caad87208d2276eccdbfddf687",
+    "semantic_hash": "82a9b9caad87208d2276eccdbfddf687"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\recursive.py": {
+    "mtime": 1780887841.050747,
+    "ast_hash": "b50b4b82aaeb426a1976aee6199f0a26",
+    "semantic_hash": "b50b4b82aaeb426a1976aee6199f0a26"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\analysis\\recursive_helpers.py": {
+    "mtime": 1780887841.0527608,
+    "ast_hash": "9a9d4823bfa83b96b72e4ae9b14e361d",
+    "semantic_hash": "9a9d4823bfa83b96b72e4ae9b14e361d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\backtest_caching.py": {
+    "mtime": 1780887841.0527608,
+    "ast_hash": "92410dfc21cd8cdbc5134cff59218bb8",
+    "semantic_hash": "92410dfc21cd8cdbc5134cff59218bb8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\backtesting.py": {
+    "mtime": 1780891689.8820558,
+    "ast_hash": "d0fbe08058acd1613eab35421987e2c1",
+    "semantic_hash": "d0fbe08058acd1613eab35421987e2c1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\bt_progress.py": {
+    "mtime": 1780887841.0559285,
+    "ast_hash": "2ed9294a5c7e8a4147d5bfa06756857d",
+    "semantic_hash": "2ed9294a5c7e8a4147d5bfa06756857d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\__init__.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "b437fa0f84901bdef0d3ad98f0f3627e",
+    "semantic_hash": "b437fa0f84901bdef0d3ad98f0f3627e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\correlation.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "457be692cc1c3280084ed8b26e65493f",
+    "semantic_hash": "457be692cc1c3280084ed8b26e65493f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\decay.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "24654918ab7f9c41408b93c9c99c5a9b",
+    "semantic_hash": "24654918ab7f9c41408b93c9c99c5a9b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\quantile.py": {
+    "mtime": 1780894038.1010022,
+    "ast_hash": "422b541922fdd2d5c798a522b5aec8ca",
+    "semantic_hash": "422b541922fdd2d5c798a522b5aec8ca"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\ranking.py": {
+    "mtime": 1780894057.477019,
+    "ast_hash": "5dd4e3cf4bb08c7b862ada02f62b1741",
+    "semantic_hash": "5dd4e3cf4bb08c7b862ada02f62b1741"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\regime_analysis.py": {
+    "mtime": 1780894046.4108534,
+    "ast_hash": "3795fdc517b7d1751acea26ca259a992",
+    "semantic_hash": "3795fdc517b7d1751acea26ca259a992"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\report.py": {
+    "mtime": 1780894093.1162057,
+    "ast_hash": "81fbd1217c0d0568e192a85010392710",
+    "semantic_hash": "81fbd1217c0d0568e192a85010392710"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\rolling.py": {
+    "mtime": 1780894043.04102,
+    "ast_hash": "03b345b936425d7b3410d1b81be4bc76",
+    "semantic_hash": "03b345b936425d7b3410d1b81be4bc76"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\study.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "de56fb4ebff7d1ec538bc95d1c0acc49",
+    "semantic_hash": "de56fb4ebff7d1ec538bc95d1c0acc49"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\edge_study\\types.py": {
+    "mtime": 1780894012.2107959,
+    "ast_hash": "889442642288419ceee13a43691e039d",
+    "semantic_hash": "889442642288419ceee13a43691e039d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\__init__.py": {
+    "mtime": 1780887841.0581155,
+    "ast_hash": "9614e56bbd3c3b2487b1d9588e8e5289",
+    "semantic_hash": "9614e56bbd3c3b2487b1d9588e8e5289"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt.py": {
+    "mtime": 1780887841.0596244,
+    "ast_hash": "66fe6a99451d51c3787410e252ab9967",
+    "semantic_hash": "66fe6a99451d51c3787410e252ab9967"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt_auto.py": {
+    "mtime": 1780887841.060635,
+    "ast_hash": "72e7b7bdd3fe81be33f06cc5968e604e",
+    "semantic_hash": "72e7b7bdd3fe81be33f06cc5968e604e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt_interface.py": {
+    "mtime": 1780887841.0620782,
+    "ast_hash": "1e21a46f26c9f344c692b38f3e1484b9",
+    "semantic_hash": "1e21a46f26c9f344c692b38f3e1484b9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt_logger.py": {
+    "mtime": 1780887841.065106,
+    "ast_hash": "bffb9ca8c5962859d2123d0a3b7f5b11",
+    "semantic_hash": "bffb9ca8c5962859d2123d0a3b7f5b11"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt_optimizer.py": {
+    "mtime": 1780887841.0661066,
+    "ast_hash": "623284945320609026d255a65da7686f",
+    "semantic_hash": "623284945320609026d255a65da7686f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt\\hyperopt_output.py": {
+    "mtime": 1780887841.06729,
+    "ast_hash": "b092f1b4989edcb849f6c90e0a1b302c",
+    "semantic_hash": "b092f1b4989edcb849f6c90e0a1b302c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_epoch_filters.py": {
+    "mtime": 1780887841.0698228,
+    "ast_hash": "44c0fb7b4cab752f7171e4607dc3ffb8",
+    "semantic_hash": "44c0fb7b4cab752f7171e4607dc3ffb8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_calmar.py": {
+    "mtime": 1780887841.0718408,
+    "ast_hash": "aa3b24e7bf83790c2c3c313dcf940b52",
+    "semantic_hash": "aa3b24e7bf83790c2c3c313dcf940b52"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_interface.py": {
+    "mtime": 1780887841.0728385,
+    "ast_hash": "f9c7f7f98fccd8e764794af87fd70d12",
+    "semantic_hash": "f9c7f7f98fccd8e764794af87fd70d12"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_max_drawdown.py": {
+    "mtime": 1780887841.0748353,
+    "ast_hash": "abb9f6991250386de2c475f2a7513639",
+    "semantic_hash": "abb9f6991250386de2c475f2a7513639"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_max_drawdown_per_pair.py": {
+    "mtime": 1780887841.0748353,
+    "ast_hash": "2fc5485250233ee3eb60dfa507b48aff",
+    "semantic_hash": "2fc5485250233ee3eb60dfa507b48aff"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_max_drawdown_relative.py": {
+    "mtime": 1780887841.0758333,
+    "ast_hash": "2a3802fa06942a956f91c8fb873fc24b",
+    "semantic_hash": "2a3802fa06942a956f91c8fb873fc24b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_multi_metric.py": {
+    "mtime": 1780887841.0768328,
+    "ast_hash": "53fa91dacbca28f5ad5a8cf21647fb57",
+    "semantic_hash": "53fa91dacbca28f5ad5a8cf21647fb57"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_onlyprofit.py": {
+    "mtime": 1780887841.077836,
+    "ast_hash": "754c0af7150a4c4fe0877f7306c98082",
+    "semantic_hash": "754c0af7150a4c4fe0877f7306c98082"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_profit_drawdown.py": {
+    "mtime": 1780887841.0788383,
+    "ast_hash": "14c09bb64e2df9481d83584c7279346e",
+    "semantic_hash": "14c09bb64e2df9481d83584c7279346e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_sharpe.py": {
+    "mtime": 1780887841.079359,
+    "ast_hash": "c23153d4c78579e925ed3c5fd62d7e1d",
+    "semantic_hash": "c23153d4c78579e925ed3c5fd62d7e1d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_sharpe_daily.py": {
+    "mtime": 1780887841.080685,
+    "ast_hash": "f87a393313aa7a8c95a05c69c53217dd",
+    "semantic_hash": "f87a393313aa7a8c95a05c69c53217dd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_short_trade_dur.py": {
+    "mtime": 1780887841.0815234,
+    "ast_hash": "375fb5af29371d8ce28a61eb290de61f",
+    "semantic_hash": "375fb5af29371d8ce28a61eb290de61f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_sortino.py": {
+    "mtime": 1780887841.0825713,
+    "ast_hash": "46f79de2d37b1c30b78ee05355cd7350",
+    "semantic_hash": "46f79de2d37b1c30b78ee05355cd7350"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_loss\\hyperopt_loss_sortino_daily.py": {
+    "mtime": 1780887841.0835707,
+    "ast_hash": "de4de294ed8bfcdb6d73c739b536287e",
+    "semantic_hash": "de4de294ed8bfcdb6d73c739b536287e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\hyperopt_tools.py": {
+    "mtime": 1780887841.0845704,
+    "ast_hash": "19238bb3a7578a7a5dd9337ed70f304e",
+    "semantic_hash": "19238bb3a7578a7a5dd9337ed70f304e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\optimize_reports\\__init__.py": {
+    "mtime": 1780887841.0865715,
+    "ast_hash": "0b870ef4d2a3576f62944d872e17b52e",
+    "semantic_hash": "0b870ef4d2a3576f62944d872e17b52e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\optimize_reports\\bt_output.py": {
+    "mtime": 1780887841.0881526,
+    "ast_hash": "8f4b6ec7668c01aa90686ff69b3285e7",
+    "semantic_hash": "8f4b6ec7668c01aa90686ff69b3285e7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\optimize_reports\\bt_storage.py": {
+    "mtime": 1780887841.0881526,
+    "ast_hash": "8bd3e93ac50378ac1b2a2a6e008a753d",
+    "semantic_hash": "8bd3e93ac50378ac1b2a2a6e008a753d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\optimize_reports\\optimize_reports.py": {
+    "mtime": 1780887841.0892012,
+    "ast_hash": "30bbf74dec3a36a7a4bcabafb49deaab",
+    "semantic_hash": "30bbf74dec3a36a7a4bcabafb49deaab"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\space\\__init__.py": {
+    "mtime": 1780887841.0902076,
+    "ast_hash": "2b15531629cb7abd202763fe533f0eee",
+    "semantic_hash": "2b15531629cb7abd202763fe533f0eee"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\space\\decimalspace.py": {
+    "mtime": 1780887841.0912087,
+    "ast_hash": "f676178cddea8fc444351ebe79edc238",
+    "semantic_hash": "f676178cddea8fc444351ebe79edc238"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\optimize\\space\\optunaspaces.py": {
+    "mtime": 1780887841.092208,
+    "ast_hash": "020e922174fcfc6434467fed66fd13ac",
+    "semantic_hash": "020e922174fcfc6434467fed66fd13ac"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\papertrade\\__init__.py": {
+    "mtime": 1780898187.2243788,
+    "ast_hash": "6b7bb4be44fbd0556fd9f07360bc109b",
+    "semantic_hash": "6b7bb4be44fbd0556fd9f07360bc109b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\papertrade\\engine.py": {
+    "mtime": 1780913058.0991082,
+    "ast_hash": "7eae8fbe455a096d101802c533a52550",
+    "semantic_hash": "7eae8fbe455a096d101802c533a52550"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\papertrade\\executor.py": {
+    "mtime": 1780898079.8239546,
+    "ast_hash": "18c48d0db4c2671bde64a8045c93eef3",
+    "semantic_hash": "18c48d0db4c2671bde64a8045c93eef3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\papertrade\\store.py": {
+    "mtime": 1780898107.0921652,
+    "ast_hash": "a0a89201c7768b030c1ac5a428279316",
+    "semantic_hash": "a0a89201c7768b030c1ac5a428279316"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\papertrade\\types.py": {
+    "mtime": 1780898073.509525,
+    "ast_hash": "338b810129113c8ed6c27ccfc7495d6c",
+    "semantic_hash": "338b810129113c8ed6c27ccfc7495d6c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\__init__.py": {
+    "mtime": 1780887841.0932138,
+    "ast_hash": "daef764da3d364a37708e0d48d8de9b8",
+    "semantic_hash": "daef764da3d364a37708e0d48d8de9b8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\base.py": {
+    "mtime": 1780887841.0942135,
+    "ast_hash": "f9d03cb90df21d0f2f9132fe37090d04",
+    "semantic_hash": "f9d03cb90df21d0f2f9132fe37090d04"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\custom_data.py": {
+    "mtime": 1780887841.0953321,
+    "ast_hash": "0f06221719548e612aad9b92e40041e0",
+    "semantic_hash": "0f06221719548e612aad9b92e40041e0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\db_migration.py": {
+    "mtime": 1780887841.0963435,
+    "ast_hash": "961edbb62df74af709b1c779078c0a66",
+    "semantic_hash": "961edbb62df74af709b1c779078c0a66"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\key_value_store.py": {
+    "mtime": 1780887841.0963435,
+    "ast_hash": "f13e90b3d85d987d66554f4fa151216c",
+    "semantic_hash": "f13e90b3d85d987d66554f4fa151216c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\migrations.py": {
+    "mtime": 1780887841.097347,
+    "ast_hash": "3ac77ad2c3056ca4ceb9b255facdf866",
+    "semantic_hash": "3ac77ad2c3056ca4ceb9b255facdf866"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\models.py": {
+    "mtime": 1780887841.0988593,
+    "ast_hash": "07cf107e5c660cfc14a3ab9097132ffb",
+    "semantic_hash": "07cf107e5c660cfc14a3ab9097132ffb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\pairlock.py": {
+    "mtime": 1780887841.0998724,
+    "ast_hash": "c69fe96d72ed892251f276c6edf85a86",
+    "semantic_hash": "c69fe96d72ed892251f276c6edf85a86"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\pairlock_middleware.py": {
+    "mtime": 1780887841.1008706,
+    "ast_hash": "dad90738d00b69136158de6deef0a1e5",
+    "semantic_hash": "dad90738d00b69136158de6deef0a1e5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\trade_model.py": {
+    "mtime": 1780887841.1028695,
+    "ast_hash": "915e8ebd829cef39679e157b9a4b2961",
+    "semantic_hash": "915e8ebd829cef39679e157b9a4b2961"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\usedb_context.py": {
+    "mtime": 1780887841.1038723,
+    "ast_hash": "8da58c29ec4c3328f6c9296ffd4a8242",
+    "semantic_hash": "8da58c29ec4c3328f6c9296ffd4a8242"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\persistence\\wallet_history.py": {
+    "mtime": 1780887841.1038723,
+    "ast_hash": "0f94071608ba26b2a7d3f47e373caf7a",
+    "semantic_hash": "0f94071608ba26b2a7d3f47e373caf7a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plot\\__init__.py": {
+    "mtime": 1780887841.1048713,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plot\\plotting.py": {
+    "mtime": 1780887841.1066003,
+    "ast_hash": "0c43173b4eab6b16c987ded916f15a0b",
+    "semantic_hash": "0c43173b4eab6b16c987ded916f15a0b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\__init__.py": {
+    "mtime": 1780887841.1081207,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\AgeFilter.py": {
+    "mtime": 1780887841.1102712,
+    "ast_hash": "5a2606753b1ce1b717feb189d307d005",
+    "semantic_hash": "5a2606753b1ce1b717feb189d307d005"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\CrossMarketPairList.py": {
+    "mtime": 1780887841.1102712,
+    "ast_hash": "9abbe8ae2eaa594db34c603047693ec2",
+    "semantic_hash": "9abbe8ae2eaa594db34c603047693ec2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\DelistFilter.py": {
+    "mtime": 1780887841.1112752,
+    "ast_hash": "a688842cc1a1e5c2626072d182898626",
+    "semantic_hash": "a688842cc1a1e5c2626072d182898626"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\FullTradesFilter.py": {
+    "mtime": 1780887841.1132755,
+    "ast_hash": "54d314adfa8cd558cc846235dd840fd9",
+    "semantic_hash": "54d314adfa8cd558cc846235dd840fd9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\IPairList.py": {
+    "mtime": 1780887841.114273,
+    "ast_hash": "1b61fcac31cad535cf63bc4ff1445ab6",
+    "semantic_hash": "1b61fcac31cad535cf63bc4ff1445ab6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\MarketCapPairList.py": {
+    "mtime": 1780887841.1152754,
+    "ast_hash": "06ef0c5978c3a13c779ef7f5575f420a",
+    "semantic_hash": "06ef0c5978c3a13c779ef7f5575f420a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\OffsetFilter.py": {
+    "mtime": 1780887841.1152754,
+    "ast_hash": "6aae95f42b2c2de5e37134af7b68967a",
+    "semantic_hash": "6aae95f42b2c2de5e37134af7b68967a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\PairInformationFilter.py": {
+    "mtime": 1780887841.1165812,
+    "ast_hash": "3ef7479e3ffc2670870552b1ac176175",
+    "semantic_hash": "3ef7479e3ffc2670870552b1ac176175"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\PercentChangePairList.py": {
+    "mtime": 1780887841.1175933,
+    "ast_hash": "d8594033038ed6b7c109445de774aaf5",
+    "semantic_hash": "d8594033038ed6b7c109445de774aaf5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\PerformanceFilter.py": {
+    "mtime": 1780887841.1191046,
+    "ast_hash": "f27de377d51464340cb17b0e0452f5ff",
+    "semantic_hash": "f27de377d51464340cb17b0e0452f5ff"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\PrecisionFilter.py": {
+    "mtime": 1780887841.1201177,
+    "ast_hash": "cf22dde3b2a2f85713e79777b20163ed",
+    "semantic_hash": "cf22dde3b2a2f85713e79777b20163ed"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\PriceFilter.py": {
+    "mtime": 1780887841.1211305,
+    "ast_hash": "bd98060611ee6a27dacc4a0704f4dad5",
+    "semantic_hash": "bd98060611ee6a27dacc4a0704f4dad5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\ProducerPairList.py": {
+    "mtime": 1780887841.122128,
+    "ast_hash": "bbc837f606f3477d9c2f379bd7aedcdd",
+    "semantic_hash": "bbc837f606f3477d9c2f379bd7aedcdd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\RemotePairList.py": {
+    "mtime": 1780887841.1232412,
+    "ast_hash": "c61ade9504db4b51a9534687e916b5ba",
+    "semantic_hash": "c61ade9504db4b51a9534687e916b5ba"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\ShuffleFilter.py": {
+    "mtime": 1780887841.1232412,
+    "ast_hash": "4495bca46c9e1f5d97844a6df4af7ef1",
+    "semantic_hash": "4495bca46c9e1f5d97844a6df4af7ef1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\SpreadFilter.py": {
+    "mtime": 1780887841.124251,
+    "ast_hash": "a5939b1dbe8eb6b41476922222da700d",
+    "semantic_hash": "a5939b1dbe8eb6b41476922222da700d"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\StaticPairList.py": {
+    "mtime": 1780887841.1252582,
+    "ast_hash": "fe8f6fdcc040d379fb30ac13c0559d2a",
+    "semantic_hash": "fe8f6fdcc040d379fb30ac13c0559d2a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\VolatilityFilter.py": {
+    "mtime": 1780887841.126254,
+    "ast_hash": "189cc913f2bc1cf3fa4f932aca2181d2",
+    "semantic_hash": "189cc913f2bc1cf3fa4f932aca2181d2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\VolumePairList.py": {
+    "mtime": 1780887841.1272552,
+    "ast_hash": "5688800ce853b4f8067f5b9af5f3fc85",
+    "semantic_hash": "5688800ce853b4f8067f5b9af5f3fc85"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\__init__.py": {
+    "mtime": 1780887841.1272552,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\pairlist_helpers.py": {
+    "mtime": 1780887841.1287687,
+    "ast_hash": "b48a596bda92c5ac49fa0edf03924d45",
+    "semantic_hash": "b48a596bda92c5ac49fa0edf03924d45"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlist\\rangestabilityfilter.py": {
+    "mtime": 1780887841.1308286,
+    "ast_hash": "3a3b49a130a325e7957c1d67e0b7c853",
+    "semantic_hash": "3a3b49a130a325e7957c1d67e0b7c853"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\pairlistmanager.py": {
+    "mtime": 1780887841.1308286,
+    "ast_hash": "a028e2db20123f271e9b180f78cfca99",
+    "semantic_hash": "a028e2db20123f271e9b180f78cfca99"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protectionmanager.py": {
+    "mtime": 1780887841.1318393,
+    "ast_hash": "aeba88b337e2233c30a57c772ec2b901",
+    "semantic_hash": "aeba88b337e2233c30a57c772ec2b901"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\__init__.py": {
+    "mtime": 1780887841.1328418,
+    "ast_hash": "2b85375cb0bd8b439bb6d5c85d5b6172",
+    "semantic_hash": "2b85375cb0bd8b439bb6d5c85d5b6172"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\cooldown_period.py": {
+    "mtime": 1780887841.1338415,
+    "ast_hash": "5e67e2fd03c91a095ff56fbafd0a075c",
+    "semantic_hash": "5e67e2fd03c91a095ff56fbafd0a075c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\iprotection.py": {
+    "mtime": 1780887841.134842,
+    "ast_hash": "58a06fdcfa52a90d784331801f9e5939",
+    "semantic_hash": "58a06fdcfa52a90d784331801f9e5939"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\low_profit_pairs.py": {
+    "mtime": 1780887841.1368392,
+    "ast_hash": "cc7e6e8e1abb3dbffe2b93fc25f0ad7c",
+    "semantic_hash": "cc7e6e8e1abb3dbffe2b93fc25f0ad7c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\max_drawdown_protection.py": {
+    "mtime": 1780887841.1368392,
+    "ast_hash": "3bcd34f034d192260c253a368154f028",
+    "semantic_hash": "3bcd34f034d192260c253a368154f028"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\plugins\\protections\\stoploss_guard.py": {
+    "mtime": 1780887841.137839,
+    "ast_hash": "b21184a29e8f3f274762f6b633e7c481",
+    "semantic_hash": "b21184a29e8f3f274762f6b633e7c481"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\__init__.py": {
+    "mtime": 1780887841.138941,
+    "ast_hash": "3236c8c419224af528839a310d6f0914",
+    "semantic_hash": "3236c8c419224af528839a310d6f0914"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\exchange_resolver.py": {
+    "mtime": 1780887841.138941,
+    "ast_hash": "b379d5d99fec9c1b44f42f0f2d21b895",
+    "semantic_hash": "b379d5d99fec9c1b44f42f0f2d21b895"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\freqaimodel_resolver.py": {
+    "mtime": 1780887841.140952,
+    "ast_hash": "bc479039078d808560c8b727c21c6972",
+    "semantic_hash": "bc479039078d808560c8b727c21c6972"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\hyperopt_resolver.py": {
+    "mtime": 1780887841.1419537,
+    "ast_hash": "1ad391ba16fdff9255f059a01b5b30f7",
+    "semantic_hash": "1ad391ba16fdff9255f059a01b5b30f7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\iresolver.py": {
+    "mtime": 1780887841.1436176,
+    "ast_hash": "d0ce130bbeeac17bb9cf7cb8f0634bf2",
+    "semantic_hash": "d0ce130bbeeac17bb9cf7cb8f0634bf2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\pairlist_resolver.py": {
+    "mtime": 1780887841.1436176,
+    "ast_hash": "44ed0a3d1a3081f83182a10054b3d265",
+    "semantic_hash": "44ed0a3d1a3081f83182a10054b3d265"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\protection_resolver.py": {
+    "mtime": 1780887841.1446707,
+    "ast_hash": "18d8bbcd021e6f123fa6d8a60177ab4c",
+    "semantic_hash": "18d8bbcd021e6f123fa6d8a60177ab4c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\resolvers\\strategy_resolver.py": {
+    "mtime": 1780887841.1446707,
+    "ast_hash": "6db487ea525e8c5dd22a6eb81ddddbf2",
+    "semantic_hash": "6db487ea525e8c5dd22a6eb81ddddbf2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\__init__.py": {
+    "mtime": 1780887841.1456704,
+    "ast_hash": "be157a21a6198976a8cc7e130c124585",
+    "semantic_hash": "be157a21a6198976a8cc7e130c124585"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\__init__.py": {
+    "mtime": 1780887841.147674,
+    "ast_hash": "ab21ba36f348e542e4ba844df8b56043",
+    "semantic_hash": "ab21ba36f348e542e4ba844df8b56043"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_auth.py": {
+    "mtime": 1780887841.1491854,
+    "ast_hash": "3a11a849ea2b9e6d7449c0482f294d85",
+    "semantic_hash": "3a11a849ea2b9e6d7449c0482f294d85"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_background_tasks.py": {
+    "mtime": 1780887841.150202,
+    "ast_hash": "e595844e31d487919250f8efc291b475",
+    "semantic_hash": "e595844e31d487919250f8efc291b475"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_backtest.py": {
+    "mtime": 1780887841.150529,
+    "ast_hash": "3306828f41cc5b16001b9a520e2e1063",
+    "semantic_hash": "3306828f41cc5b16001b9a520e2e1063"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_download_data.py": {
+    "mtime": 1780887841.151529,
+    "ast_hash": "e587ecc0a9079648234f4bbd040d6004",
+    "semantic_hash": "e587ecc0a9079648234f4bbd040d6004"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_pair_history.py": {
+    "mtime": 1780887841.1525288,
+    "ast_hash": "4237ad07d105b95c827eaa2569496296",
+    "semantic_hash": "4237ad07d105b95c827eaa2569496296"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_pairlists.py": {
+    "mtime": 1780887841.1535354,
+    "ast_hash": "def3e2b892704ced887f68f4e5be3227",
+    "semantic_hash": "def3e2b892704ced887f68f4e5be3227"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_paper.py": {
+    "mtime": 1780898177.7511747,
+    "ast_hash": "5379095aece459c9cd9897b94b6bd1aa",
+    "semantic_hash": "5379095aece459c9cd9897b94b6bd1aa"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_schemas.py": {
+    "mtime": 1780887841.154534,
+    "ast_hash": "abdfcf2a24259516d35325b8e725fb26",
+    "semantic_hash": "abdfcf2a24259516d35325b8e725fb26"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_trading.py": {
+    "mtime": 1780887841.155822,
+    "ast_hash": "8028ff7267f74574586b3d2200e6d85e",
+    "semantic_hash": "8028ff7267f74574586b3d2200e6d85e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_v1.py": {
+    "mtime": 1780887841.1568213,
+    "ast_hash": "57b96e5fcc6616a2489025b2cefb9485",
+    "semantic_hash": "57b96e5fcc6616a2489025b2cefb9485"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_webserver.py": {
+    "mtime": 1780887841.1568213,
+    "ast_hash": "e4b8afebbb4391da7334f2e06729624f",
+    "semantic_hash": "e4b8afebbb4391da7334f2e06729624f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\api_ws.py": {
+    "mtime": 1780887841.1578298,
+    "ast_hash": "6914661f3199834d002daf50224a7a65",
+    "semantic_hash": "6914661f3199834d002daf50224a7a65"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\deps.py": {
+    "mtime": 1780887841.1588228,
+    "ast_hash": "e767a61c3b48d2cd58c998cea1568d15",
+    "semantic_hash": "e767a61c3b48d2cd58c998cea1568d15"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\uvicorn_threaded.py": {
+    "mtime": 1780887841.1645262,
+    "ast_hash": "6129a6a0d68f4019a4ad569de094e4ec",
+    "semantic_hash": "6129a6a0d68f4019a4ad569de094e4ec"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\web_ui.py": {
+    "mtime": 1780887841.1645262,
+    "ast_hash": "43551db52d2505975a6f26b2d1616b6e",
+    "semantic_hash": "43551db52d2505975a6f26b2d1616b6e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\webserver.py": {
+    "mtime": 1780887841.1655345,
+    "ast_hash": "8168a1c5d0b3639e281949e170ecf2cd",
+    "semantic_hash": "8168a1c5d0b3639e281949e170ecf2cd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\webserver_bgwork.py": {
+    "mtime": 1780887841.1665366,
+    "ast_hash": "bc6da595fd068582baa7538066f4f08e",
+    "semantic_hash": "bc6da595fd068582baa7538066f4f08e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\__init__.py": {
+    "mtime": 1780887841.169056,
+    "ast_hash": "4d9ab2d322a93541c1dcc1c9756d1725",
+    "semantic_hash": "4d9ab2d322a93541c1dcc1c9756d1725"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\channel.py": {
+    "mtime": 1780887841.1700723,
+    "ast_hash": "8d260f45f2d06810295f13f5c9be3aa1",
+    "semantic_hash": "8d260f45f2d06810295f13f5c9be3aa1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\message_stream.py": {
+    "mtime": 1780887841.1714623,
+    "ast_hash": "8a07ad55b4275da2a672245436256241",
+    "semantic_hash": "8a07ad55b4275da2a672245436256241"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\proxy.py": {
+    "mtime": 1780887841.1714623,
+    "ast_hash": "081d90cada45a291639bdddec656c22a",
+    "semantic_hash": "081d90cada45a291639bdddec656c22a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\serializer.py": {
+    "mtime": 1780887841.1724954,
+    "ast_hash": "1cd636508339e6885e0390dd5ab8b95b",
+    "semantic_hash": "1cd636508339e6885e0390dd5ab8b95b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws\\ws_types.py": {
+    "mtime": 1780887841.173497,
+    "ast_hash": "85b047ed0b952dd8c628e6a63a2c908c",
+    "semantic_hash": "85b047ed0b952dd8c628e6a63a2c908c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\api_server\\ws_schemas.py": {
+    "mtime": 1780887841.173497,
+    "ast_hash": "2c47666c1f3f978eb130488980c190f0",
+    "semantic_hash": "2c47666c1f3f978eb130488980c190f0"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\discord.py": {
+    "mtime": 1780887841.1746562,
+    "ast_hash": "34ed2c49b6577b642846d06467773bbd",
+    "semantic_hash": "34ed2c49b6577b642846d06467773bbd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\external_message_consumer.py": {
+    "mtime": 1780887841.1756585,
+    "ast_hash": "ccfddfa2d0ec4e6eb68c419c1282755f",
+    "semantic_hash": "ccfddfa2d0ec4e6eb68c419c1282755f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\fiat_convert.py": {
+    "mtime": 1780887841.1782923,
+    "ast_hash": "74a6dc8e391a317aa88ebb3554995f5b",
+    "semantic_hash": "74a6dc8e391a317aa88ebb3554995f5b"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\rpc.py": {
+    "mtime": 1780887841.1793313,
+    "ast_hash": "de8bfac27b6ddc25698e384663e46ff2",
+    "semantic_hash": "de8bfac27b6ddc25698e384663e46ff2"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\rpc_manager.py": {
+    "mtime": 1780887841.1805007,
+    "ast_hash": "d304355403c6c916ae0354b62ef96acb",
+    "semantic_hash": "d304355403c6c916ae0354b62ef96acb"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\rpc_types.py": {
+    "mtime": 1780887841.1805007,
+    "ast_hash": "613485c9a2f282f2711d93b8daeef9bd",
+    "semantic_hash": "613485c9a2f282f2711d93b8daeef9bd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\telegram.py": {
+    "mtime": 1780887841.1835158,
+    "ast_hash": "73d8a447e214b0f316a3727fbc02bc24",
+    "semantic_hash": "73d8a447e214b0f316a3727fbc02bc24"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\rpc\\webhook.py": {
+    "mtime": 1780887841.184514,
+    "ast_hash": "73026f56a78baf4c8eddb75b27c7455a",
+    "semantic_hash": "73026f56a78baf4c8eddb75b27c7455a"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\__init__.py": {
+    "mtime": 1780887841.1870303,
+    "ast_hash": "9d1efc99f624d47b701cc43a76de8eb5",
+    "semantic_hash": "9d1efc99f624d47b701cc43a76de8eb5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\hyper.py": {
+    "mtime": 1780887841.18805,
+    "ast_hash": "a5281e615088936bc8ebe033ae31f038",
+    "semantic_hash": "a5281e615088936bc8ebe033ae31f038"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\informative_decorator.py": {
+    "mtime": 1780887841.189556,
+    "ast_hash": "a69c5ee8d78372d54247091d689ecc28",
+    "semantic_hash": "a69c5ee8d78372d54247091d689ecc28"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\interface.py": {
+    "mtime": 1780892004.8449292,
+    "ast_hash": "681ef410d67c47242c07e910f0581ca6",
+    "semantic_hash": "681ef410d67c47242c07e910f0581ca6"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\parameters.py": {
+    "mtime": 1780887841.1937995,
+    "ast_hash": "f828ae0843db6eb817c4d5f2f5515bb1",
+    "semantic_hash": "f828ae0843db6eb817c4d5f2f5515bb1"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\strategy_helper.py": {
+    "mtime": 1780887841.1948135,
+    "ast_hash": "137f34600d5662d3be6ba944fb695b96",
+    "semantic_hash": "137f34600d5662d3be6ba944fb695b96"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\strategy_validation.py": {
+    "mtime": 1780887841.1958144,
+    "ast_hash": "d393bec1fa7587085acbd6a1316bc2fe",
+    "semantic_hash": "d393bec1fa7587085acbd6a1316bc2fe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\strategy_wrapper.py": {
+    "mtime": 1780887841.1973329,
+    "ast_hash": "d9da37fe483b5811e6420d364410d83f",
+    "semantic_hash": "d9da37fe483b5811e6420d364410d83f"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\strategy\\strategyupdater.py": {
+    "mtime": 1780887841.1988485,
+    "ast_hash": "817c6b36fdab8bda0fcb66b6ed6379e9",
+    "semantic_hash": "817c6b36fdab8bda0fcb66b6ed6379e9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\system\\__init__.py": {
+    "mtime": 1780887841.199862,
+    "ast_hash": "fadfca3dcab3fe0d10bb77af14d56701",
+    "semantic_hash": "fadfca3dcab3fe0d10bb77af14d56701"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\system\\asyncio_config.py": {
+    "mtime": 1780887841.2008615,
+    "ast_hash": "508772a1c8b93ee2fe8032d0ff50b109",
+    "semantic_hash": "508772a1c8b93ee2fe8032d0ff50b109"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\system\\gc_setup.py": {
+    "mtime": 1780887841.2018669,
+    "ast_hash": "d13b19f765ae02658c995be8353b0d80",
+    "semantic_hash": "d13b19f765ae02658c995be8353b0d80"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\system\\set_mp_start_method.py": {
+    "mtime": 1780887841.2028706,
+    "ast_hash": "395de004b97ffed69cbbfae30f906538",
+    "semantic_hash": "395de004b97ffed69cbbfae30f906538"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\system\\version_info.py": {
+    "mtime": 1780887841.2048662,
+    "ast_hash": "961a3580626c281de6d0e4c4ad5ef063",
+    "semantic_hash": "961a3580626c281de6d0e4c4ad5ef063"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\templates\\FreqaiExampleHybridStrategy.py": {
+    "mtime": 1780887841.2058666,
+    "ast_hash": "66b92a086adaee07319a8df212e641b7",
+    "semantic_hash": "66b92a086adaee07319a8df212e641b7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\templates\\FreqaiExampleStrategy.py": {
+    "mtime": 1780887841.2072027,
+    "ast_hash": "b901c5daa4f8f9bd3e40a42938a085a9",
+    "semantic_hash": "b901c5daa4f8f9bd3e40a42938a085a9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\templates\\__init__.py": {
+    "mtime": 1780887841.2072027,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\templates\\sample_hyperopt_loss.py": {
+    "mtime": 1780887841.2107522,
+    "ast_hash": "e993c6706ff18ea1232a1e6101e630b3",
+    "semantic_hash": "e993c6706ff18ea1232a1e6101e630b3"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\templates\\sample_strategy.py": {
+    "mtime": 1780887841.212991,
+    "ast_hash": "662cda83415a424689044f480725f4d5",
+    "semantic_hash": "662cda83415a424689044f480725f4d5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\__init__.py": {
+    "mtime": 1780887841.2352183,
+    "ast_hash": "80ddce4b0fc0282a5881813bdc4496f7",
+    "semantic_hash": "80ddce4b0fc0282a5881813bdc4496f7"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\coin_gecko.py": {
+    "mtime": 1780887841.2352183,
+    "ast_hash": "1199890b8ceba2f1b337e45a0d80e6ae",
+    "semantic_hash": "1199890b8ceba2f1b337e45a0d80e6ae"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\datetime_helpers.py": {
+    "mtime": 1780887841.2362182,
+    "ast_hash": "cdc9a2279cedbc863805525de7f5da00",
+    "semantic_hash": "cdc9a2279cedbc863805525de7f5da00"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\dry_run_wallet.py": {
+    "mtime": 1780887841.2374344,
+    "ast_hash": "b74d997e97f272541cebe6273396d038",
+    "semantic_hash": "b74d997e97f272541cebe6273396d038"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\formatters.py": {
+    "mtime": 1780887841.2390347,
+    "ast_hash": "a50552e2d04ce2ac26bac84b9b0848c8",
+    "semantic_hash": "a50552e2d04ce2ac26bac84b9b0848c8"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\ft_precise.py": {
+    "mtime": 1780887841.2400532,
+    "ast_hash": "46e9eaec97bc690ac04c4a18b070de42",
+    "semantic_hash": "46e9eaec97bc690ac04c4a18b070de42"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\ft_ttlcache.py": {
+    "mtime": 1780887841.2411664,
+    "ast_hash": "bd78a2ed590a842d4b5e5afa7024e388",
+    "semantic_hash": "bd78a2ed590a842d4b5e5afa7024e388"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\measure_time.py": {
+    "mtime": 1780887841.2422955,
+    "ast_hash": "12dbb75aa93d278354682d46ca9dc883",
+    "semantic_hash": "12dbb75aa93d278354682d46ca9dc883"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\metrics.py": {
+    "mtime": 1780894444.2076902,
+    "ast_hash": "f4797c4da319cf883c2e7a33f9ba7cbe",
+    "semantic_hash": "f4797c4da319cf883c2e7a33f9ba7cbe"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\migrations\\__init__.py": {
+    "mtime": 1780887841.243313,
+    "ast_hash": "bd49f92758b2575e2e043e56ee2d38d5",
+    "semantic_hash": "bd49f92758b2575e2e043e56ee2d38d5"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\migrations\\funding_rate_mig.py": {
+    "mtime": 1780887841.2448177,
+    "ast_hash": "248aa7b862f59845d42eb252d78bee98",
+    "semantic_hash": "248aa7b862f59845d42eb252d78bee98"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\migrations\\migrate_wallet_history.py": {
+    "mtime": 1780887841.2468362,
+    "ast_hash": "d079ce3f6b235f950fcd49afd37af4dd",
+    "semantic_hash": "d079ce3f6b235f950fcd49afd37af4dd"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\periodic_cache.py": {
+    "mtime": 1780887841.247935,
+    "ast_hash": "9d6e55a2622a3d69b664eede2cf35419",
+    "semantic_hash": "9d6e55a2622a3d69b664eede2cf35419"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\progress_tracker.py": {
+    "mtime": 1780887841.2489488,
+    "ast_hash": "8dcf39baf6f58832b3eded7d85eece0c",
+    "semantic_hash": "8dcf39baf6f58832b3eded7d85eece0c"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\rich_progress.py": {
+    "mtime": 1780887841.2499654,
+    "ast_hash": "1498617b32c0aaff08072fe3975ac007",
+    "semantic_hash": "1498617b32c0aaff08072fe3975ac007"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\rich_tables.py": {
+    "mtime": 1780887841.2509775,
+    "ast_hash": "e3c7207a8d256a69e14028da97864b10",
+    "semantic_hash": "e3c7207a8d256a69e14028da97864b10"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\singleton.py": {
+    "mtime": 1780887841.2529802,
+    "ast_hash": "f6f0043ee5ee7b6b60137d5e3cdb8cd9",
+    "semantic_hash": "f6f0043ee5ee7b6b60137d5e3cdb8cd9"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\util\\template_renderer.py": {
+    "mtime": 1780887841.253979,
+    "ast_hash": "4698dd0b14559ae3aac75fc09bb6a2ee",
+    "semantic_hash": "4698dd0b14559ae3aac75fc09bb6a2ee"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\vendor\\__init__.py": {
+    "mtime": 1780887841.254974,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\vendor\\qtpylib\\__init__.py": {
+    "mtime": 1780887841.2559767,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\vendor\\qtpylib\\indicators.py": {
+    "mtime": 1780887841.256974,
+    "ast_hash": "c216d21daa708df81dbb54df8b0c7caf",
+    "semantic_hash": "c216d21daa708df81dbb54df8b0c7caf"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\wallets.py": {
+    "mtime": 1780887841.2579806,
+    "ast_hash": "1c9ec9df8fde568112c2c6a84e04cebc",
+    "semantic_hash": "1c9ec9df8fde568112c2c6a84e04cebc"
+  },
+  "C:\\Users\\avav\\Documents\\freqtrade\\freqtrade\\worker.py": {
+    "mtime": 1780887841.2594879,
+    "ast_hash": "5d652a2f3ec2cdb454d75afa0a6af9a4",
+    "semantic_hash": "5d652a2f3ec2cdb454d75afa0a6af9a4"
+  }
+}
