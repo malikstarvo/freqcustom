@@ -20,6 +20,20 @@ docker compose -f docker/docker-compose.monitoring.yml up -d
 # → http://localhost:8080/api/v1/ping (API)
 ```
 
+### Deploy Dashboard to Vercel
+
+The frontend is a **Next.js** app in `web/`. Deploy it to Vercel for free:
+
+1. Go to [vercel.com](https://vercel.com), import this repo
+2. Set **Root Directory** to `web`
+3. Add environment variable:
+   ```
+   NEXT_PUBLIC_API_URL = http://YOUR_VPS_IP:8080/api/v1
+   ```
+4. Deploy — dashboard will be available at `https://your-project.vercel.app`
+
+The VPS becomes a **pure backend** (API + TimescaleDB + Collector + Grafana).
+
 For **detailed VPS setup**, see [`docs/SETUP.md`](docs/SETUP.md).
 
 ---
