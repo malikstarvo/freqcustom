@@ -3,7 +3,7 @@ FROM golang:1.22-alpine AS builder
 WORKDIR /app
 COPY go.mod ./
 COPY *.go ./
-RUN go mod download 2>/dev/null || go get ./...
+RUN go mod tidy && go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o collector .
 
 FROM alpine:3.20
