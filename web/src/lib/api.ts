@@ -451,4 +451,8 @@ export const api = {
   paperTrades: (limit = 50) => fetchJSON<PaperTrade[]>(`/paper/trades?limit=${limit}`),
   paperAccount: (limit = 100) => fetchJSON<Array<{ ts: string; balance: number; equity: number; unrealized_pnl: number; day_pnl: number; day_trades: number }>>(`/paper/account?limit=${limit}`),
   paperTopUp: (amount: number) => fetchJSON<{ old_balance: number; new_balance: number; amount: number }>("/paper/topup", { method: "POST", body: JSON.stringify({ amount }) }),
+
+  forceEnter: (pair: string, price?: number) => fetchJSON<unknown>("/forceenter", { method: "POST", body: JSON.stringify({ pair, price }) }),
+  forceExit: (tradeid: number) => fetchJSON<unknown>("/forceexit", { method: "POST", body: JSON.stringify({ tradeid }) }),
+  deleteTrade: (tradeid: number) => fetchJSON<unknown>(`/trades/${tradeid}`, { method: "DELETE" }),
 };

@@ -3,6 +3,10 @@ import { Card, Badge } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { api, type MarketResponse, type WhitelistResponse, type PairHistory, type MarketModel } from "@/lib/api";
 import { Globe, TrendingUp, Activity, CandlestickChart } from "lucide-react";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  ComposedChart, Bar
+} from "recharts";
 
 export default function Market() {
   const [markets, setMarkets] = useState<MarketResponse | null>(null);
@@ -147,28 +151,31 @@ export default function Market() {
                       <span>Data: {candles.data_start} → {candles.data_stop}</span>
                       <span>{candles.length} candles</span>
                     </div>
-                    <div className="overflow-auto max-h-60 border border-[--color-card-border] rounded">
-                      <table className="w-full text-xs">
-                        <thead className="sticky top-0 bg-[--color-card-bg]">
-                          <tr className="text-left text-[--color-text-secondary]">
-                             {candles.columns.slice(0, 6).map((c: string, i: number) => (
-                              <th key={i} className="px-2 py-1 border-b border-[--color-card-border]">{c}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                           {candles.data.slice(-10).map((row: Array<number | string | null>, i: number) => (
-                            <tr key={i} className="border-b border-[--color-card-border]/30">
-                              {row.slice(0, 6).map((cell: number | string | null, j: number) => (
-                                <td key={j} className="px-2 py-1 font-mono">
-                                  {typeof cell === "number" ? cell.toFixed(4) : String(cell)}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <ComposedChart data={candles.data.slice(-50).map((row: Array<number | string | null>) => {
+                        const dateIdx = candles.columns.indexOf("date");
+                        const openIdx = candles.columns.indexOf("open");
+                        const highIdx = candles.columns.indexOf("high");
+                        const lowIdx = candles.columns.indexOf("low");
+                        const closeIdx = candles.columns.indexOf("close");
+                        const volIdx = candles.columns.indexOf("volume");
+                        return {
+                          date: dateIdx >= 0 ? String(row[dateIdx] ?? "").slice(5, 16) : "",
+                          open: openIdx >= 0 ? Number(row[openIdx]) : 0,
+                          high: highIdx >= 0 ? Number(row[highIdx]) : 0,
+                          low: lowIdx >= 0 ? Number(row[lowIdx]) : 0,
+                          close: closeIdx >= 0 ? Number(row[closeIdx]) : 0,
+                          volume: volIdx >= 0 ? Number(row[volIdx]) : 0,
+                        };
+                      })}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
+                        <XAxis dataKey="date" stroke="#888a9e" fontSize={9} tickLine={false} />
+                        <YAxis stroke="#888a9e" fontSize={9} tickLine={false} domain={["auto", "auto"]} />
+                        <Tooltip contentStyle={{ background: "#1a1d2e", border: "1px solid #2a2d3e", borderRadius: 8, fontSize: 11 }} />
+                        <Area type="monotone" dataKey="close" stroke="#00d4ff" fill="#00d4ff20" strokeWidth={1.5} />
+                        <Bar dataKey="volume" fill="#00d4ff15" yAxisId={1} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
                     <div className="flex items-center gap-2 text-xs text-[--color-text-secondary]">
                       <TrendingUp size={12} />
                       <span>Signals: {candles.enter_long_signals} long / {candles.enter_short_signals} short entries</span>

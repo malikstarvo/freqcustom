@@ -3,7 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, BarChart3, Wallet, ArrowRightLeft,
   Activity, FileText, Settings, Server, Cpu,
-  DollarSign, Brain, Globe, Database, Sparkles, Eye,
+  DollarSign, Brain, Globe, Database, Sparkles, Eye, Radio,
   Menu, X, Sun, Moon
 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
@@ -16,6 +16,7 @@ const navItems = [
   { path: "/balance", label: "Balance", icon: Wallet },
   { path: "/paper", label: "Paper", icon: DollarSign },
   { path: "/market", label: "Market", icon: Globe },
+  { path: "/collector", label: "Collector", icon: Radio },
   { path: "/data-quality", label: "Data Quality", icon: Database },
   { path: "/features", label: "Features", icon: Sparkles },
   { path: "/model", label: "Model", icon: Brain },

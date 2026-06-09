@@ -223,30 +223,36 @@ export default function System() {
       </Card>
 
       {/* Prometheus Link */}
-      <Card title="Monitoring">
-        <div className="flex items-center gap-3">
-          <Zap size={16} className="text-[--color-accent]" />
-          <span className="text-sm text-[--color-text-secondary]">
-            Prometheus metrics are available at <code className="text-[--color-accent] text-xs">/metrics</code> on the bot API port.
-          </span>
+      <Card title="Monitoring Hub">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <a href={window.location.origin.replace(":3000", ":3001")} target="_blank" rel="noopener noreferrer"
+            className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[--color-profit]" />
+              <span className="text-sm font-medium">Grafana</span>
+            </div>
+            <p className="text-xs text-[--color-text-secondary]">Pre-built dashboards with 9 panels: equity curve, trade profit distribution, agent scores, ML predictions, and more.</p>
+          </a>
+          <a href={window.location.origin.replace(":3000", ":9090")} target="_blank" rel="noopener noreferrer"
+            className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[--color-warning]" />
+              <span className="text-sm font-medium">Prometheus</span>
+            </div>
+            <p className="text-xs text-[--color-text-secondary]">Metrics collection from Freqtrade API. Scrapes /metrics every 15s. Query via PromQL.</p>
+          </a>
+          <a href="/collector" className="p-4 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg hover:border-[--color-accent]/50 transition-colors">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[--color-accent] animate-pulse" />
+              <span className="text-sm font-medium">Collector</span>
+            </div>
+            <p className="text-xs text-[--color-text-secondary]">Go collector streams Bybit data (OHLCV, funding, OI, liquidations) into TimescaleDB.</p>
+          </a>
         </div>
         <div className="mt-3 flex gap-2">
-          <a
-            href="http://localhost:9090"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[--color-accent]/10 hover:bg-[--color-accent]/20 text-[--color-accent] rounded text-xs font-medium"
-          >
-            Prometheus
-          </a>
-          <a
-            href="http://localhost:3000"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[--color-accent]/10 hover:bg-[--color-accent]/20 text-[--color-accent] rounded text-xs font-medium"
-          >
-            Grafana
-          </a>
+          <span className="text-xs text-[--color-text-secondary]">
+            Prometheus metrics: <code className="text-[--color-accent] text-xs">freqtrade:8080/metrics</code>
+          </span>
         </div>
       </Card>
     </div>

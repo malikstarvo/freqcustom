@@ -3,12 +3,16 @@ import { Card, Badge } from "@/components/ui/card";
 import { api, Trade } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/useToast";
-import { ArrowUpRight, ArrowDownRight, TrendingUp, Clock } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, TrendingUp, Clock, Zap, XCircle } from "lucide-react";
 
 export default function Trading() {
   const [trades, setTrades] = useState<Trade[]>([]);
   const { lastMessage, subscribe } = useWebSocket();
   const { addToast } = useToast();
+  const [forcePair, setForcePair] = useState("");
+  const [forcePrice, setForcePrice] = useState("");
+  const [forceExitId, setForceExitId] = useState("");
+  const [acting, setActing] = useState(false);
 
   useEffect(() => {
     api.trades(100).then((r: { trades: Trade[] }) => setTrades(r.trades)).catch(console.error);
@@ -69,6 +73,63 @@ export default function Trading() {
             ))}
           </div>
         )}
+      </Card>
+
+      <Card title="Manual Actions">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <div className="text-xs text-[--color-text-secondary] uppercase">Force Entry</div>
+            <div className="flex gap-2">
+              <input
+                type="text" value={forcePair} onChange={(e) => setForcePair(e.target.value)}
+                placeholder="BTC/USDT:USDT" className="flex-1 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+              />
+              <input
+                type="number" value={forcePrice} onChange={(e) => setForcePrice(e.target.value)}
+                placeholder="Price (opt)" className="w-28 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+              />
+              <button
+                onClick={async () => {
+                  setActing(true);
+                  try {
+                    await api.forceEnter(forcePair, forcePrice ? Number(forcePrice) : undefined);
+                    addToast("success", "Force Entry", `${forcePair} entry triggered`);
+                    setForcePair(""); setForcePrice("");
+                  } catch (e: any) { addToast("error", "Failed", e.message); }
+                  setActing(false);
+                }}
+                disabled={!forcePair || acting}
+                className="flex items-center gap-1 px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+              >
+                <Zap size={12} /> Entry
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="text-xs text-[--color-text-secondary] uppercase">Force Exit</div>
+            <div className="flex gap-2">
+              <input
+                type="number" value={forceExitId} onChange={(e) => setForceExitId(e.target.value)}
+                placeholder="Trade ID" className="flex-1 px-3 py-2 bg-[--color-card-bg] border border-[--color-card-border] rounded-lg text-sm focus:outline-none focus:border-[--color-accent]"
+              />
+              <button
+                onClick={async () => {
+                  setActing(true);
+                  try {
+                    await api.forceExit(Number(forceExitId));
+                    addToast("info", "Force Exit", `Trade #${forceExitId} exit triggered`);
+                    setForceExitId("");
+                  } catch (e: any) { addToast("error", "Failed", e.message); }
+                  setActing(false);
+                }}
+                disabled={!forceExitId || acting}
+                className="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+              >
+                <XCircle size={12} /> Exit
+              </button>
+            </div>
+          </div>
+        </div>
       </Card>
 
       <Card title={`Trade History (${closedTrades.length})`}>

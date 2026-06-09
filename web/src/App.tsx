@@ -14,6 +14,8 @@ import Overview from "./pages/Overview";
 import Market from "./pages/Market";
 import DataQuality from "./pages/DataQuality";
 import Features from "./pages/Features";
+import Collector from "./pages/Collector";
+import NotFound from "./pages/NotFound";
 import { ToastProvider } from "./hooks/useToast";
 import { ThemeProvider } from "./hooks/useTheme";
 
@@ -38,6 +40,8 @@ export default function App() {
         <Route path="/market" element={<Market />} />
         <Route path="/data-quality" element={<DataQuality />} />
         <Route path="/features" element={<Features />} />
+        <Route path="/collector" element={<Collector />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
       </ToastProvider>
