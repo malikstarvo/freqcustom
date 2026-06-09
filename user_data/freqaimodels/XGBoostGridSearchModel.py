@@ -66,11 +66,10 @@ class XGBoostGridSearchModel(BaseClassifierModel):
         use_grid = bool(gs_params) and len(X) > 200
 
         if use_grid:
+            keep_kwargs = {k: v for k, v in self.model_training_parameters.items()
+                           if k not in gs_params and k not in ("objective", "eval_metric")}
             base_model = XGBClassifier(
-                eval_metric=eval_metric,
-                random_state=42,
-                early_stopping_rounds=50,
-                **{k: v for k, v in self.model_training_parameters.items() if k not in gs_params},
+                eval_metric=eval_metric, random_state=42, early_stopping_rounds=50, **keep_kwargs,
             )
             grid = GridSearchCV(base_model, gs_params, cv=min(3, len(X)//50), scoring="roc_auc", n_jobs=1, verbose=0)
             logger.info(f"[FREQAI] Running GridSearchCV with {len(gs_params)} param grids...")
@@ -79,9 +78,11 @@ class XGBoostGridSearchModel(BaseClassifierModel):
             result = grid.best_estimator_
         else:
             logger.info(f"[FREQAI] Skipping GridSearchCV (not enough data or no params). Training plain XGBoost...")
+            plain_kwargs = {k: v for k, v in self.model_training_parameters.items()
+                            if k not in ("objective", "eval_metric")}
             plain_model = XGBClassifier(
                 eval_metric=eval_metric, random_state=42, early_stopping_rounds=None,
-                **self.model_training_parameters,
+                **plain_kwargs,
             )
             plain_model.fit(X, y, sample_weight=train_weights, **fit_params)
             logger.info(f"[FREQAI] Plain XGBoost trained successfully")
