@@ -121,4 +121,9 @@ docker-compose-*.yml
 web/.next/
 web/node_modules/
 web/out/
+web/.env.development.local
+
+# Deploy config (contains VPS IP/credentials)
+.env.deploy
+!.env.deploy.example
 

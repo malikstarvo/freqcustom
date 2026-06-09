@@ -1,12 +1,43 @@
 ---
+# =============================================================================
+# Freqtrade AI V2 — Unified Docker Compose
+# =============================================================================
+# Semua service dalam 1 file. Jalankan:
+#
+#   docker compose up -d                    # Core: freqtrade + web
+#   docker compose --profile monitoring up -d # Full: + monitoring stack
+#   docker compose --profile jupyter up -d    # + JupyterLab
+#   docker compose --profile all up -d        # Semua service
+# =============================================================================
+
 services:
+  # ── Database ──────────────────────────────────────────
+  timescaledb:
+    profiles: ["monitoring", "all"]
+    image: timescale/timescaledb:latest-pg16
+    restart: unless-stopped
+    container_name: freqtrade-timescaledb
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: freqtrade
+      POSTGRES_PASSWORD: ${TIMESCALE_PASSWORD:-freqtrade}
+      POSTGRES_DB: freqtrade
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./docker/timescale_setup.sql:/docker-entrypoint-initdb.d/01_setup.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freqtrade"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Trading Bot ──────────────────────────────────────
   freqtrade:
     image: freqtradeorg/freqtrade:stable
-    # image: freqtradeorg/freqtrade:develop
-    # Use plotting image
-    # image: freqtradeorg/freqtrade:develop_plot
-    # # Enable GPU Image and GPU Resources (only relevant for freqAI)
-    # # Make sure to uncomment the whole deploy section
+    # Untuk ML/FreqAI, ganti image:
+    # image: freqtradeorg/freqtrade:stable_freqaitorch
+    # # GPU support (uncomment untuk freqAI):
     # deploy:
     #   resources:
     #     reservations:
@@ -14,27 +45,27 @@ services:
     #         - driver: nvidia
     #           count: 1
     #           capabilities: [gpu]
-    # Build step - only needed when additional dependencies are needed
-    # build:
-    #   context: .
-    #   dockerfile: "./docker/Dockerfile.custom"
     restart: unless-stopped
     container_name: freqtrade
     volumes:
       - "./user_data:/freqtrade/user_data"
-    # Expose api on port 8080 (localhost only)
-    # Please read the https://www.freqtrade.io/en/stable/rest-api/ documentation
-    # for more information.
+      - "./config.json:/freqtrade/config.json"
     ports:
       - "127.0.0.1:8080:8080"
-    # Default command used when running `docker compose up`
+    environment:
+      - FREQTRADE__FREQAI__ENABLED=false
     command: >
       trade
       --logfile /freqtrade/user_data/logs/freqtrade.log
       --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
-      --config /freqtrade/user_data/config.json
+      --config /freqtrade/config.json
       --strategy SampleStrategy
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+        required: false
 
+  # ── Web Dashboard ────────────────────────────────────
   web:
     build:
       context: ./web
@@ -45,3 +76,71 @@ services:
       - "80:80"
     depends_on:
       - freqtrade
+
+  # ── Prometheus ───────────────────────────────────────
+  prometheus:
+    profiles: ["monitoring", "all"]
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    container_name: freqtrade-prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - freqtrade
+
+  # ── Grafana ──────────────────────────────────────────
+  grafana:
+    profiles: ["monitoring", "all"]
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: freqtrade-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./docker/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./docker/dashboards/freqtrade.json:/etc/grafana/provisioning/dashboards/freqtrade.json:ro
+    depends_on:
+      - prometheus
+      - timescaledb
+
+  # ── Go Collector (Bybit WS → TimescaleDB) ────────────
+  go-collector:
+    profiles: ["monitoring", "all"]
+    build:
+      context: ./go-collector
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: freqtrade-collector
+    env_file:
+      - ./docker/collector.env
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+
+  # ── JupyterLab ───────────────────────────────────────
+  ft_jupyterlab:
+    profiles: ["jupyter", "all"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.jupyter
+    restart: unless-stopped
+    container_name: freqtrade-jupyter
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - "./user_data:/freqtrade/user_data"
+    command: >
+      jupyter lab --port=8888 --ip 0.0.0.0 --allow-root
+
+# ── Volumes ──────────────────────────────────────────
+volumes:
+  timescale_data:
+  grafana_data:
