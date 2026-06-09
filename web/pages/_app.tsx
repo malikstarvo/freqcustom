@@ -71,7 +71,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans relative">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans relative" suppressHydrationWarning>
       <Head>
         <title>FreqTrade Dashboard</title>
         <meta name="description" content="FreqTrade AI Trading Dashboard" />

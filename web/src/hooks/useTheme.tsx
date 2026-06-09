@@ -10,12 +10,18 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
     const saved = localStorage.getItem("freqtrade-theme") as Theme | null;
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-  });
+    if (saved) {
+      setTheme(saved);
+    } else {
+      setTheme(window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    }
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {

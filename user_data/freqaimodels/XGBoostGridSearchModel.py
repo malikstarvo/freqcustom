@@ -69,11 +69,14 @@ class XGBoostGridSearchModel(BaseClassifierModel):
             keep_kwargs = {k: v for k, v in self.model_training_parameters.items() if k not in gs_params}
             base_model = XGBClassifier(**keep_kwargs)
             grid = GridSearchCV(base_model, gs_params, cv=min(3, len(X)//50), scoring="roc_auc", n_jobs=1, verbose=0)
-            grid.fit(X=X, y=y, sample_weight=train_weights, xgb_model=init_model, **fit_params)
+            grid.fit(X=X, y=y, sample_weight=train_weights, **fit_params)
             logger.info(f"GridSearch best score: {grid.best_score_:.4f} | best params: {grid.best_params_}")
             return grid.best_estimator_
         else:
-            plain_model = XGBClassifier(**self.model_training_parameters)
+            if init_model is not None:
+                plain_model = XGBClassifier(model=init_model, **self.model_training_parameters)
+            else:
+                plain_model = XGBClassifier(**self.model_training_parameters)
             plain_model.fit(X, y, sample_weight=train_weights, **fit_params)
             return plain_model
 

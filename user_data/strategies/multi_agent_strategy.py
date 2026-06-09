@@ -219,17 +219,28 @@ class MultiAgentStrategy(IStrategy):
         return max(min_stake, min(adjusted, max_stake))
 
     def _get_ml_prob(self, row) -> float:
-        """Get FreqAI prediction probability for the positive class."""
+        """Get FreqAI prediction probability for the positive class (True/1)."""
         try:
             if "do_predict" in row.index and int(row["do_predict"]) == 1:
-                # Find prediction probability columns (not label, not metadata)
-                pred_cols = [c for c in row.index
-                             if isinstance(c, str) and (c.startswith("&-") or "1.0" in str(c))
-                             and not c.startswith("&s-") and "do_predict" not in str(c)]
-                if pred_cols:
-                    val = float(row[pred_cols[0]])
-                    if 0 < val <= 1:
-                        return val
-        except Exception:
-            pass
-        return 1.0
+                # FreqAI predict returns columns: [label, prob_class_0, prob_class_1]
+                # After label encoding/rename, prob columns are the original class labels
+                # Look for positive class probability column: 'True', 1, or '1.0'
+                for col in row.index:
+                    col_str = str(col)
+                    if col_str == "True" or col_str == "1" or col_str == "1.0":
+                        val = float(row[col])
+                        if 0 < val <= 1:
+                            return val
+                # Fallback: scan any numeric column that looks like a probability
+                for col in row.index:
+                    if col == "&s-up_or_down" or col == "do_predict":
+                        continue
+                    try:
+                        val = float(row[col])
+                        if 0 < val <= 1 and col not in ("&s-up_or_down", "do_predict"):
+                            return val
+                    except (ValueError, TypeError):
+                        continue
+        except Exception as e:
+            logger.warning(f"_get_ml_prob failed for row: {e}")
+        return 0.5

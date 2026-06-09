@@ -85,7 +85,7 @@
     },
     "timescaledb": {
         "enabled": true,
-        "database_url": "postgresql://freqtrade:freqtrade@localhost:5432/freqtrade",
+        "database_url": "postgresql://freqtrade:freqtrade@timescaledb:5432/freqtrade",
         "feature_set_id": 1
     },
     "paper_trader": {
@@ -105,7 +105,7 @@
         "ml_api_url": ""
     },
     "edge_study": {
-        "database_url": "postgresql://freqtrade:freqtrade@localhost:5432/freqtrade"
+        "database_url": "postgresql://freqtrade:freqtrade@timescaledb:5432/freqtrade"
     },
     "api_server": {
         "enabled": true,

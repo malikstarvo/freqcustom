@@ -57,8 +57,10 @@ class XGBoostRFClassifier(BaseClassifierModel):
         init_model = self.get_init_model(dk.pair)
 
         model = XGBRFClassifier(**self.model_training_parameters)
+        if init_model is not None:
+            model = XGBRFClassifier(model=init_model, **self.model_training_parameters)
 
-        model.fit(X=X, y=y, eval_set=eval_set, sample_weight=train_weights, xgb_model=init_model)
+        model.fit(X=X, y=y, eval_set=eval_set, sample_weight=train_weights)
 
         return model
 

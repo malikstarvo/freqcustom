@@ -153,7 +153,7 @@ class Gate:
                 )
 
             final_size = _apply_regime_override(base_size, input.regime_label)
-            decision = _decision_from_size(base_size)
+            decision = _decision_from_size(final_size)
 
             return Output(
                 decision=decision,
