@@ -28,7 +28,6 @@ SECONDS_IN_DAY = 86400
 SECONDS_IN_HOUR = 3600
 
 logger = logging.getLogger(__name__)
-logger.info("[FREQAI DEBUG MODULE] data_kitchen module loaded (debug v2)")
 
 
 class FreqaiDataKitchen:
@@ -77,13 +76,6 @@ class FreqaiDataKitchen:
         self.backtest_predictions_folder: str = "backtesting_predictions"
         self.live = live
         self.pair = pair
-        print(f"[FREQAI DEBUG DK INIT PRINT] live={live}, pair={pair}")
-        logger.info(
-            f"[FREQAI DEBUG DK INIT] live={self.live}, "
-            f"backtest_live_models={config.get('freqai_backtest_live_models', False)}, "
-            f"has_timerange={'timerange' in config}, "
-            f"pair={pair}"
-        )
         self.keras: bool = self.freqai_config.get("keras", False)
         self.set_all_pairs()
         self.backtest_live_models = config.get("freqai_backtest_live_models", False)
@@ -102,12 +94,6 @@ class FreqaiDataKitchen:
                     self.full_timerange,
                     config["freqai"]["train_period_days"],
                     config["freqai"]["backtest_period_days"],
-                )
-                logger.info(
-                    f"[FREQAI DEBUG] full_timerange={self.full_timerange}, "
-                    f"training windows={len(self.training_timeranges)}, "
-                    f"backtesting windows={len(self.backtesting_timeranges)}, "
-                    f"live={self.live}, backtest_live_models={self.backtest_live_models}"
                 )
 
         self.data["extra_returns_per_train"] = self.freqai_config.get("extra_returns_per_train", {})

@@ -69,19 +69,13 @@ class XGBoostGridSearchModel(BaseClassifierModel):
             keep_kwargs = {k: v for k, v in self.model_training_parameters.items() if k not in gs_params}
             base_model = XGBClassifier(**keep_kwargs)
             grid = GridSearchCV(base_model, gs_params, cv=min(3, len(X)//50), scoring="roc_auc", n_jobs=1, verbose=0)
-            logger.info(f"[FREQAI] Running GridSearchCV with {len(gs_params)} param grids...")
             grid.fit(X=X, y=y, sample_weight=train_weights, xgb_model=init_model, **fit_params)
-            logger.info(f"[FREQAI] GS best score: {grid.best_score_:.4f} | best params: {grid.best_params_}")
-            result = grid.best_estimator_
+            logger.info(f"GridSearch best score: {grid.best_score_:.4f} | best params: {grid.best_params_}")
+            return grid.best_estimator_
         else:
-            logger.info(f"[FREQAI] Skipping GridSearchCV (not enough data or no params). Training plain XGBoost...")
             plain_model = XGBClassifier(**self.model_training_parameters)
             plain_model.fit(X, y, sample_weight=train_weights, **fit_params)
-            logger.info(f"[FREQAI] Plain XGBoost trained successfully")
-            result = plain_model
-
-        print(f"[FREQAI MODEL DEBUG] fit() returning model: {type(result).__name__}, is None: {result is None}")
-        return result
+            return plain_model
 
     def predict(
         self, unfiltered_df: DataFrame, dk: FreqaiDataKitchen, **kwargs

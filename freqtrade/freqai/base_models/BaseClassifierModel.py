@@ -74,7 +74,6 @@ class BaseClassifierModel(IFreqaiModel):
         logger.info(f"Training model on {len(dd['train_features'])} data points")
 
         model = self.fit(dd, dk)
-        print(f"[FREQAI TRAIN DEBUG] fit() returned: type={type(model).__name__}, is_None={model is None}")
 
         end_time = time()
 

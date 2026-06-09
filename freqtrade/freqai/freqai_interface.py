@@ -31,7 +31,6 @@ from freqtrade.strategy.interface import IStrategy
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)
-logger.info("[FREQAI DEBUG MODULE] freqai_interface module loaded (debug v2)")
 
 
 class IFreqaiModel(ABC):
@@ -140,7 +139,6 @@ class IFreqaiModel(ABC):
         :param strategy: Strategy to train on
         """
         self.live = strategy.dp.runmode in (RunMode.DRY_RUN, RunMode.LIVE)
-        print(f"[FREQAI DEBUG START CALLED] pair={metadata['pair']}, live={self.live}, runmode={strategy.dp.runmode}")
         self.dd.set_pair_dict_info(metadata)
         self.data_provider = strategy.dp
         self.can_short = strategy.can_short
@@ -293,7 +291,6 @@ class IFreqaiModel(ABC):
         self.pair_it += 1
         train_it = 0
         pair = metadata["pair"]
-        print(f"[FREQAI DEBUG START_BT PRINT] {pair}: training_windows={len(dk.training_timeranges)}, backtesting_windows={len(dk.backtesting_timeranges)}")
         populate_indicators = True
         check_features = True
         # Loop enforcing the sliding window training/backtesting paradigm
@@ -304,10 +301,6 @@ class IFreqaiModel(ABC):
         for tr_train, tr_backtest in zip(
             dk.training_timeranges, dk.backtesting_timeranges, strict=False
         ):
-            logger.info(
-                f"[FREQAI DEBUG] Loop: train_it={train_it+1}/{len(dk.backtesting_timeranges)}, "
-                f"tr_train={tr_train.timerange_str}, tr_backtest={tr_backtest.timerange_str}"
-            )
             (_, _) = self.dd.get_pair_dict_info(pair)
             train_it += 1
             total_trains = len(dk.backtesting_timeranges)
@@ -334,7 +327,6 @@ class IFreqaiModel(ABC):
             dk.set_new_model_names(pair, timestamp_model_id)
 
             if dk.check_if_backtest_prediction_is_valid(len_backtest_df):
-                logger.info(f"[FREQAI DEBUG] Using cached predictions for {pair}")
                 if check_features:
                     self.dd.load_metadata(dk)
                     df_fts = self.dk.use_strategy_to_populate_indicators(
@@ -347,10 +339,6 @@ class IFreqaiModel(ABC):
                 append_df = dk.get_backtesting_prediction()
                 dk.append_predictions(append_df)
             else:
-                logger.info(
-                    f"[FREQAI DEBUG] No cached predictions for {pair} in window "
-                    f"{tr_train.timerange_str}. Will train."
-                )
                 if populate_indicators:
                     dataframe = self.dk.use_strategy_to_populate_indicators(
                         strategy, prediction_dataframe=dataframe, pair=pair
@@ -376,9 +364,6 @@ class IFreqaiModel(ABC):
                 dk.get_unique_classes_from_labels(dataframe_train)
 
                 if not self.model_exists(dk):
-                    logger.info(
-                        f"[FREQAI DEBUG] No existing model for {pair}. Will train."
-                    )
                     dk.find_features(dataframe_train)
                     dk.find_labels(dataframe_train)
 
@@ -387,7 +372,6 @@ class IFreqaiModel(ABC):
                             self.dd.model_type, dk.data_path, self.activate_tensorboard
                         )
                         self.model = self.train(dataframe_train, pair, dk)
-                        print(f"[FREQAI START_BT DEBUG] after train: self.model is None={self.model is None}, type={type(self.model).__name__ if self.model else 'N/A'}")
                         self.tb_logger.close()
                     except Exception as msg:
                         logger.warning(

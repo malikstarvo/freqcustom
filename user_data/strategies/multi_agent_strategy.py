@@ -60,7 +60,6 @@ class MultiAgentStrategy(IStrategy):
         return dataframe
 
     def populate_indicators(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
-        print(f"[POPULATE INDICATORS CALLED] pair={metadata['pair']}, rows={len(dataframe)}")
         dataframe["ema20"] = ta.EMA(dataframe, timeperiod=20)
         dataframe["ema50"] = ta.EMA(dataframe, timeperiod=50)
         dataframe["ema200"] = ta.EMA(dataframe, timeperiod=200)
