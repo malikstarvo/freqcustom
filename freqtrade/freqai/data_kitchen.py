@@ -28,6 +28,7 @@ SECONDS_IN_DAY = 86400
 SECONDS_IN_HOUR = 3600
 
 logger = logging.getLogger(__name__)
+logger.info("[FREQAI DEBUG MODULE] data_kitchen module loaded (debug v2)")
 
 
 class FreqaiDataKitchen:

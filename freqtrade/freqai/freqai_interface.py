@@ -31,6 +31,7 @@ from freqtrade.strategy.interface import IStrategy
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)
+logger.info("[FREQAI DEBUG MODULE] freqai_interface module loaded (debug v2)")
 
 
 class IFreqaiModel(ABC):
