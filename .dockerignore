@@ -30,6 +30,7 @@ freqtrade.egg-info
 config.json*
 *.sqlite
 user_data/
+!user_data/strategies/
 *.log
 
 .vscode
