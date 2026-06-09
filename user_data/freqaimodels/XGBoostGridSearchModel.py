@@ -76,7 +76,6 @@ class XGBoostGridSearchModel(BaseClassifierModel):
 
         if use_grid:
             base_model = XGBClassifier(
-                objective="binary:logistic",
                 eval_metric=eval_metric,
                 random_state=42,
                 early_stopping_rounds=50,
@@ -90,8 +89,7 @@ class XGBoostGridSearchModel(BaseClassifierModel):
         else:
             logger.info(f"[FREQAI] Skipping GridSearchCV (not enough data or no params). Training plain XGBoost...")
             plain_model = XGBClassifier(
-                objective="binary:logistic", eval_metric=eval_metric,
-                random_state=42, early_stopping_rounds=None,
+                eval_metric=eval_metric, random_state=42, early_stopping_rounds=None,
                 **self.model_training_parameters,
             )
             plain_model.fit(X, y, sample_weight=train_weights, **fit_params)
