@@ -45,6 +45,7 @@ USER ftuser
 COPY --chown=ftuser:ftuser . /freqtrade/
 
 RUN pip install -e . --user --no-cache-dir \
+  && pip install -e ft_client/ --user --no-cache-dir \
   && mkdir -p /freqtrade/user_data/ \
   && freqtrade install-ui
 

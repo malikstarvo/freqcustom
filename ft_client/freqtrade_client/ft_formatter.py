@@ -399,20 +399,247 @@ def fmt_stop(data: dict) -> None:
     console.print(f"\n  [red]\u25a0[/] Bot stopped: [yellow]{data.get('status', 'ok')}[/]")
 
 
+def fmt_config(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(); console.print(_header("  Configuration  "))
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=16)
+    tbl.add_column(style="white")
+    for k, v in data.items():
+        if k not in ("internals", "api_server", "entry_pricing", "exit_pricing", "unfilledtimeout", "order_types"):
+            tbl.add_row(str(k).replace("_", " ").title(), str(v))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_strategies(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    strategies = data.get("strategies") if isinstance(data, dict) else data if isinstance(data, list) else []
+    console.print(); console.print(_header(f"  Strategies ({len(strategies) if isinstance(strategies, list) else 0})  "))
+    if not strategies:
+        console.print("  [dim]No strategies found[/]")
+    else:
+        for s in (strategies if isinstance(strategies, list) else []):
+            console.print(f"  [cyan]\u25b8[/] [bold white]{s}[/]")
+    console.print()
+
+
+def fmt_daily(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    records = data.get("data") if isinstance(data, dict) else data if isinstance(data, list) else []
+    currency = str(data.get("stake_currency", "")) if isinstance(data, dict) else ""
+    console.print(); console.print(_header(f"  P&L ({len(records) if isinstance(records, list) else 0} days, {currency})  "))
+    if not records:
+        console.print("  [dim]No data[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("Date", style="white", width=12)
+    tbl.add_column("P&L", justify="right"); tbl.add_column("Balance", justify="right"); tbl.add_column("Trades", justify="right", style="dim", width=8)
+    for r in reversed(records if isinstance(records, list) else []):
+        tbl.add_row(str(r.get("date", ""))[:10], _pnl(r.get("abs_profit", 0)), f"{r.get('starting_balance', 0):,.2f}", str(r.get("trade_count", 0)))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_logs(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    logs = data.get("logs") if isinstance(data, dict) else data
+    console.print(); console.print(_header(f"  Bot Logs ({data.get('log_count', 0) if isinstance(data, dict) else 0} lines)  "))
+    if not logs:
+        console.print("  [dim]No logs[/]"); console.print(); return
+    for e in (logs if isinstance(logs, list) else [])[-100:]:
+        if isinstance(e, str):
+            console.print(f"  [dim]{e}[/]")
+        elif isinstance(e, (list, tuple)):
+            ts = str(e[0]) if len(e) > 0 else ""
+            lvl = str(e[1]) if len(e) > 1 else ""
+            msg = " ".join(str(x) for x in e[2:]) if len(e) > 2 else ""
+            c = "red" if "ERROR" in lvl.upper() else "yellow" if "WARN" in lvl.upper() else ""
+            console.print(f"  [dim]{ts[:19]}[/] [{c or 'dim'}]{lvl:8}[/] {msg}")
+    console.print()
+
+
+def fmt_trade_status(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    trades = data if isinstance(data, list) else data.get("trades", [])
+    console.print(); console.print(_header(f"  Open Trades ({len(trades) if isinstance(trades, list) else 0})  "))
+    if not trades:
+        console.print("  [dim]No open trades[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("ID", justify="right", width=6); tbl.add_column("Pair", style="bold white")
+    tbl.add_column("Side", width=6); tbl.add_column("Amount", justify="right")
+    tbl.add_column("Entry", justify="right")
+    for t in (trades if isinstance(trades, list) else [])[:30]:
+        side = "SHORT" if t.get("is_short") else "LONG"
+        sc = "red" if t.get("is_short") else "green"
+        tbl.add_row(str(t.get("trade_id", "")), t.get("pair", ""),
+                    f"[{sc}]{side}[/]", f"{t.get('amount', 0):.4f}",
+                    f"{t.get('open_rate', 0):.2f}")
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_backtest_status(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(); console.print(_header("  Backtest Status  "))
+    running = data.get("running", False)
+    status = "[green]\u25b6 RUNNING[/]" if running else "[dim]\u25a0 IDLE[/]"
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=16); tbl.add_column(style="white")
+    tbl.add_row("Status", status)
+    tbl.add_row("Progress", f"{data.get('progress', 0) * 100:.1f}%")
+    tbl.add_row("Step", str(data.get("step", "\u2014")))
+    tbl.add_row("Trades", str(data.get("trade_count", "\u2014")))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_backtest_history(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    entries = data if isinstance(data, list) else []
+    console.print(); console.print(_header(f"  Backtest History ({len(entries) if isinstance(entries, list) else 0})  "))
+    if not entries:
+        console.print("  [dim]No history[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("File", style="white", width=30); tbl.add_column("Strategy"); tbl.add_column("TF", width=6); tbl.add_column("Date", style="dim", width=12)
+    for e in (entries if isinstance(entries, list) else [])[:20]:
+        tbl.add_row(str(e.get("filename", ""))[:30], str(e.get("strategy", "\u2014")),
+                    str(e.get("timeframe", "\u2014")), str(e.get("backtest_start_time", ""))[:10] if e.get("backtest_start_time") else "\u2014")
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_backtest_start(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(f"\n  [green]\u25b6[/] Backtest started. [dim]Check: freqtrade-client backtest status[/]")
+
+
+def fmt_topup(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(); console.print(_header("  Paper Top-Up  "))
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=16); tbl.add_column(style="white")
+    tbl.add_row("Amount", f"[green]+${data.get('amount', 0):,.2f}[/]")
+    tbl.add_row("Before", f"${data.get('old_balance', 0):,.2f}")
+    tbl.add_row("After", f"[bold]${data.get('new_balance', 0):,.2f}[/]")
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_paper_trades(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    trades = data if isinstance(data, list) else data.get("trades", [])
+    console.print(); console.print(_header(f"  Paper Trades ({len(trades) if isinstance(trades, list) else 0})  "))
+    if not trades:
+        console.print("  [dim]No paper trades[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("ID", justify="right", width=5); tbl.add_column("Symbol", style="bold white")
+    tbl.add_column("Dir", width=5); tbl.add_column("Entry", justify="right")
+    tbl.add_column("Exit", justify="right"); tbl.add_column("P&L $", justify="right"); tbl.add_column("Return", justify="right")
+    for t in (trades if isinstance(trades, list) else [])[:30]:
+        d = t.get("direction", ""); dc = "red" if d == "short" else "green"
+        tbl.add_row(str(t.get("id", "")), t.get("symbol", ""), f"[{dc}]{d[:4].upper()}[/]",
+                    f"{t.get('entry_price', 0):,.2f}", f"{t.get('exit_price', 0):,.2f}",
+                    _pnl(t.get("net_pnl", 0)), _pct(t.get("return_pct", 0) * 100))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_paper_account(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    snaps = data if isinstance(data, list) else data.get("snapshots", [])
+    console.print(); console.print(_header(f"  Paper Account ({len(snaps) if isinstance(snaps, list) else 0})  "))
+    if not snaps:
+        console.print("  [dim]No snapshots[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("Time", style="dim", width=20); tbl.add_column("Equity", justify="right"); tbl.add_column("Day P&L", justify="right")
+    for s in (snaps if isinstance(snaps, list) else [])[:30]:
+        tbl.add_row(str(s.get("ts", "")), f"{s.get('equity', 0):,.2f}", _pnl(s.get("day_pnl", 0)))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_count(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(f"\n  [bold cyan]Open Trades:[/] [white]{data.get('current', 0)}[/] / {data.get('max', 0)} max")
+
+def fmt_pair_candles(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    console.print(); console.print(_header("  Candle Data  "))
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=16); tbl.add_column(style="white")
+    tbl.add_row("Pair", str(data.get("pair", "\u2014")))
+    tbl.add_row("Timeframe", str(data.get("timeframe", "\u2014")))
+    tbl.add_row("Candles", str(data.get("length", 0)))
+    signals_l = data.get("enter_long_signals", 0) or data.get("buy_signals", 0)
+    signals_s = data.get("enter_short_signals", 0) or data.get("sell_signals", 0)
+    tbl.add_row("Signals", f"[green]{signals_l}[/] long  [red]{signals_s}[/] short")
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
 # ── Command → Formatter Mapping ──────────────────────
 
 FORMATTERS = {
-    "dashboard": fmt_dashboard,
-    "profit": fmt_profit,
-    "balance": fmt_balance,
-    "trades": fmt_trades,
-    "sysinfo": fmt_sysinfo,
-    "health": fmt_health,
-    "performance": fmt_performance,
-    "paper_status": fmt_paper_status,
-    "ping": fmt_ping,
-    "start": fmt_start,
-    "stop": fmt_stop,
+    # Core
+    "dashboard":    fmt_dashboard,
+    "ping":         fmt_ping,
+    # Bot Control
+    "start":        fmt_start,
+    "stop":         fmt_stop,
+    "stopbuy":      fmt_stop,
+    "reload_config": fmt_start,
+    # Account
+    "profit":       fmt_profit,
+    "balance":      fmt_balance,
+    "daily":        fmt_daily,
+    "weekly":       fmt_daily,
+    "monthly":      fmt_daily,
+    "count":        fmt_count,
+    # Trades
+    "trades":       fmt_trades,
+    "status":       fmt_trade_status,
+    "performance":  fmt_performance,
+    "entries":      fmt_performance,
+    "exits":        fmt_performance,
+    "mix_tags":     fmt_performance,
+    # Config & Info
+    "show_config":  fmt_config,
+    "version":      fmt_start,
+    "sysinfo":      fmt_sysinfo,
+    "health":       fmt_health,
+    "strategies":   fmt_strategies,
+    "strategy":     fmt_strategies,
+    "whitelist":    fmt_whitelist,
+    "blacklist":    fmt_whitelist,
+    "logs":         fmt_logs,
+    # Paper Trading
+    "paper_status":  fmt_paper_status,
+    "paper_topup":   fmt_topup,
+    "paper_trades":  fmt_paper_trades,
+    "paper_account": fmt_paper_account,
+    # Backtest
+    "backtest_start":  fmt_backtest_start,
+    "backtest_status": fmt_backtest_status,
+    "backtest_history": fmt_backtest_history,
+    "backtest_history_result": fmt_dashboard,
+    # Pairs & Data
+    "pair_candles":       fmt_pair_candles,
+    "pair_history":       fmt_pair_candles,
+    "available_pairs":    fmt_whitelist,
+    "pairlists_available": fmt_strategies,
 }
 
 
