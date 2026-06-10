@@ -58,6 +58,10 @@
             "use_SVM_to_remove_outliers": false,
             "indicator_periods_candles": [10, 20, 50]
         },
+        "data_split_parameters": {
+            "test_size": 0.25,
+            "shuffle": false
+        },
         "data_kitchen_thread_count": 2
     },
     "api_server": {
