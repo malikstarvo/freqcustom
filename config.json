@@ -1,0 +1,77 @@
+{
+    "max_open_trades": 3,
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "tradable_balance_ratio": 0.99,
+    "dry_run": true,
+    "timeframe": "15m",
+    "trading_mode": "futures",
+    "margin_mode": "isolated",
+    "exchange": {
+        "name": "bybit",
+        "key": "",
+        "secret": "",
+        "ccxt_config": {},
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "BTC/USDT:USDT"
+        ]
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        }
+    ],
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1,
+        "price_last_balance": 0.0,
+        "check_depth_of_market": {
+        "enabled": true,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
+    "strategy": "MultiAgentStrategy",
+    "strategy_path": "user_data/strategies",
+    "freqaimodel": "XGBoostGridSearchModel",
+    "freqaimodel_path": "user_data/freqaimodels",
+    "freqai": {
+        "enabled": true,
+        "purge_old_models": 3,
+        "train_period_days": 90,
+        "backtest_period_days": 30,
+        "identifier": "multi_agent_v1",
+        "feature_parameters": {
+            "include_timeframes": ["15m", "1h", "4h"],
+            "include_corr_pairlist": [],
+            "label_period_candles": 4,
+            "include_shifted_candles": 2,
+            "DI_threshold": 0,
+            "weight_factor": 0.9,
+            "principal_component_analysis": false,
+            "use_SVM_to_remove_outliers": false,
+            "indicator_periods_candles": [10, 20, 50]
+        },
+        "data_kitchen_thread_count": 2
+    },
+    "api_server": {
+        "enabled": true,
+        "listen_ip_address": "127.0.0.1",
+        "listen_port": 8080,
+        "verbosity": "error",
+        "enable_openapi": false,
+        "jwt_secret_key": "SomethingRandomVeryLongStringAtLeast32Chars!",
+        "CORS_origins": ["*"],
+        "username": "admin",
+        "password": "admin"
+    },
+    "internals": {
+        "process_throttle_secs": 5
+    }
+}
