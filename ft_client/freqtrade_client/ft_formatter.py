@@ -199,36 +199,134 @@ def fmt_paper_status(data: dict) -> None:
     console.print()
 
 
+def _bar(percent: float, width: int = 12) -> str:
+    """Render a visual bar: '████████░░░░'"""
+    pct = max(0, min(abs(percent) / 100, 1)) if percent else 0
+    filled = int(pct * width)
+    empty = width - filled
+    c = _profit_color(percent)
+    FILLED = "\u2588"
+    EMPTY = "\u2591"
+    return f"[{c}]{FILLED * filled}[/][dim]{EMPTY * empty}[/]"
+
+
 def fmt_profit(data: dict) -> None:
     if not HAS_RICH:
         _json_output(data)
         return
 
-    console.print()
-    console.print(_header("  Profit Summary  "))
-
-    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
-    tbl.add_column(style="bold cyan", width=18)
-    tbl.add_column(style="white")
-    tbl.add_column(style="dim")
-
-    tbl.add_row("Total P&L", _pct(data.get("profit_all_percent", 0)),
-                f"{data.get('profit_all_coin', 0):.4f}")
-    tbl.add_row("Closed P&L", _pct(data.get("profit_closed_percent", 0)),
-                f"{data.get('profit_closed_coin', 0):.4f}")
-    tbl.add_row("Win Rate", f"{data.get('winrate', 0) * 100:.1f}%",
-                f"{data.get('winning_trades', 0)}W / {data.get('losing_trades', 0)}L")
-    tbl.add_row("Profit Factor", f"{data.get('profit_factor', 0):.2f}",
-                f"Trades: {data.get('trade_count', 0)}")
-    tbl.add_row("Max Drawdown", _pct(-abs(data.get("max_drawdown", 0) * 100)),
-                f"Current: {_pct(-abs(data.get('current_drawdown', 0) * 100))}")
-    tbl.add_row("Sharpe", f"{data.get('sharpe', 0):.2f}",
-                f"Sortino: {data.get('sortino', 0):.2f}")
+    total_pnl_pct = data.get("profit_all_percent", 0)
+    total_pnl_coin = data.get("profit_all_coin", 0)
+    winrate = (data.get("winrate") or 0) * 100
+    pf = data.get("profit_factor", 0)
+    max_dd = (data.get("max_drawdown") or 0) * 100
+    current_dd = (data.get("current_drawdown") or 0) * 100
+    sharpe = data.get("sharpe", 0)
+    sortino = data.get("sortino", 0)
+    calmar = data.get("calmar", 0)
+    cagr = (data.get("cagr") or 0) * 100
+    sqn = data.get("sqn", 0)
     avg_dur = data.get("avg_duration") or "\u2014"
-    tbl.add_row("CAGR", _pct(data.get("cagr", 0) * 100),
-                f"Avg Duration: {avg_dur}")
+    trade_count = data.get("trade_count", 0)
+    closed_count = data.get("closed_trade_count", 0)
+    best_pair = data.get("best_pair") or "\u2014"
+    best_rate = (data.get("best_rate") or 0) * 100
+    winning = data.get("winning_trades", 0)
+    losing = data.get("losing_trades", 0)
+    pf_val = data.get("profit_factor", 0)
+    expectancy = data.get("expectancy", 0)
 
-    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+    # ═══ Header: Big P&L ═══════════════════════════════
+    pnl_color = "green" if total_pnl_pct >= 0 else "red"
+    pnl_sign = "+" if total_pnl_pct >= 0 else ""
+    pnl_arrow = "\u25b2" if total_pnl_pct >= 0 else "\u25bc"
+
+    header = Table.grid(padding=(0, 2))
+    header.add_column(justify="center")
+    header.add_row(
+        Text("Profit Summary", style="bold cyan")
+    )
+    header.add_row(
+        Text.assemble(
+            (f"  {pnl_arrow} ", f"bold {pnl_color}"),
+            (f"{pnl_sign}{total_pnl_pct:.2f}%", f"bold {pnl_color}"),
+            ("  Total P&L", "dim"),
+        )
+    )
+    if total_pnl_coin:
+        header.add_row(Text(f"{total_pnl_coin:.4f} BTC", style="dim"))
+    if closed_count:
+        header.add_row(Text(
+            f"{closed_count} closed / {trade_count} total trades  \u00b7  "
+            f"Best: {best_pair} {_pct(best_rate)}", style="dim"
+        ))
+
+    console.print(Panel(header, box=box.DOUBLE, border_style=pnl_color, padding=(1, 3)))
+
+    # ═══ Performance Bars ══════════════════════════════
+    console.print(_section("Performance"))
+    perf = Table(show_header=False, box=box.SIMPLE, padding=(0, 1))
+    perf.add_column(style="bold cyan", width=16)
+    perf.add_column(style="white", width=14)
+    perf.add_column(width=14)
+    perf.add_column(style="dim")
+
+    wr_bar = _bar(winrate)
+    pf_bar = _bar(min(pf * 20, 100))  # scale PF to 0-100 for visual
+
+    perf.add_row("Win Rate", f"{winrate:.1f}%", wr_bar,
+                 f"{winning}W / {losing}L")
+    perf.add_row("Profit Factor", f"{pf_val:.2f}", pf_bar,
+                 f"Expectancy: {expectancy:.2f}")
+
+    console.print(Panel(perf, border_style="dim blue", padding=(1, 2)))
+
+    # ═══ Risk Metrics ══════════════════════════════════
+    console.print(_section("Risk Metrics"))
+    risk = Table.grid(padding=(0, 4))
+    risk.add_column(justify="left")
+    risk.add_column(justify="left")
+    risk.add_column(justify="left")
+    risk.add_column(justify="left")
+
+    risk.add_row(
+        Text.assemble(("  Sharpe  ", "bold cyan"), (f"{sharpe:.2f}", "white")),
+        Text.assemble(("Sortino  ", "bold cyan"), (f"{sortino:.2f}", "white")),
+        Text.assemble(("SQN  ", "bold cyan"), (f"{sqn:.2f}", "white")),
+        Text.assemble(("Calmar  ", "bold cyan"), (f"{calmar:.2f}", "white")),
+    )
+    risk.add_row(
+        Text.assemble(("  CAGR  ", "bold cyan"), (_pct(cagr), "white")),
+        Text.assemble(("Max DD  ", "bold cyan"), (f"[red]{-abs(max_dd):.2f}%[/]", "white")),
+        Text.assemble(("Current DD  ", "bold cyan"), (f"[red]{-abs(current_dd):.2f}%[/]", "white")),
+        Text.assemble(("Duration  ", "bold cyan"), (f"{avg_dur}", "white")),
+    )
+
+    console.print(Panel(risk, border_style="dim blue", padding=(1, 2)))
+
+    # ═══ P&L Breakdown ═════════════════════════════════
+    console.print(_section("P&L Breakdown"))
+    bd = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    bd.add_column(style="bold cyan", width=18)
+    bd.add_column(style="white", width=14)
+    bd.add_column(style="bold cyan", width=18)
+    bd.add_column(style="white", width=14)
+
+    bd.add_row(
+        "Total P&L %", _pct(total_pnl_pct),
+        "Total Coin", f"{total_pnl_coin:.4f}",
+    )
+    bd.add_row(
+        "Closed P&L %", _pct(data.get("profit_closed_percent", 0)),
+        "Closed Coin", f"{data.get('profit_closed_coin', 0):.4f}",
+    )
+    fiat = data.get("profit_all_fiat", 0) or data.get("profit_closed_fiat", 0)
+    if fiat:
+        bd.add_row("Fiat Value", f"${fiat:,.2f}", "", "")
+
+    console.print(Panel(bd, border_style="dim blue", padding=(1, 2)))
     console.print()
 
 

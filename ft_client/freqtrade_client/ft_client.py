@@ -102,6 +102,20 @@ def _ok(msg: str) -> None:
 
 # ── Show Commands ───────────────────────────────────
 
+CATEGORY_ICONS = {
+    "Bot Control": "\u25b6",
+    "Dashboard": "\ud83d\udcca",
+    "Account": "\ud83d\udcb0",
+    "Trades": "\ud83d\udcc8",
+    "Trading": "\u26a1",
+    "Locks": "\ud83d\udd12",
+    "Paper Trading": "\ud83d\udcdd",
+    "Backtest": "\ud83d\udd2c",
+    "Strategy": "\ud83e\udde0",
+    "Pairs": "\ud83d\udcb1",
+    "System": "\ud83d\udd27",
+}
+
 def print_commands():
     client = FtRestClient(None)
 
@@ -113,13 +127,34 @@ def print_commands():
                 print(f"  {name}\n\t{doc}\n")
         return
 
-    console.print()
-    console.print(Panel(
-        Align.center(Text("Freqtrade REST Client", style="bold cyan")),
-        box=box.HEAVY, border_style="cyan", padding=(1, 4),
-    ))
+    all_methods = {n for n, _ in inspect.getmembers(client) if not n.startswith("_")}
 
-    commands_by_category: dict[str, list[tuple[str, str]]] = {
+    # ═══ Banner ══════════════════════════════════════
+    console.print()
+    banner = Panel(
+        Align.center(
+            Text.assemble(
+                ("\n    \u2554", "bold cyan"),
+                (" Freqtrade AI Dashboard CLI ", "bold white"),
+                ("\u2557\n", "bold cyan"),
+                ("    \u2551", "bold cyan"),
+                (f" v{__version__}  \u00b7  ", "dim"),
+                (f"{len(all_methods)} commands ", "white"),
+                (f" \u00b7  ", "dim"),
+                ("REST + WebSocket", "dim"),
+                ("\u2551\n", "bold cyan"),
+                ("    \u255a", "bold cyan"),
+                ("\u2550" * 34, "bold cyan"),
+                ("\u255d", "bold cyan"),
+            )
+        ),
+        box=box.DOUBLE, border_style="cyan",
+        padding=(0, 4),
+    )
+    console.print(banner)
+
+    # ═══ Category Tables ══════════════════════════════
+    commands_by_category: dict[str, list[str]] = {
         "Bot Control": ["start", "stop", "stopbuy", "reload_config"],
         "Dashboard": ["dashboard"],
         "Account": ["balance", "count", "profit", "daily", "weekly", "monthly", "stats"],
@@ -135,17 +170,57 @@ def print_commands():
         "System": ["ping", "show_config", "sysinfo", "health", "version", "logs"],
     }
 
-    all_methods = {n for n, _ in inspect.getmembers(client) if not n.startswith("_")}
-
     for category, cmds in commands_by_category.items():
-        console.print(f"\n  [bold yellow]{category}[/]")
+        icon = CATEGORY_ICONS.get(category, "\u2022")
+        tbl = Table(
+            box=box.SIMPLE,
+            show_header=True,
+            header_style=f"bold {_cat_color(category)}",
+            padding=(0, 1),
+            title=f" {icon}  {category} ",
+            title_style=f"bold {_cat_color(category)}",
+            title_justify="left",
+            border_style="dim",
+        )
+        tbl.add_column("Command", width=26, style="bold cyan", no_wrap=True)
+        tbl.add_column("Description", style="dim")
+
+        count = 0
         for name in cmds:
             if name in all_methods:
                 doc = getattr(client, name).__doc__ or ""
                 doc = doc.strip().split("\n")[0].rstrip(".")
-                console.print(f"    [bold cyan]{name:<28}[/] [dim]{doc}[/]")
+                tbl.add_row(f"  {name}", doc)
+                count += 1
+        if count > 0:
+            console.print(tbl)
 
-    console.print(f"\n  [dim]Add [bold]--json[/] for raw output.  |  {len(all_methods)} commands total.[/]\n")
+    # ═══ Footer ═══════════════════════════════════════
+    console.print()
+    console.print(
+        f"  [dim]\U0001f4a1 {len(all_methods)} commands in "
+        f"{len(commands_by_category)} categories  |  "
+        f"Use [bold]--json[/] for raw output  |  "
+        f"v{__version__}[/]"
+    )
+    console.print()
+
+
+def _cat_color(category: str) -> str:
+    colors = {
+        "Bot Control": "green",
+        "Dashboard": "cyan",
+        "Account": "yellow",
+        "Trades": "magenta",
+        "Trading": "red",
+        "Locks": "yellow",
+        "Paper Trading": "blue",
+        "Backtest": "green",
+        "Strategy": "cyan",
+        "Pairs": "magenta",
+        "System": "white",
+    }
+    return colors.get(category, "dim")
 
 
 # ── Main ────────────────────────────────────────────
