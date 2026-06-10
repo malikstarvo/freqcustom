@@ -543,14 +543,75 @@ def fmt_stop(data: dict) -> None:
 def fmt_config(data: dict) -> None:
     if not HAS_RICH:
         _json_output(data); return
-    console.print(); console.print(_header("  Configuration  "))
+    console.print(); console.print(_header("  Active Configuration  "))
+    dry = data.get("dry_run", True)
+    if dry:
+        console.print(Panel(Text("  \u26a0  DRY RUN MODE \u2014 Simulation only. No real money.", style="bold yellow"), box=box.SIMPLE, border_style="yellow"))
+    else:
+        console.print(Panel(Text("  \u26a0  LIVE MODE \u2014 Real money will be traded!", style="bold red"), box=box.SIMPLE, border_style="red"))
+
     tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
     tbl.add_column(style="bold cyan", width=16)
     tbl.add_column(style="white")
+    skip = ("internals", "api_server", "entry_pricing", "exit_pricing", "unfilledtimeout", "order_types",
+            "freqai", "freqaimodel", "freqaimodel_path", "dry_run", "dry_run_wallet", "minimal_roi")
+    keys = ["strategy", "strategy_path", "exchange", "trading_mode", "margin_mode",
+            "stake_currency", "stake_amount", "max_open_trades", "timeframe",
+            "stoploss", "trailing_stop", "position_adjustment_enable", "short_allowed",
+            "cancel_open_orders_on_exit"]
+    for k in keys:
+        v = data.get(k)
+        if v is not None:
+            tbl.add_row(str(k).replace("_", " ").title(), str(v))
+    # append remaining keys not in skip or keys
     for k, v in data.items():
-        if k not in ("internals", "api_server", "entry_pricing", "exit_pricing", "unfilledtimeout", "order_types"):
+        if k not in skip and k not in keys and not k.startswith("_"):
             tbl.add_row(str(k).replace("_", " ").title(), str(v))
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+def fmt_config_live(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    console.print()
+    banner = Panel(
+        Align.center(Text.assemble(
+            ("\n  Live Trading Config Setup\n\n", "bold white"),
+            ("  \u26a0  REAL MONEY WILL BE TRADED  \u26a0\n", "bold red"),
+        )),
+        box=box.DOUBLE, border_style="red", padding=(0, 2),
+    )
+    console.print(banner)
+
+    pair = data.get("pair", "\u2014")
+    tf = data.get("timeframe", "15m")
+    stake = data.get("stake_amount", "unlimited")
+    lev = data.get("leverage", "1")
+    exc = data.get("exchange", "bybit")
+
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=16)
+    tbl.add_column(style="white")
+    tbl.add_row("Pair", pair)
+    tbl.add_row("Timeframe", tf)
+    tbl.add_row("Stake Amount", str(stake))
+    tbl.add_row("Leverage", f"{lev}x")
+    tbl.add_row("Exchange", exc)
+    tbl.add_row("Max Trades", str(data.get("max_open_trades", "3")))
+    tbl.add_row("Config File", data.get("_config_file", "config.live.json"))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+
+    console.print()
+    console.print(_section("Next Steps"))
+    steps = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    steps.add_column(width=3, style="bold cyan")
+    steps.add_column(style="white")
+    steps.add_row("1.", f"Edit {data.get('_config_file', 'config.live.json')} \u2014 add exchange API keys")
+    steps.add_row("2.", f"cp config.live.json config.json")
+    steps.add_row("3.", f"docker compose restart freqtrade")
+    steps.add_row("4.", f"freqtrade-client start")
+    console.print(Panel(steps, border_style="dim green", padding=(1, 2)))
     console.print()
 
 
@@ -786,6 +847,7 @@ FORMATTERS = {
     "mix_tags":     fmt_performance,
     # Config & Info
     "show_config":  fmt_config,
+    "config_live":  fmt_config_live,
     "version":      fmt_start,
     "sysinfo":      fmt_sysinfo,
     "health":       fmt_health,

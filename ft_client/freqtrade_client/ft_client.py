@@ -113,6 +113,7 @@ CATEGORY_ICONS = {
     "Backtest": "\ud83d\udd2c",
     "Strategy": "\ud83e\udde0",
     "Pairs": "\ud83d\udcb1",
+    "Config": "\u2699",
     "System": "\ud83d\udd27",
 }
 
@@ -167,7 +168,8 @@ def print_commands():
         "Strategy": ["strategies", "strategy", "plot_config"],
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
                    "pairlists_available"],
-        "System": ["ping", "show_config", "sysinfo", "health", "version", "logs"],
+        "Config": ["show_config", "config_live"],
+        "System": ["ping", "sysinfo", "health", "version", "logs"],
     }
 
     for category, cmds in commands_by_category.items():
@@ -222,12 +224,86 @@ def _cat_color(category: str) -> str:
         "Backtest": "green",
         "Strategy": "cyan",
         "Pairs": "magenta",
+        "Config": "cyan",
         "System": "white",
     }
     return colors.get(category, "dim")
 
 
 # ── Main ────────────────────────────────────────────
+
+def _handle_config_live(kwargs: dict[str, str]) -> dict[str, Any]:
+    """Generate a live trading config file from user input."""
+    pair = kwargs.get("pair", "")
+    timeframe = kwargs.get("timeframe", "15m")
+    stake = kwargs.get("stake", kwargs.get("stake_amount", "unlimited"))
+    leverage = kwargs.get("leverage", "1")
+    max_trades = kwargs.get("max", kwargs.get("max_trades", "3"))
+    exchange = kwargs.get("exchange", "bybit")
+
+    if not pair:
+        _fail("pair= is required. Example: pair=BTC/USDT:USDT")
+
+    config_data = {
+        "max_open_trades": int(max_trades),
+        "stake_currency": "USDT",
+        "stake_amount": stake,
+        "tradable_balance_ratio": 0.99,
+        "dry_run": False,
+        "timeframe": timeframe,
+        "trading_mode": "futures",
+        "margin_mode": "isolated",
+        "exchange": {
+            "name": exchange,
+            "key": "YOUR_API_KEY",
+            "secret": "YOUR_API_SECRET",
+            "ccxt_config": {},
+            "ccxt_async_config": {},
+            "pair_whitelist": [pair],
+        },
+        "pairlists": [{"method": "StaticPairList"}],
+        "entry_pricing": {
+            "price_side": "same",
+            "use_order_book": True,
+            "order_book_top": 1,
+            "price_last_balance": 0.0,
+            "check_depth_of_market": {"enabled": False, "bids_to_ask_delta": 1},
+        },
+        "exit_pricing": {
+            "price_side": "same",
+            "use_order_book": True,
+            "order_book_top": 1,
+        },
+        "strategy": "MultiAgentStrategy",
+        "strategy_path": "user_data/strategies",
+        "api_server": {
+            "enabled": True,
+            "listen_ip_address": "0.0.0.0",
+            "listen_port": 8080,
+            "verbosity": "error",
+            "enable_openapi": False,
+            "jwt_secret_key": "ChangeMeToARandomLongStringAtLeast32Chars!",
+            "CORS_origins": ["*"],
+            "username": "admin",
+            "password": "admin",
+        },
+        "internals": {"process_throttle_secs": 5},
+    }
+
+    out_path = Path("config.live.json")
+    with out_path.open("w") as f:
+        json.dump(config_data, f, indent=4)
+
+    return {
+        "pair": pair,
+        "timeframe": timeframe,
+        "stake_amount": stake,
+        "leverage": leverage,
+        "max_open_trades": int(max_trades),
+        "exchange": exchange,
+        "_config_file": str(out_path.resolve()),
+    }
+
 
 def main_exec(parsed: dict[str, Any]):
     if parsed.get("show") or parsed.get("command") in ("show", "help"):
@@ -267,6 +343,12 @@ def main_exec(parsed: dict[str, Any]):
             _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
     else:
         display_cmd = command
+
+    # ── Special: config live (client-side, no API call) ──
+    if display_cmd == "config_live":
+        res = _handle_config_live(kwargs)
+        format_output("config_live", res, force_json=parsed.get("json", False))
+        sys.exit(0)
 
     kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in cmd_args if "=" in x}
     args_list = [x for x in cmd_args if "=" not in x]
