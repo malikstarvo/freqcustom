@@ -203,6 +203,10 @@ def print_commands():
         f"Use [bold]--json[/] for raw output  |  "
         f"v{__version__}[/]"
     )
+    console.print(
+        "  [dim]Namespace: [bold]paper status[/], "
+        "[bold]backtest start[/], [bold]paper topup amount=1000[/][/]"
+    )
     console.print()
 
 
@@ -243,23 +247,38 @@ def main_exec(parsed: dict[str, Any]):
     server_url = f"http://{url}:{port}"
     client = FtRestClient(server_url, username, password)
 
-    valid = [x for x, _ in inspect.getmembers(client) if not x.startswith("_")]
+    valid = {x for x, _ in inspect.getmembers(client) if not x.startswith("_")}
     command = parsed["command"]
+    cmd_args = parsed["command_arguments"]
 
+    # ── Namespace support: "paper status" → paper_status() ──
     if command not in valid:
-        _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
+        pos_args = [x for x in cmd_args if "=" not in x]
+        if pos_args:
+            subcmd = pos_args[0]
+            compound = f"{command}_{subcmd}"
+            if compound in valid:
+                display_cmd = compound  # for formatting
+                command = compound
+                cmd_args = [x for x in cmd_args if x != subcmd]  # remove subcommand from args
+            else:
+                _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
+        else:
+            _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
+    else:
+        display_cmd = command
 
-    kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in parsed["command_arguments"] if "=" in x}
-    args_list = [x for x in parsed["command_arguments"] if "=" not in x]
+    kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in cmd_args if "=" in x}
+    args_list = [x for x in cmd_args if "=" not in x]
 
     try:
         res = getattr(client, command)(*args_list, **kwargs)
     except TypeError as e:
-        _fail(f"Invalid arguments for '{command}': {e}")
+        _fail(f"Invalid arguments for '{display_cmd}': {e}")
     except Exception as e:
         _fail(f"API error: {e}")
 
-    format_output(command, res, force_json=parsed.get("json", False))
+    format_output(display_cmd, res, force_json=parsed.get("json", False))
 
 
 def main():
