@@ -78,23 +78,42 @@ class FtRestClient:
     def start(self):
         """Start the bot if it's in the stopped state.
 
-        :return: json object
+        :return: json object with status and follow-up state
         """
-        return self._post("start")
+        result = self._post("start") or {}
+        try:
+            cfg = self.show_config()
+            if cfg:
+                result["_state"] = cfg.get("state", "unknown")
+                result["_strategy"] = cfg.get("strategy", "\u2014")
+                result["_exchange"] = cfg.get("exchange", "\u2014")
+                result["_dry_run"] = cfg.get("dry_run", True)
+                result["_trading_mode"] = cfg.get("trading_mode", "\u2014")
+        except Exception:
+            pass
+        return result
 
     def stop(self):
         """Stop the bot. Use `start` to restart.
 
-        :return: json object
+        :return: json object with status and follow-up state
         """
-        return self._post("stop")
+        result = self._post("stop") or {}
+        try:
+            cfg = self.show_config()
+            if cfg:
+                result["_state"] = cfg.get("state", "unknown")
+        except Exception:
+            pass
+        return result
 
     def stopbuy(self):
         """Stop buying (but handle sells gracefully). Use `reload_config` to reset.
 
         :return: json object
         """
-        return self._post("stopbuy")
+        result = self._post("stopbuy") or {}
+        return result
 
     def reload_config(self):
         """Reload configuration.

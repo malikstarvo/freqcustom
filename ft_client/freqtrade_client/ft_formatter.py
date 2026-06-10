@@ -89,6 +89,15 @@ def fmt_dashboard(data: dict) -> None:
     console.print()
     console.print(_header("  Freqtrade AI Dashboard  "))
 
+    # ── Dry-run Warning ────────────────────────────────
+    if data.get("dry_run"):
+        console.print(
+            Panel(
+                Text("  \u26a0  DRY RUN MODE \u2014 No real money is being traded. Simulation only.  ", style="bold yellow"),
+                box=box.SIMPLE, border_style="yellow",
+            )
+        )
+
     # Top row: State + Config
     grid = Table.grid(padding=(0, 4))
     grid.add_column(ratio=1)
@@ -485,16 +494,50 @@ def fmt_performance(data: list) -> None:
 
 def fmt_start(data: dict) -> None:
     if not HAS_RICH:
-        _json_output(data)
-        return
-    console.print(f"\n  [green]\u25b6[/] Bot started: [green]{data.get('status', 'ok')}[/]")
+        _json_output(data); return
+
+    state = data.get("_state", data.get("status", "ok"))
+    is_running = state == "running"
+    state_color = "green" if is_running else "yellow"
+    state_icon = "\u25cf" if is_running else "\u25b6"
+    dry_run = data.get("_dry_run", data.get("dry_run", False))
+    strategy = data.get("_strategy") or data.get("strategy") or "\u2014"
+    exchange = data.get("_exchange") or data.get("exchange") or "\u2014"
+    mode = data.get("_trading_mode") or data.get("trading_mode") or "\u2014"
+
+    console.print()
+    header = Table.grid(padding=(0, 2))
+    header.add_column(justify="center")
+    header.add_row(Text("Bot Started", style="bold cyan"))
+
+    info = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    info.add_column(style="bold cyan", width=16)
+    info.add_column(style="white")
+
+    info.add_row("State", f"[{state_color}]{state_icon} {state.upper()}[/]")
+    if strategy: info.add_row("Strategy", strategy)
+    if exchange: info.add_row("Exchange", exchange)
+    DRY_BADGE = "[yellow](DRY RUN \u2014 simulation)[/]"
+    LIVE_BADGE = "[red](LIVE)[/]"
+    if mode: info.add_row("Mode", f"{mode} {DRY_BADGE if dry_run else LIVE_BADGE}")
+
+    console.print(Panel(info, box=box.DOUBLE, border_style=state_color, padding=(1, 2)))
+    console.print(f"  [dim]Run [bold]freqtrade-client dashboard[/] for full status.[/]\n")
 
 
 def fmt_stop(data: dict) -> None:
     if not HAS_RICH:
-        _json_output(data)
-        return
-    console.print(f"\n  [red]\u25a0[/] Bot stopped: [yellow]{data.get('status', 'ok')}[/]")
+        _json_output(data); return
+
+    state = data.get("_state", data.get("status", "stopped"))
+
+    console.print()
+    info = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    info.add_column(style="bold cyan", width=16)
+    info.add_column(style="white")
+    info.add_row("Status", f"[red]\u25a0[/] {state.upper()}")
+    console.print(Panel(info, box=box.DOUBLE, border_style="red", padding=(1, 2)))
+    console.print(f"  [dim]Run [bold]freqtrade-client start[/] to restart the bot.[/]\n")
 
 
 def fmt_config(data: dict) -> None:
