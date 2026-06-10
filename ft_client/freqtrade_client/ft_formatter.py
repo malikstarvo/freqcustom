@@ -889,6 +889,92 @@ def fmt_pair_candles(data):
     console.print()
 
 
+def fmt_self_test(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    categories = data.get("categories", [])
+    passed = data.get("passed", 0)
+    failed = data.get("failed", 0)
+    skipped = data.get("skipped", 0)
+    total_ms = data.get("total_ms", 0)
+
+    console.print()
+    hdr = Table.grid(padding=(0, 2))
+    hdr.add_column(justify="center")
+    hdr.add_row(Text("Backend Test Suite", style="bold cyan"))
+    hdr.add_row(Text(
+        f"{passed} passed  \u00b7  {failed} failed  \u00b7  {skipped} skipped  \u00b7  {total_ms}ms",
+        style="dim"))
+    console.print(Panel(hdr, box=box.DOUBLE, border_style="cyan", padding=(1, 2)))
+
+    for cat in categories:
+        cat_name = cat.get("category", "")
+        tests = cat.get("tests", [])
+        if not tests:
+            continue
+
+        cat_passed = sum(1 for t in tests if t["status"] == "pass")
+        cat_failed = sum(1 for t in tests if t["status"] == "fail")
+        cat_skip = sum(1 for t in tests if t["status"] == "skip")
+
+        # Category header
+        status_str = f"[green]{cat_passed}\u2713[/]"
+        if cat_failed:
+            status_str += f" [red]{cat_failed}\u2717[/]"
+        if cat_skip:
+            status_str += f" [yellow]{cat_skip}\u25cb[/]"
+
+        tbl = Table(
+            box=box.SIMPLE, padding=(0, 1),
+            show_header=True,
+            header_style="bold cyan",
+            title=f"  {cat_name}  ({status_str})"
+        )
+        tbl.add_column("", width=2)
+        tbl.add_column("Test", width=16)
+        tbl.add_column("Result", style="dim", width=40)
+        tbl.add_column("", width=6, justify="right")
+
+        for t in tests:
+            name = t["name"]
+            status = t["status"]
+            detail = t["detail"]
+            ms = t.get("ms", 0)
+
+            if status == "pass":
+                icon = "[green]\u2713[/]"
+            elif status == "fail":
+                icon = "[red]\u2717[/]"
+            else:
+                icon = "[yellow]\u25cb[/]"
+
+            tbl.add_row(icon, name, detail, f"{ms:.0f}ms")
+
+        console.print(tbl)
+
+    # Summary footer
+    summary_color = "green" if failed == 0 else "red"
+    summary_icon = "\u2713" if failed == 0 else "\u2717"
+    all_tests = passed + failed + skipped
+    console.print()
+    console.print(
+        f"  [{summary_color}]{summary_icon} {passed}/{all_tests} passed [/]"
+        f"[dim]\u00b7 {total_ms}ms total \u00b7 "
+        f"Results: {'ALL CLEAN' if failed == 0 else 'FIX REQUIRED'}[/]"
+    )
+
+    if failed > 0:
+        console.print()
+        console.print("  [bold yellow]Failing Tests:[/]")
+        for cat in categories:
+            for t in cat.get("tests", []):
+                if t["status"] == "fail":
+                    console.print(f"  [red]\u2717[/] [bold]{t['name']}[/]: [dim]{t['detail']}[/]")
+
+    console.print()
+
+
 def fmt_whitelist(data):
     if not HAS_RICH:
         _json_output(data); return
@@ -1048,6 +1134,7 @@ FORMATTERS = {
     "config_live":  fmt_config_live,
     "model":        fmt_model_info,
     "model_info":   fmt_model_info,
+    "self_test":    fmt_self_test,
     "version":      fmt_start,
     "sysinfo":      fmt_sysinfo,
     "health":       fmt_health,

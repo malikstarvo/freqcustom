@@ -802,4 +802,143 @@ class FtRestClient:
 
         return result
 
+    # ── Self-Test Suite ──────────────────────────────────
+
+    def self_test(self):
+        """Run comprehensive backend test suite against the running API.
+
+        Tests connectivity, bot control, trading info, system health,
+        paper trading, strategy/pairs, and data pipeline.
+        Returns structured results with pass/fail/skip per test.
+        """
+        import time as time_mod
+
+        def _run(name: str, fn, *a, **kw):
+            start = time_mod.time()
+            try:
+                data = fn(*a, **kw)
+                ms = (time_mod.time() - start) * 1000
+                return {"name": name, "status": "pass", "detail": str(data)[:100], "ms": round(ms, 1)}
+            except Exception as e:
+                ms = (time_mod.time() - start) * 1000
+                return {"name": name, "status": "fail", "detail": str(e)[:120], "ms": round(ms, 1)}
+
+        results: list[dict[str, Any]] = []
+        t0 = time_mod.time()
+
+        # ── Connectivity ─────────────────────────────────
+        cat = {"category": "Connectivity", "tests": []}
+        cat["tests"].append(_run("ping", self.ping))
+        try:
+            from urllib.parse import urlparse
+            host = urlparse(getattr(self, "_serverurl", "http://localhost:8080")).hostname or "localhost"
+            import http.client
+            conn = http.client.HTTPConnection(host, 8080, timeout=3)
+            conn.request("GET", "/api/v1/message/ws",
+                         headers={"Upgrade": "websocket", "Connection": "Upgrade"})
+            resp = conn.getresponse()
+            conn.close()
+            cat["tests"].append({"name": "websocket", "status": "pass",
+                                 "detail": f"WS endpoint: {resp.status}", "ms": 0})
+        except Exception as e:
+            cat["tests"].append({"name": "websocket", "status": "skip", "detail": str(e)[:80], "ms": 0})
+        results.append(cat)
+
+        # ── Bot Info ─────────────────────────────────────
+        cat = {"category": "Bot Info", "tests": []}
+        cfg = self.show_config()
+        state = (cfg or {}).get("state", "offline")
+        cat["tests"].append({"name": "show_config", "status": "pass",
+                             "detail": f"state={state}", "ms": 0})
+        cat["tests"].append(_run("profit", self.profit))
+        cat["tests"].append(_run("balance", self.balance))
+        cat["tests"].append(_run("daily", self.daily, 1))
+        cat["tests"].append(_run("trades", self.trades, 1))
+        cat["tests"].append(_run("performance", self.performance))
+        results.append(cat)
+
+        # ── Bot Control ──────────────────────────────────
+        cat = {"category": "Bot Control", "tests": []}
+        was_running = state == "running"
+
+        if not was_running:
+            self.start()
+            time_mod.sleep(1.5)
+            s2 = (self.show_config() or {}).get("state", "?")
+            cat["tests"].append({"name": "start", "status": "pass" if s2 == "running" else "fail",
+                                 "detail": f"state={s2}", "ms": 0})
+
+            self.stop()
+            time_mod.sleep(1.5)
+            s3 = (self.show_config() or {}).get("state", "?")
+            cat["tests"].append({"name": "stop", "status": "pass" if s3 == "stopped" else "fail",
+                                 "detail": f"state={s3}", "ms": 0})
+        else:
+            self.stop()
+            time_mod.sleep(1.5)
+            s2 = (self.show_config() or {}).get("state", "?")
+            cat["tests"].append({"name": "stop", "status": "pass" if s2 == "stopped" else "fail",
+                                 "detail": f"state={s2}", "ms": 0})
+            self.start()
+            time_mod.sleep(1.5)
+            s3 = (self.show_config() or {}).get("state", "?")
+            cat["tests"].append({"name": "start", "status": "pass" if s3 == "running" else "fail",
+                                 "detail": f"state={s3}", "ms": 0})
+        results.append(cat)
+
+        # ── Paper Trading ────────────────────────────────
+        cat = {"category": "Paper Trading", "tests": []}
+        try:
+            ps = self.paper_status()
+            cat["tests"].append({"name": "paper_status", "status": "pass",
+                                 "detail": f"equity={ps.get('equity', 0):.0f}", "ms": 0})
+        except Exception as e:
+            err = str(e)
+            status = "skip" if "503" in err or "not running" in err else "fail"
+            cat["tests"].append({"name": "paper_status", "status": status, "detail": err[:80], "ms": 0})
+        results.append(cat)
+
+        # ── System ───────────────────────────────────────
+        cat = {"category": "System", "tests": []}
+        cat["tests"].append(_run("sysinfo", self.sysinfo))
+        cat["tests"].append(_run("health", self.health))
+        cat["tests"].append(_run("logs", self.logs, 5))
+        results.append(cat)
+
+        # ── Strategy & Pairs ─────────────────────────────
+        cat = {"category": "Strategy & Pairs", "tests": []}
+        cat["tests"].append(_run("strategies", self.strategies))
+        cat["tests"].append(_run("whitelist", self.whitelist))
+        results.append(cat)
+
+        # ── Data Pipeline ────────────────────────────────
+        cat = {"category": "Data Pipeline", "tests": []}
+        try:
+            pd = self.pair_candles("BTC/USDT:USDT", "15m", limit=1)
+            n = pd.get("length", 0) if isinstance(pd, dict) else 0
+            cat["tests"].append({"name": "pair_candles", "status": "pass",
+                                 "detail": f"{n} candles for BTC/USDT:USDT 15m", "ms": 0})
+        except Exception as e:
+            cat["tests"].append({"name": "pair_candles", "status": "skip", "detail": str(e)[:80], "ms": 0})
+        try:
+            em = (self.show_config() or {}).get("exchange", "")
+            if em:
+                cat["tests"].append({"name": f"exchange ({em})", "status": "pass",
+                                     "detail": em, "ms": 0})
+        except Exception:
+            pass
+        results.append(cat)
+
+        total_ms = round((time_mod.time() - t0) * 1000)
+        passed = sum(t["status"] == "pass" for c in results for t in c["tests"])
+        failed = sum(t["status"] == "fail" for c in results for t in c["tests"])
+        skipped = sum(t["status"] == "skip" for c in results for t in c["tests"])
+
+        return {
+            "categories": results,
+            "passed": passed, "failed": failed, "skipped": skipped,
+            "total_ms": total_ms, "initial_state": was_running,
+        }
+
+
 

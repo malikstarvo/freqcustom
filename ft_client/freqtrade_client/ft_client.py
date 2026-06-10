@@ -171,7 +171,7 @@ def print_commands():
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
                    "pairlists_available", "markets"],
         "Config": ["show_config", "config_live"],
-        "System": ["ping", "sysinfo", "health", "version", "logs"],
+        "System": ["ping", "sysinfo", "health", "version", "logs", "self_test"],
     }
 
     for category, cmds in commands_by_category.items():
