@@ -724,6 +724,7 @@ class FtRestClient:
         :param limit: Max pairs to show (default 20)
         :return: dict with exchange, pairs[], and raw tickers
         """
+        limit = int(limit)
         result: dict[str, Any] = {"exchange": "", "pairs": [], "_error": None}
 
         try:
