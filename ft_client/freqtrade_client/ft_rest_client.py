@@ -663,18 +663,19 @@ class FtRestClient:
         # Profit summary
         try:
             p = self.profit()
-            result["profit_all_pct"] = round(p.get("profit_all_percent", 0), 2)
-            result["profit_closed_pct"] = round(p.get("profit_closed_percent", 0), 2)
-            result["profit_closed_coin"] = round(p.get("profit_closed_coin", 0), 4)
-            result["winrate"] = round(p.get("winrate", 0) * 100, 1)
-            result["trade_count"] = p.get("trade_count", 0)
-            result["closed_trade_count"] = p.get("closed_trade_count", 0)
-            result["best_pair"] = p.get("best_pair", "—")
-            result["max_drawdown"] = round(p.get("max_drawdown", 0) * 100, 2)
-            result["profit_factor"] = round(p.get("profit_factor", 0), 2)
-            result["sharpe"] = round(p.get("sharpe", 0), 2)
-            result["avg_duration"] = p.get("avg_duration", "—")
+            result["profit_all_pct"] = round(p.get("profit_all_percent") or 0, 2)
+            result["profit_closed_pct"] = round(p.get("profit_closed_percent") or 0, 2)
+            result["profit_closed_coin"] = round(p.get("profit_closed_coin") or 0, 4)
+            result["winrate"] = round((p.get("winrate") or 0) * 100, 1)
+            result["trade_count"] = p.get("trade_count") or 0
+            result["closed_trade_count"] = p.get("closed_trade_count") or 0
+            result["best_pair"] = p.get("best_pair") or "—"
+            result["max_drawdown"] = round((p.get("max_drawdown") or 0) * 100, 2)
+            result["profit_factor"] = round(p.get("profit_factor") or 0, 2)
+            result["sharpe"] = round(p.get("sharpe") or 0, 2)
+            result["avg_duration"] = p.get("avg_duration") or "—"
         except Exception:
+            pass
             pass
 
         # Open trades
@@ -688,9 +689,9 @@ class FtRestClient:
         # Balance
         try:
             bal = self.balance()
-            result["total_balance"] = round(bal.get("total", 0), 2)
-            result["balance_symbol"] = bal.get("symbol", "—")
-            result["currency_count"] = len(bal.get("currencies", []))
+            result["total_balance"] = round(bal.get("total") or 0, 2)
+            result["balance_symbol"] = bal.get("symbol") or "—"
+            result["currency_count"] = len(bal.get("currencies") or [])
         except Exception:
             pass
 
@@ -704,11 +705,11 @@ class FtRestClient:
         # Paper trading
         try:
             ps = self.paper_status()
-            result["paper_equity"] = round(ps.get("equity", 0), 2)
-            result["paper_balance"] = round(ps.get("balance", 0), 2)
-            result["paper_total_pnl"] = round(ps.get("total_pnl", 0), 2)
-            result["paper_day_pnl"] = round(ps.get("day_pnl", 0), 2)
-            result["paper_day_trades"] = ps.get("day_trades", 0)
+            result["paper_equity"] = round(ps.get("equity") or 0, 2)
+            result["paper_balance"] = round(ps.get("balance") or 0, 2)
+            result["paper_total_pnl"] = round(ps.get("total_pnl") or 0, 2)
+            result["paper_day_pnl"] = round(ps.get("day_pnl") or 0, 2)
+            result["paper_day_trades"] = ps.get("day_trades") or 0
             result["paper_position"] = ps.get("position")
         except Exception:
             pass
