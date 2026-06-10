@@ -461,17 +461,19 @@ class FtRestClient:
         cfg = self.show_config() or {}
         return {
             "strategy": cfg.get("strategy") or "MultiAgentStrategy",
-            "strategy_path": cfg.get("strategy_path") or "user_data/strategies",
             "timeframe": cfg.get("timeframe") or "15m",
             "stoploss": cfg.get("stoploss"),
             "trailing_stop": cfg.get("trailing_stop"),
             "max_open_trades": cfg.get("max_open_trades"),
             "position_adjustment_enable": cfg.get("position_adjustment_enable"),
+            "max_entry_position_adjustment": cfg.get("max_entry_position_adjustment"),
             "stake_currency": cfg.get("stake_currency"),
             "stake_amount": cfg.get("stake_amount"),
             "dry_run": cfg.get("dry_run"),
             "trading_mode": cfg.get("trading_mode"),
+            "exchange": cfg.get("exchange"),
             "state": cfg.get("state"),
+            "bot_name": cfg.get("bot_name"),
             "_from_config": True,
         }
 

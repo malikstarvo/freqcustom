@@ -693,29 +693,36 @@ def fmt_strategy_detail(data: dict) -> None:
         ("Stop Loss", "stoploss"),
         ("Trailing Stop", "trailing_stop"),
         ("Max Open Trades", "max_open_trades"),
-        ("Position Adjustment", "position_adjustment_enable"),
+        ("Position Adj", "position_adjustment_enable"),
+        ("Max Entry Adj", "max_entry_position_adjustment"),
         ("Stake Currency", "stake_currency"),
         ("Stake Amount", "stake_amount"),
+        ("Exchange", "exchange"),
         ("Trading Mode", "trading_mode"),
         ("Dry Run", "dry_run"),
-        ("State", "state"),
-        ("Strategy Path", "strategy_path"),
+        ("Bot State", "state"),
+        ("Bot Name", "bot_name"),
     ]
     for label, key in fields:
         val = data.get(key)
-        if val is not None and val != "":
-            display = str(val)
-            if key == "stoploss" and isinstance(val, (int, float)):
-                display = f"{val} ({val * 100:.1f}%)"
-            elif key == "trailing_stop" and isinstance(val, bool):
+        if val is not None and val != "" and val != []:
+            if isinstance(val, bool):
                 display = "Enabled" if val else "Disabled"
+            elif key == "stoploss" and isinstance(val, (int, float)):
+                display = f"{val * 100:.1f}%"
+            elif key == "trailing_stop" and isinstance(val, (int, float)):
+                display = f"{val * 100:.1f}%"
+            elif key == "dry_run" and isinstance(val, bool):
+                display = "DRY RUN (simulation)" if val else "LIVE"
+            else:
+                display = str(val)
             tbl.add_row(label, display)
 
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
 
     if from_config:
         console.print()
-        console.print("  [dim]For full strategy code, run: [bold]freqtrade-client --show[/] in webserver mode[/]")
+        console.print("  [dim]For full strategy code, run [bold]freq --show[/] in webserver mode[/]")
 
     console.print()
 
