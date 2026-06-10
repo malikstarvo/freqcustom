@@ -2,7 +2,32 @@
 
 import json
 import sys
+from datetime import datetime, timezone, timedelta
 from typing import Any
+
+# ── Timezone: Jakarta WIB (UTC+7) ────────────────────
+WIB = timezone(timedelta(hours=7))
+
+def _to_wib(ts) -> str:
+    """Convert timestamp (seconds or ISO string) to WIB string."""
+    if not ts:
+        return "\u2014"
+    try:
+        if isinstance(ts, (int, float)):
+            dt = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(WIB)
+        elif isinstance(ts, str):
+            dt = datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(WIB)
+        else:
+            return str(ts)
+        return dt.strftime("%Y-%m-%d %H:%M WIB")
+    except Exception:
+        return str(ts)[:19]
+
+def _safe_val(val, default=0):
+    """Get value with proper None/null handling."""
+    if val is None:
+        return default
+    return val
 
 try:
     from rich.console import Console
@@ -224,26 +249,26 @@ def fmt_profit(data: dict) -> None:
         _json_output(data)
         return
 
-    total_pnl_pct = data.get("profit_all_percent", 0)
-    total_pnl_coin = data.get("profit_all_coin", 0)
-    winrate = (data.get("winrate") or 0) * 100
-    pf = data.get("profit_factor", 0)
-    max_dd = (data.get("max_drawdown") or 0) * 100
-    current_dd = (data.get("current_drawdown") or 0) * 100
-    sharpe = data.get("sharpe", 0)
-    sortino = data.get("sortino", 0)
-    calmar = data.get("calmar", 0)
-    cagr = (data.get("cagr") or 0) * 100
-    sqn = data.get("sqn", 0)
+    total_pnl_pct = _safe_val(data.get("profit_all_percent"))
+    total_pnl_coin = _safe_val(data.get("profit_all_coin"))
+    winrate = _safe_val(data.get("winrate")) * 100
+    pf = _safe_val(data.get("profit_factor"))
+    max_dd = _safe_val(data.get("max_drawdown")) * 100
+    current_dd = _safe_val(data.get("current_drawdown")) * 100
+    sharpe = _safe_val(data.get("sharpe"))
+    sortino = _safe_val(data.get("sortino"))
+    calmar = _safe_val(data.get("calmar"))
+    cagr = _safe_val(data.get("cagr")) * 100
+    sqn = _safe_val(data.get("sqn"))
     avg_dur = data.get("avg_duration") or "\u2014"
-    trade_count = data.get("trade_count", 0)
-    closed_count = data.get("closed_trade_count", 0)
+    trade_count = _safe_val(data.get("trade_count"))
+    closed_count = _safe_val(data.get("closed_trade_count"))
     best_pair = data.get("best_pair") or "\u2014"
-    best_rate = (data.get("best_rate") or 0) * 100
-    winning = data.get("winning_trades", 0)
-    losing = data.get("losing_trades", 0)
-    pf_val = data.get("profit_factor", 0)
-    expectancy = data.get("expectancy", 0)
+    best_rate = _safe_val(data.get("best_rate")) * 100
+    winning = _safe_val(data.get("winning_trades"))
+    losing = _safe_val(data.get("losing_trades"))
+    pf_val = _safe_val(data.get("profit_factor"))
+    expectancy = _safe_val(data.get("expectancy"))
 
     console.print()
 
