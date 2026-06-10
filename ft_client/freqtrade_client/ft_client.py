@@ -111,8 +111,9 @@ CATEGORY_ICONS = {
     "Locks":         "\u26d4",   # ⛔
     "Paper Trading": "\u25a1",   # □
     "Backtest":      "\u21bb",   # ↻
-    "Strategy":      "\u2666",   # ♦
-    "Pairs":         "\u21c6",   # ⇆
+    "Strategy": "\u2666",   # ♦
+    "Model": "\u25c6",      # ◆
+    "Pairs": "\u21c6",   # ⇆
     "Config":        "\u2699",   # ⚙
     "System":        "\u2302",   # ⌂
 }
@@ -166,6 +167,7 @@ def print_commands():
         "Backtest": ["backtest_start", "backtest_status", "backtest_delete", "backtest_abort",
                       "backtest_history", "backtest_history_result", "backtest_history_delete"],
         "Strategy": ["strategies", "strategy", "plot_config"],
+        "Model": ["model_info", "model"],
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
                    "pairlists_available", "markets"],
         "Config": ["show_config", "config_live"],
@@ -237,6 +239,7 @@ def _cat_color(category: str) -> str:
         "Paper Trading": "blue",
         "Backtest": "green",
         "Strategy": "cyan",
+        "Model": "magenta",
         "Pairs": "magenta",
         "Config": "cyan",
         "System": "white",

@@ -695,7 +695,26 @@ def fmt_trade_status(data):
     trades = data if isinstance(data, list) else data.get("trades", [])
     console.print(); console.print(_header(f"  Open Trades ({len(trades) if isinstance(trades, list) else 0})  "))
     if not trades:
-        console.print("  [dim]No open trades[/]"); console.print(); return
+        console.print("  [dim]No open trades yet[/]")
+        # Debug info — why no trades?
+        if isinstance(data, dict) and (data.get("_state") or data.get("_strategy")):
+            console.print()
+            console.print(_section("Debug Info"))
+            dbg = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+            dbg.add_column(style="bold cyan", width=16); dbg.add_column(style="white")
+            if data.get("_state"): dbg.add_row("Bot State", data["_state"])
+            if data.get("_strategy"): dbg.add_row("Strategy", data["_strategy"])
+            if data.get("_timeframe"): dbg.add_row("Timeframe", data["_timeframe"])
+            if data.get("_pair"): dbg.add_row("Pair", data["_pair"])
+            if data.get("_dry_run") is not None:
+                dbg.add_row("Mode", "DRY RUN" if data.get("_dry_run") else "LIVE")
+            console.print(Panel(dbg, border_style="dim blue", padding=(1, 2)))
+            console.print()
+            console.print("  [dim]Possible reasons for no trades:[/]")
+            console.print("  [dim]\u2022 Market conditions not meeting entry criteria[/]")
+            console.print("  [dim]\u2022 No new candles since bot started[/]")
+            console.print("  [dim]\u2022 Check logs for errors: [bold]freq logs[/][/]")
+        console.print(); return
     tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
     tbl.add_column("ID", justify="right", width=6); tbl.add_column("Pair", style="bold white")
     tbl.add_column("Side", width=6); tbl.add_column("Amount", justify="right")
@@ -800,6 +819,55 @@ def fmt_count(data):
     if not HAS_RICH:
         _json_output(data); return
     console.print(f"\n  [bold cyan]Open Trades:[/] [white]{data.get('current', 0)}[/] / {data.get('max', 0)} max")
+
+
+def fmt_model_info(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    console.print(); console.print(_header("  Model Configuration  "))
+
+    enabled = data.get("freqai_enabled", False)
+    state_color = "green" if enabled else "yellow"
+    state_badge = "[green]\u2713 ENABLED[/]" if enabled else "[yellow]\u26a0 DISABLED[/]"
+
+    info = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    info.add_column(style="bold cyan", width=18)
+    info.add_column(style="white")
+
+    info.add_row("Active Model", str(data.get("freqaimodel", "\u2014")))
+    info.add_row("FreqAI Status", state_badge)
+    info.add_row("Identifier", str(data.get("identifier", "\u2014")))
+    info.add_row("Train Period", f"{data.get('train_period', 90)} days")
+    info.add_row("Backtest Period", f"{data.get('backtest_period', 30)} days")
+    tfs = data.get("timeframes", [])
+    info.add_row("Timeframes", ", ".join(tfs) if tfs else "\u2014")
+    info.add_row("Label Candles", str(data.get("label_period", 4)))
+    info.add_row("PCA Enabled", str(data.get("pca", False)))
+    info.add_row("Weight Factor", str(data.get("weight_factor", 0)))
+
+    console.print(Panel(info, border_style="dim blue", padding=(1, 2)))
+
+    # Available models
+    models = data.get("available_models", [])
+    if models:
+        console.print(_section("Available Models"))
+        for m in models:
+            console.print(f"  [cyan]\u25b8[/] [bold white]{m}[/]")
+
+    # Training guide
+    console.print()
+    console.print(_section("How to Train the Model"))
+    steps = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    steps.add_column(width=3, style="bold cyan")
+    steps.add_column(style="white")
+    steps.add_row("1.", "Enable FreqAI: set [bold]freqai.enabled = true[/] in config.json")
+    steps.add_row("2.", "Download data: [bold]freqtrade download-data -c /freqtrade/config.json[/]")
+    steps.add_row("3.", "Run backtest: [bold]freq backtest start[/] (trains model automatically)")
+    steps.add_row("4.", "Start live: [bold]freq start[/] (will use trained model)")
+    console.print(Panel(steps, border_style="dim green", padding=(1, 2)))
+    console.print()
+
 
 def fmt_pair_candles(data):
     if not HAS_RICH:
@@ -974,6 +1042,8 @@ FORMATTERS = {
     # Config & Info
     "show_config":  fmt_config,
     "config_live":  fmt_config_live,
+    "model":        fmt_model_info,
+    "model_info":   fmt_model_info,
     "version":      fmt_start,
     "sysinfo":      fmt_sysinfo,
     "health":       fmt_health,

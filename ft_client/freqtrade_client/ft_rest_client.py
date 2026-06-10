@@ -768,3 +768,38 @@ class FtRestClient:
 
         return result
 
+    # ── Model Info ────────────────────────────────────────
+
+    def model_info(self):
+        """Show ML model configuration and training guide.
+
+        :return: dict with model config, available models, training steps
+        """
+        result: dict[str, Any] = {"_error": None}
+        try:
+            cfg = self.show_config()
+            result["strategy"] = cfg.get("strategy") or "\u2014"
+            result["freqaimodel"] = cfg.get("freqaimodel") or "\u2014"
+            result["freqaimodel_path"] = cfg.get("freqaimodel_path") or "\u2014"
+            freqai = cfg.get("freqai") or {}
+            result["freqai_enabled"] = freqai.get("enabled", False)
+            result["identifier"] = freqai.get("identifier") or "\u2014"
+            result["train_period"] = freqai.get("train_period_days", 90)
+            result["backtest_period"] = freqai.get("backtest_period_days", 30)
+            fp = freqai.get("feature_parameters") or {}
+            result["timeframes"] = fp.get("include_timeframes", [])
+            result["label_period"] = fp.get("label_period_candles", 4)
+            result["pca"] = fp.get("principal_component_analysis", False)
+            result["weight_factor"] = fp.get("weight_factor", 0)
+
+            try:
+                models_resp = self.freqaimodels()
+                result["available_models"] = models_resp.get("freqaimodels", []) if models_resp else []
+            except Exception:
+                result["available_models"] = []
+        except Exception as e:
+            result["_error"] = str(e)
+
+        return result
+
+
