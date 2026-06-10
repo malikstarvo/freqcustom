@@ -590,6 +590,34 @@ def fmt_pair_candles(data):
     console.print()
 
 
+def fmt_whitelist(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    pairs = data if isinstance(data, list) else data.get("whitelist") or data.get("blacklist") or data.get("pairs")
+    if pairs is None:
+        pairs = [] if isinstance(data, dict) else [str(data)]
+    if not isinstance(pairs, list):
+        pairs = [str(pairs)]
+    label = "Pairs"
+    if isinstance(data, dict):
+        if "whitelist" in data:
+            label = f"Whitelist ({data.get('length', len(pairs))})"
+        elif "blacklist" in data:
+            label = f"Blacklist ({data.get('length', len(pairs))})"
+        elif "pairs" in data:
+            label = f"Available Pairs ({data.get('length', len(pairs))})"
+    console.print(); console.print(_header(f"  {label}  "))
+    if not pairs:
+        console.print("  [dim]No pairs[/]"); console.print(); return
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+    tbl.add_column("#", justify="right", style="dim", width=4)
+    tbl.add_column("Pair", style="bold white")
+    for i, p in enumerate(pairs, 1):
+        tbl.add_row(str(i), str(p))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
 # ── Command → Formatter Mapping ──────────────────────
 
 FORMATTERS = {
