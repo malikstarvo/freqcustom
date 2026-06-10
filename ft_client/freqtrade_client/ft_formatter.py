@@ -1,4 +1,4 @@
-"""Rich formatting for freqtrade-client CLI commands."""
+"""Rich formatting for freq CLI commands."""
 
 import json
 import sys
@@ -547,7 +547,7 @@ def fmt_start(data: dict) -> None:
     if mode: info.add_row("Mode", f"{mode} {DRY_BADGE if dry_run else LIVE_BADGE}")
 
     console.print(Panel(info, box=box.DOUBLE, border_style=state_color, padding=(1, 2)))
-    console.print(f"  [dim]Run [bold]freqtrade-client dashboard[/] for full status.[/]\n")
+    console.print(f"  [dim]Run [bold]freq dashboard[/] for full status.[/]\n")
 
 
 def fmt_stop(data: dict) -> None:
@@ -562,7 +562,7 @@ def fmt_stop(data: dict) -> None:
     info.add_column(style="white")
     info.add_row("Status", f"[red]\u25a0[/] {state.upper()}")
     console.print(Panel(info, box=box.DOUBLE, border_style="red", padding=(1, 2)))
-    console.print(f"  [dim]Run [bold]freqtrade-client start[/] to restart the bot.[/]\n")
+    console.print(f"  [dim]Run [bold]freq start[/] to restart the bot.[/]\n")
 
 
 def fmt_config(data: dict) -> None:
@@ -635,7 +635,7 @@ def fmt_config_live(data: dict) -> None:
     steps.add_row("1.", f"Edit {data.get('_config_file', 'config.live.json')} \u2014 add exchange API keys")
     steps.add_row("2.", f"cp config.live.json config.json")
     steps.add_row("3.", f"docker compose restart freqtrade")
-    steps.add_row("4.", f"freqtrade-client start")
+    steps.add_row("4.", f"freq start")
     console.print(Panel(steps, border_style="dim green", padding=(1, 2)))
     console.print()
 
@@ -745,7 +745,7 @@ def fmt_backtest_history(data):
 def fmt_backtest_start(data):
     if not HAS_RICH:
         _json_output(data); return
-    console.print(f"\n  [green]\u25b6[/] Backtest started. [dim]Check: freqtrade-client backtest status[/]")
+    console.print(f"\n  [green]\u25b6[/] Backtest started. [dim]Check: freq backtest status[/]")
 
 
 def fmt_topup(data):

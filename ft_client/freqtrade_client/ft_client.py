@@ -39,7 +39,7 @@ logger = logging.getLogger("ft_rest_client")
 
 def add_arguments(args: Any = None):
     parser = argparse.ArgumentParser(
-        prog="freqtrade-client",
+        prog="freq",
         description="\U0001f4c8 Freqtrade REST API Client",
     )
     parser.add_argument(
@@ -210,6 +210,20 @@ def print_commands():
         "[bold]backtest start[/], [bold]paper topup amount=1000[/][/]"
     )
     console.print()
+    console.print("  [bold cyan]\u2500\u2500 Quick Start \u2500\u2500[/]")
+    qs = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    qs.add_column(width=32, style="bold white")
+    qs.add_column(style="dim")
+    qs.add_row("  freq dashboard", "Full status overview")
+    qs.add_row("  freq start / stop", "Start or stop the bot")
+    qs.add_row("  freq profit", "Profit/loss summary")
+    qs.add_row("  freq balance", "Wallet balances")
+    qs.add_row("  freq markets limit=10", "Real-time market data")
+    qs.add_row("  freq backtest start", "Run a backtest")
+    qs.add_row("  freq paper status", "Paper trading status")
+    qs.add_row("  freq config live pair=BTC/USDT:USDT", "Setup live trading config")
+    console.print(qs)
+    console.print()
 
 
 def _cat_color(category: str) -> str:
@@ -338,9 +352,9 @@ def main_exec(parsed: dict[str, Any]):
                 command = compound
                 cmd_args = [x for x in cmd_args if x != subcmd]  # remove subcommand from args
             else:
-                _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
+                _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
         else:
-            _fail(f"Unknown command: {command}\nRun [bold]freqtrade-client --show[/] to see all commands.")
+            _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
     else:
         display_cmd = command
 

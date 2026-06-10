@@ -565,12 +565,12 @@ class FtRestClient:
 
     # ── Backtest ─────────────────────────────────────────
 
-    def backtest_start(self, strategy, timeframe=None, timerange=None,
+    def backtest_start(self, strategy=None, timeframe=None, timerange=None,
                        max_open_trades=None, stake_amount=None,
                        enable_protections=False, freqaimodel=None):
         """Start a backtest via the API.
 
-        :param strategy: Strategy class name
+        :param strategy: Strategy class name (default: from config)
         :param timeframe: Timeframe (e.g. "15m")
         :param timerange: Timerange string (e.g. "20240101-20240201")
         :param max_open_trades: Max concurrent trades
@@ -579,6 +579,12 @@ class FtRestClient:
         :param freqaimodel: FreqAI model identifier
         :return: json object
         """
+        if not strategy:
+            try:
+                cfg = self.show_config()
+                strategy = (cfg.get("strategy") or "MultiAgentStrategy") if cfg else "MultiAgentStrategy"
+            except Exception:
+                strategy = "MultiAgentStrategy"
         data = {"strategy": strategy, "enable_protections": enable_protections}
         if timeframe:
             data["timeframe"] = timeframe

@@ -1,6 +1,6 @@
 # Freqtrade AI V2
 
-**AI-powered trading system** built on [Freqtrade](https://github.com/freqtrade/freqtrade) — forked and extended with multi-agent scoring, ML pipeline, edge study, paper trading engine, and a comprehensive React dashboard.
+**AI-powered trading system** built on [Freqtrade](https://github.com/freqtrade/freqtrade) — forked and extended with multi-agent scoring, ML pipeline, edge study, paper trading engine, and a powerful CLI dashboard.
 
 ---
 
@@ -9,18 +9,85 @@
 ```bash
 # 1. Clone & configure
 git clone https://github.com/malikstarvo/freqcustom.git && cd freqcustom
-cp docker/.env.example .env   # Edit passwords
 
 # 2. Launch the full stack (Docker)
-docker compose -f docker/docker-compose.monitoring.yml up -d
+docker compose --profile monitoring up -d
 
-# 3. Open the dashboard
-# → http://localhost:3000 (Dashboard)
-# → http://localhost:3001 (Grafana: admin/admin)
-# → http://localhost:8080/api/v1/ping (API)
+# 3. Use the CLI (inside container)
+docker compose exec freqtrade freq --show
+docker compose exec freqtrade freq dashboard
 ```
 
-### Deploy Dashboard to Vercel
+---
+
+## CLI Usage (`freq`)
+
+The `freq` CLI provides a full terminal dashboard — formatted tables, color-coded P&L, real-time market data, and bot control. All via the REST API.
+
+```bash
+freq --show                      # List all commands
+freq dashboard                   # Full status overview
+freq start                       # Start trading bot
+freq stop                        # Stop trading bot
+
+# Account & Performance
+freq profit                      # Profit/loss summary
+freq balance                     # Wallet balances
+freq daily                       # Daily P&L breakdown
+freq trades limit=10             # Recent trade history
+freq performance                 # Per-pair performance
+
+# Real-Time Market Data
+freq markets limit=10            # Live prices from exchange
+
+# Paper Trading
+freq paper status                # Paper engine status
+freq paper topup amount=5000     # Add simulated capital
+freq paper trades limit=10       # Paper trade history
+
+# Backtesting
+freq backtest start              # Start backtest (uses config strategy)
+freq backtest start strategy=MultiAgentStrategy timeframe=1h
+freq backtest status             # Check progress
+freq backtest history            # View results
+
+# Config
+freq config show                 # Show active configuration
+freq config live pair=BTC/USDT:USDT  # Generate live trading config
+
+# System
+freq sysinfo                     # CPU/RAM usage
+freq logs                        # Recent bot logs
+freq health                      # Health check
+freq whitelist                   # Show whitelisted pairs
+freq strategies                  # List strategies
+
+# Raw JSON
+freq profit --json               # Machine-readable output
+```
+
+### Training Workflow
+
+```bash
+# 1. Download historical data
+docker compose exec freqtrade freqtrade download-data --config /freqtrade/config.json
+
+# 2. Run backtest
+freq backtest start timeframe=15m timerange=20250101-20250601
+
+# 3. Check results
+freq backtest status
+freq backtest history
+
+# 4. Start paper trader
+docker compose exec freqtrade freqtrade paper-trader --config /freqtrade/config.json
+
+# 5. Monitor paper performance
+freq paper status
+freq paper account
+```
+
+### Deploy Dashboard to Vercel (Optional)
 
 The frontend is a **Next.js** app in `web/`. Deploy it to Vercel for free:
 
@@ -32,7 +99,7 @@ The frontend is a **Next.js** app in `web/`. Deploy it to Vercel for free:
    ```
 4. Deploy — dashboard will be available at `https://your-project.vercel.app`
 
-The VPS becomes a **pure backend** (API + TimescaleDB + Collector + Grafana).
+The VPS becomes a **pure backend** (API + TimescaleDB + Collector + Grafana). The web dashboard is optional — the CLI (`freq`) replaces it.
 
 For **detailed VPS setup**, see [`docs/SETUP.md`](docs/SETUP.md).
 
