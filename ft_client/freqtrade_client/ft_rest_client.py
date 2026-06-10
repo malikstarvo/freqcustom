@@ -715,3 +715,48 @@ class FtRestClient:
 
         return result
 
+    # ── Live Market Data ────────────────────────────────
+
+    def markets(self, limit: int = 20):
+        """Fetch real-time market data from the configured exchange.
+
+        :param limit: Max pairs to show (default 20)
+        :return: dict with exchange, pairs[], and raw tickers
+        """
+        result: dict[str, Any] = {"exchange": "", "pairs": [], "_error": None}
+
+        try:
+            cfg = self.show_config()
+            exchange_name = cfg.get("exchange", "binance") if cfg else "binance"
+            whitelist = None
+            try:
+                wl = self.whitelist()
+                whitelist = wl.get("whitelist", []) if isinstance(wl, dict) else wl
+            except Exception:
+                pass
+
+            result["exchange"] = exchange_name
+            result["dry_run"] = cfg.get("dry_run", True) if cfg else True
+
+            import ccxt
+
+            exchange = getattr(ccxt, exchange_name)({"enableRateLimit": True})
+            tickers = exchange.fetch_tickers(whitelist[:limit] if whitelist else None)
+
+            for symbol, ticker in list(tickers.items())[:limit]:
+                result["pairs"].append({
+                    "symbol": symbol,
+                    "last": ticker.get("last", 0) or 0,
+                    "change_pct": (ticker.get("percentage") or 0),
+                    "high": ticker.get("high", 0) or 0,
+                    "low": ticker.get("low", 0) or 0,
+                    "volume": ticker.get("baseVolume", ticker.get("quoteVolume", 0)) or 0,
+                    "bid": ticker.get("bid", 0) or 0,
+                    "ask": ticker.get("ask", 0) or 0,
+                })
+
+        except Exception as e:
+            result["_error"] = str(e)
+
+        return result
+

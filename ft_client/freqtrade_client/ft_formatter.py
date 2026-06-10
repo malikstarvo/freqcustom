@@ -820,6 +820,107 @@ def fmt_whitelist(data):
     console.print()
 
 
+def fmt_markets(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    exchange_name = data.get("exchange", "unknown").upper()
+    pairs = data.get("pairs", [])
+    error = data.get("_error")
+    dry = data.get("dry_run", True)
+
+    console.print()
+
+    # Header
+    hdr = Table.grid(padding=(0, 2))
+    hdr.add_column(justify="center")
+    hdr.add_row(Text(f"Market Data", style="bold cyan"))
+    hdr.add_row(Text(f"{exchange_name}  \u00b7  {'DRY RUN' if dry else 'LIVE'}",
+                      style="dim"))
+    console.print(Panel(hdr, box=box.DOUBLE, border_style="cyan", padding=(1, 2)))
+
+    if error:
+        console.print(Panel(
+            Text(f"  {error}", style="red"),
+            box=box.SIMPLE, border_style="red"
+        ))
+        console.print()
+        return
+
+    if not pairs:
+        console.print("  [dim]No market data available[/]\n")
+        return
+
+    # Ticker Table
+    tbl = Table(
+        box=box.SIMPLE, padding=(0, 1),
+        show_header=True, header_style="bold cyan",
+    )
+    tbl.add_column("Symbol", style="bold white", width=14)
+    tbl.add_column("Price", justify="right", width=12)
+    tbl.add_column("24h Chg", justify="right", width=10)
+    tbl.add_column("High", justify="right", width=12)
+    tbl.add_column("Low", justify="right", width=12)
+    tbl.add_column("Volume", justify="right", width=12)
+    tbl.add_column("Bid/Ask", justify="right", width=16)
+
+    for p in pairs:
+        symbol = p.get("symbol", "")
+        last = p.get("last", 0)
+        chg = p.get("change_pct", 0)
+        high = p.get("high", 0)
+        low = p.get("low", 0)
+        vol = p.get("volume", 0)
+        bid = p.get("bid", 0)
+        ask = p.get("ask", 0)
+
+        # Color coding
+        chg_color = "green" if chg >= 0 else "red"
+        chg_arrow = "\u25b2" if chg >= 0 else "\u25bc"
+        price_color = "green" if chg >= 0 else "red"
+
+        # Format volume
+        if vol >= 1e9:
+            vol_str = f"${vol/1e9:.1f}B"
+        elif vol >= 1e6:
+            vol_str = f"${vol/1e6:.1f}M"
+        elif vol >= 1e3:
+            vol_str = f"${vol/1e3:.1f}K"
+        else:
+            vol_str = f"${vol:.0f}"
+
+        # Price precision
+        if last >= 1000:
+            price_fmt = f"{last:,.0f}"
+        elif last >= 1:
+            price_fmt = f"{last:,.2f}"
+        else:
+            price_fmt = f"{last:.6f}"
+
+        # High/Low same precision
+        if high >= 1000:
+            hl_fmt = "{:,.0f}"
+        elif high >= 1:
+            hl_fmt = "{:,.2f}"
+        else:
+            hl_fmt = "{:.6f}"
+
+        tbl.add_row(
+            symbol,
+            f"[{price_color}]${price_fmt}[/]",
+            f"[{chg_color}]{chg_arrow} {abs(chg):.2f}%[/]",
+            hl_fmt.format(high),
+            hl_fmt.format(low),
+            vol_str,
+            f"{bid:.4f}/{ask:.4f}" if bid and ask else "\u2014",
+        )
+
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 1)))
+
+    # Footer
+    console.print(f"  [dim]{len(pairs)} pairs  \u00b7  {exchange_name}  \u00b7  Real-time data[/]\n")
+
+
 # ── Command → Formatter Mapping ──────────────────────
 
 FORMATTERS = {
@@ -871,6 +972,7 @@ FORMATTERS = {
     "pair_history":       fmt_pair_candles,
     "available_pairs":    fmt_whitelist,
     "pairlists_available": fmt_strategies,
+    "markets":            fmt_markets,
 }
 
 

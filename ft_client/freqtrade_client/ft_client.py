@@ -167,7 +167,7 @@ def print_commands():
                       "backtest_history", "backtest_history_result", "backtest_history_delete"],
         "Strategy": ["strategies", "strategy", "plot_config"],
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
-                   "pairlists_available"],
+                   "pairlists_available", "markets"],
         "Config": ["show_config", "config_live"],
         "System": ["ping", "sysinfo", "health", "version", "logs"],
     }
