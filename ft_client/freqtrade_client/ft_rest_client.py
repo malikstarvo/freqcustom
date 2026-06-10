@@ -470,24 +470,21 @@ class FtRestClient:
         # 2. Show_config API (runtime state, partial fields)
         api_cfg = self.show_config() or {}
 
-        # Merge: API overrides file for runtime fields
-        cfg = {**file_cfg, **api_cfg}
-
         return {
-            "strategy": cfg.get("strategy") or "MultiAgentStrategy",
-            "timeframe": cfg.get("timeframe") or "15m",
-            "stoploss": cfg.get("stoploss"),
-            "trailing_stop": cfg.get("trailing_stop"),
-            "max_open_trades": cfg.get("max_open_trades"),
-            "position_adjustment_enable": cfg.get("position_adjustment_enable"),
-            "max_entry_position_adjustment": cfg.get("max_entry_position_adjustment"),
-            "stake_currency": cfg.get("stake_currency"),
-            "stake_amount": cfg.get("stake_amount"),
-            "dry_run": cfg.get("dry_run"),
-            "trading_mode": cfg.get("trading_mode"),
-            "exchange": cfg.get("exchange"),
-            "state": cfg.get("state"),
-            "bot_name": cfg.get("bot_name"),
+            "strategy": api_cfg.get("strategy") or file_cfg.get("strategy") or "MultiAgentStrategy",
+            "timeframe": api_cfg.get("timeframe") or file_cfg.get("timeframe") or "15m",
+            "stoploss": file_cfg.get("stoploss"),
+            "trailing_stop": file_cfg.get("trailing_stop"),
+            "max_open_trades": api_cfg.get("max_open_trades") or file_cfg.get("max_open_trades"),
+            "position_adjustment_enable": file_cfg.get("position_adjustment_enable"),
+            "max_entry_position_adjustment": file_cfg.get("max_entry_position_adjustment"),
+            "stake_currency": api_cfg.get("stake_currency") or file_cfg.get("stake_currency"),
+            "stake_amount": api_cfg.get("stake_amount") or file_cfg.get("stake_amount"),
+            "dry_run": api_cfg.get("dry_run") if api_cfg.get("dry_run") is not None else file_cfg.get("dry_run"),
+            "trading_mode": api_cfg.get("trading_mode") or file_cfg.get("trading_mode"),
+            "exchange": api_cfg.get("exchange") or file_cfg.get("exchange", {}).get("name"),
+            "state": api_cfg.get("state"),
+            "bot_name": api_cfg.get("bot_name") or file_cfg.get("bot_name"),
             "_from_config": True,
         }
 
