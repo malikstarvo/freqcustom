@@ -33,6 +33,7 @@ dependencies = [
   'python-rapidjson >= 1.0',
   'rich >= 13.0',
   'ccxt >= 4.0',
+  'websocket-client >= 1.0',
 ]
 
 

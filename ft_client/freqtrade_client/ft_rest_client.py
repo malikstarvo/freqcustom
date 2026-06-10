@@ -829,19 +829,40 @@ class FtRestClient:
         # ── Connectivity ─────────────────────────────────
         cat = {"category": "Connectivity", "tests": []}
         cat["tests"].append(_run("ping", self.ping))
-        try:
+
+        # Real WebSocket test: JWT auth → connect → subscribe → receive message
+        def _test_real_ws():
             from urllib.parse import urlparse
             host = urlparse(getattr(self, "_serverurl", "http://localhost:8080")).hostname or "localhost"
-            import http.client
-            conn = http.client.HTTPConnection(host, 8080, timeout=3)
-            conn.request("GET", "/api/v1/message/ws",
-                         headers={"Upgrade": "websocket", "Connection": "Upgrade"})
-            resp = conn.getresponse()
-            conn.close()
-            cat["tests"].append({"name": "websocket", "status": "pass",
-                                 "detail": f"WS endpoint: {resp.status}", "ms": 0})
-        except Exception as e:
-            cat["tests"].append({"name": "websocket", "status": "skip", "detail": str(e)[:80], "ms": 0})
+
+            # 1. Get JWT token via API login
+            login_resp = self._post("token/login")
+            token = login_resp.get("access_token") if login_resp else None
+            if not token:
+                raise RuntimeError("No access token from login")
+
+            # 2. Connect WebSocket with token
+            try:
+                import websocket as _ws
+                ws_url = f"ws://{host}:8080/api/v1/message/ws?token={token}"
+                ws = _ws.create_connection(ws_url, timeout=5)
+
+                # 3. Subscribe to STATUS channel
+                ws.send(json.dumps({"type": "subscribe", "data": ["STATUS"]}))
+                time_mod.sleep(0.5)
+
+                # 4. Read a message to verify real-time feed
+                ws.settimeout(3)
+                msg_raw = ws.recv()
+                msg = json.loads(msg_raw)
+                msg_type = msg.get("type", "?")
+
+                ws.close()
+                return f"WS OK: received '{msg_type}' message"
+            except ImportError:
+                raise RuntimeError("websocket-client not installed")
+
+        cat["tests"].append(_run("websocket", _test_real_ws))
         results.append(cat)
 
         # ── Bot Info ─────────────────────────────────────
