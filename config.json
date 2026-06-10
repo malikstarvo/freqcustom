@@ -39,6 +39,10 @@
     },
     "strategy": "MultiAgentStrategy",
     "strategy_path": "user_data/strategies",
+    "stoploss": -0.15,
+    "trailing_stop": false,
+    "position_adjustment_enable": true,
+    "max_entry_position_adjustment": 3,
     "freqaimodel": "XGBoostGridSearchModel",
     "freqaimodel_path": "user_data/freqaimodels",
     "freqai": {

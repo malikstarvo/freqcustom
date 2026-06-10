@@ -457,8 +457,22 @@ class FtRestClient:
             return self._strategy_from_config()
 
     def _strategy_from_config(self) -> dict[str, Any]:
-        """Read strategy info from show_config (works in any mode)."""
-        cfg = self.show_config() or {}
+        """Read strategy info from config file + show_config API (works in any mode)."""
+        # 1. Read config.json file directly (all fields, including strategy defaults)
+        file_cfg: dict[str, Any] = {}
+        try:
+            import json as _j
+            with open("/freqtrade/config.json") as f:
+                file_cfg = _j.load(f)
+        except Exception:
+            pass
+
+        # 2. Show_config API (runtime state, partial fields)
+        api_cfg = self.show_config() or {}
+
+        # Merge: API overrides file for runtime fields
+        cfg = {**file_cfg, **api_cfg}
+
         return {
             "strategy": cfg.get("strategy") or "MultiAgentStrategy",
             "timeframe": cfg.get("timeframe") or "15m",
