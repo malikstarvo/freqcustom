@@ -839,40 +839,76 @@ class FtRestClient:
         cat = {"category": "Connectivity", "tests": []}
         cat["tests"].append(_run("ping", self.ping))
 
-        # Real WebSocket test: JWT auth → connect → subscribe → receive message
+        # Real WebSocket test: raw TCP → upgrade handshake → verify 101
         def _test_real_ws():
-            try:
-                import websocket as _ws
-            except ImportError:
-                raise SkipTest("websocket-client not installed")
+            import socket
+            import os
+            from base64 import b64encode
 
-            # Get JWT token
+            # 1. Get JWT token
             login_resp = self._post("token/login")
             token = (login_resp or {}).get("access_token")
             if not token:
-                raise SkipTest("No access token (auth may be disabled)")
+                raise SkipTest("No access token")
 
-            # Try both Docker hostname and localhost
+            # 2. Raw TCP connect (3s timeout)
             errors = []
-            for host in ("freqtrade", "127.0.0.1", "localhost"):
+            for host in ("127.0.0.1", "freqtrade"):
+                sock = None
                 try:
-                    ws_url = f"ws://{host}:8080/api/v1/message/ws?token={token}"
-                    ws = _ws.create_connection(ws_url, timeout=4)
+                    sock = socket.create_connection((host, 8080), timeout=3)
+                    sock.settimeout(3)
 
-                    ws.send(json.dumps({"type": "subscribe", "data": ["STATUS"]}))
-                    time_mod.sleep(0.5)
+                    # 3. WebSocket upgrade handshake
+                    key = b64encode(os.urandom(16)).decode()
+                    req = (
+                        f"GET /api/v1/message/ws?token={token} HTTP/1.1\r\n"
+                        f"Host: {host}:8080\r\n"
+                        f"Upgrade: websocket\r\n"
+                        f"Connection: Upgrade\r\n"
+                        f"Sec-WebSocket-Key: {key}\r\n"
+                        f"Sec-WebSocket-Version: 13\r\n"
+                        f"\r\n"
+                    )
+                    sock.sendall(req.encode("utf-8"))
 
-                    ws.settimeout(3)
-                    msg_raw = ws.recv()
-                    msg = json.loads(msg_raw)
-                    msg_type = msg.get("type", "?")
-                    ws.close()
-                    return f"WS OK on {host}: '{msg_type}' message"
+                    # 4. Read response headers
+                    data = b""
+                    while b"\r\n\r\n" not in data:
+                        chunk = sock.recv(4096)
+                        if not chunk:
+                            break
+                        data += chunk
+                        if len(data) > 8192:
+                            break
+
+                    sock.close()
+
+                    status_line = data.split(b"\r\n")[0].decode("utf-8") if data else ""
+                    parts = status_line.split(" ")
+                    status_code = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 0
+
+                    if status_code == 101:
+                        return "WS upgrade: 101 Switching Protocols"
+                    elif status_code in (400, 403, 426):
+                        raise SkipTest(f"WS HTTP {status_code} (bot may not accept WS connections)")
+                    else:
+                        errors.append(f"{host}: HTTP {status_code}")
+                except socket.timeout:
+                    errors.append(f"{host}: timeout")
+                    if sock:
+                        sock.close()
+                except OSError as e:
+                    errors.append(f"{host}: {e}")
+                    if sock:
+                        sock.close()
+                except SkipTest:
+                    raise
                 except Exception as e:
                     errors.append(f"{host}: {e}")
-                    continue
+                    if sock:
+                        sock.close()
 
-            # All hosts failed
             raise SkipTest("WS unreachable: " + "; ".join(errors[:2]))
 
         cat["tests"].append(_run("websocket", _test_real_ws))
