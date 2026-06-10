@@ -435,6 +435,7 @@ class FtRestClient:
 
     def strategy(self, strategy=None):
         """Get strategy details. Auto-detects from config if not specified.
+        Falls back to config-based info if API endpoint is unavailable (trade mode).
 
         :param strategy: Strategy class name (optional, default: from config)
         :return: json object
@@ -445,7 +446,34 @@ class FtRestClient:
                 strategy = (cfg or {}).get("strategy") or "MultiAgentStrategy"
             except Exception:
                 strategy = "MultiAgentStrategy"
-        return self._get(f"strategy/{strategy}")
+
+        try:
+            data = self._get(f"strategy/{strategy}")
+            # If API returned error dict instead of strategy info
+            if isinstance(data, dict) and data.get("detail"):
+                return self._strategy_from_config()
+            return data
+        except Exception:
+            return self._strategy_from_config()
+
+    def _strategy_from_config(self) -> dict[str, Any]:
+        """Read strategy info from show_config (works in any mode)."""
+        cfg = self.show_config() or {}
+        return {
+            "strategy": cfg.get("strategy") or "MultiAgentStrategy",
+            "strategy_path": cfg.get("strategy_path") or "user_data/strategies",
+            "timeframe": cfg.get("timeframe") or "15m",
+            "stoploss": cfg.get("stoploss"),
+            "trailing_stop": cfg.get("trailing_stop"),
+            "max_open_trades": cfg.get("max_open_trades"),
+            "position_adjustment_enable": cfg.get("position_adjustment_enable"),
+            "stake_currency": cfg.get("stake_currency"),
+            "stake_amount": cfg.get("stake_amount"),
+            "dry_run": cfg.get("dry_run"),
+            "trading_mode": cfg.get("trading_mode"),
+            "state": cfg.get("state"),
+            "_from_config": True,
+        }
 
     def pairlists_available(self):
         """Lists available pairlist providers

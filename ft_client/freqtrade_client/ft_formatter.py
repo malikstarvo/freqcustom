@@ -665,6 +665,61 @@ def fmt_strategies(data):
     console.print()
 
 
+def fmt_strategy_detail(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    # Handle API error
+    if isinstance(data, dict) and data.get("detail"):
+        console.print(); console.print(_header("  Strategy Info  "))
+        console.print(f"  [yellow]\u26a0[/] [dim]{data['detail']}[/]")
+        console.print("  [dim]Strategy details available in [bold]webserver mode[/] only.[/]")
+        console.print(); return
+
+    from_config = data.get("_from_config", False)
+    strategy_name = data.get("strategy") or "\u2014"
+
+    console.print(); console.print(_header(f"  Strategy: {strategy_name}  "))
+
+    if from_config:
+        console.print("  [dim]\u2139 Source: show_config (trade mode)[/]")
+
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=22)
+    tbl.add_column(style="white")
+
+    fields = [
+        ("Timeframe", "timeframe"),
+        ("Stop Loss", "stoploss"),
+        ("Trailing Stop", "trailing_stop"),
+        ("Max Open Trades", "max_open_trades"),
+        ("Position Adjustment", "position_adjustment_enable"),
+        ("Stake Currency", "stake_currency"),
+        ("Stake Amount", "stake_amount"),
+        ("Trading Mode", "trading_mode"),
+        ("Dry Run", "dry_run"),
+        ("State", "state"),
+        ("Strategy Path", "strategy_path"),
+    ]
+    for label, key in fields:
+        val = data.get(key)
+        if val is not None and val != "":
+            display = str(val)
+            if key == "stoploss" and isinstance(val, (int, float)):
+                display = f"{val} ({val * 100:.1f}%)"
+            elif key == "trailing_stop" and isinstance(val, bool):
+                display = "Enabled" if val else "Disabled"
+            tbl.add_row(label, display)
+
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+
+    if from_config:
+        console.print()
+        console.print("  [dim]For full strategy code, run: [bold]freqtrade-client --show[/] in webserver mode[/]")
+
+    console.print()
+
+
 def fmt_plot_config(data: dict) -> None:
     if not HAS_RICH:
         _json_output(data); return
@@ -1170,7 +1225,7 @@ FORMATTERS = {
     "sysinfo":      fmt_sysinfo,
     "health":       fmt_health,
     "strategies":   fmt_strategies,
-    "strategy":     fmt_strategies,
+    "strategy":     fmt_strategy_detail,
     "plot_config":  fmt_plot_config,
     "whitelist":    fmt_whitelist,
     "blacklist":    fmt_whitelist,
