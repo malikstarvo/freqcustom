@@ -510,3 +510,189 @@ class FtRestClient:
         :return: json object
         """
         return self._get("health")
+
+    # ── Paper Trading ────────────────────────────────────
+
+    def paper_status(self):
+        """Get paper trading engine status: equity, balance, PnL, position.
+
+        :return: json object
+        """
+        return self._get("paper/status")
+
+    def paper_topup(self, amount):
+        """Add simulated capital to paper trading balance.
+
+        :param amount: Amount to add (float)
+        :return: json object
+        """
+        return self._post("paper/topup", data={"amount": float(amount)})
+
+    def paper_trades(self, limit=50):
+        """Get paper trading trade history.
+
+        :param limit: Max trades to return
+        :return: json object
+        """
+        return self._get("paper/trades", params={"limit": limit})
+
+    def paper_account(self, limit=100):
+        """Get paper trading account snapshots (equity over time).
+
+        :param limit: Max snapshots to return
+        :return: json object
+        """
+        return self._get("paper/account", params={"limit": limit})
+
+    # ── Backtest ─────────────────────────────────────────
+
+    def backtest_start(self, strategy, timeframe=None, timerange=None,
+                       max_open_trades=None, stake_amount=None,
+                       enable_protections=False, freqaimodel=None):
+        """Start a backtest via the API.
+
+        :param strategy: Strategy class name
+        :param timeframe: Timeframe (e.g. "15m")
+        :param timerange: Timerange string (e.g. "20240101-20240201")
+        :param max_open_trades: Max concurrent trades
+        :param stake_amount: Stake amount per trade
+        :param enable_protections: Enable protections
+        :param freqaimodel: FreqAI model identifier
+        :return: json object
+        """
+        data = {"strategy": strategy, "enable_protections": enable_protections}
+        if timeframe:
+            data["timeframe"] = timeframe
+        if timerange:
+            data["timerange"] = timerange
+        if max_open_trades:
+            data["max_open_trades"] = max_open_trades
+        if stake_amount:
+            data["stake_amount"] = stake_amount
+        if freqaimodel:
+            data["freqaimodel"] = freqaimodel
+        return self._post("backtest", data=data)
+
+    def backtest_status(self):
+        """Get current backtest status and progress.
+
+        :return: json object
+        """
+        return self._get("backtest")
+
+    def backtest_delete(self):
+        """Reset/delete running backtest.
+
+        :return: json object
+        """
+        return self._delete("backtest")
+
+    def backtest_abort(self):
+        """Abort a running backtest.
+
+        :return: json object
+        """
+        return self._get("backtest/abort")
+
+    def backtest_history(self):
+        """List historical backtest results.
+
+        :return: json object
+        """
+        return self._get("backtest/history")
+
+    def backtest_history_result(self, filename, strategy):
+        """Load a specific backtest result.
+
+        :param filename: Backtest result filename
+        :param strategy: Strategy name used in the backtest
+        :return: json object
+        """
+        return self._get("backtest/history/result",
+                         params={"filename": filename, "strategy": strategy})
+
+    def backtest_history_delete(self, filename):
+        """Delete a backtest result file.
+
+        :param filename: Backtest result filename to delete
+        :return: json object
+        """
+        return self._delete(f"backtest/history/{filename}")
+
+    # ── Dashboard ────────────────────────────────────────
+
+    def dashboard(self):
+        """Show a comprehensive dashboard: bot state, P&L, balance, open trades,
+        paper equity, system health — everything at a glance.
+
+        :return: dict with all dashboard data
+        """
+        result: dict[str, Any] = {"_timestamp": None}
+
+        try:
+            cfg = self.show_config()
+            result["state"] = cfg.get("state", "unknown")
+            result["strategy"] = cfg.get("strategy", "—")
+            result["exchange"] = cfg.get("exchange", "—")
+            result["dry_run"] = cfg.get("dry_run", True)
+            result["trading_mode"] = cfg.get("trading_mode", "—")
+            result["max_open_trades"] = cfg.get("max_open_trades", "—")
+            result["stake_currency"] = cfg.get("stake_currency", "—")
+        except Exception:
+            result["state"] = "offline"
+
+        # Profit summary
+        try:
+            p = self.profit()
+            result["profit_all_pct"] = round(p.get("profit_all_percent", 0), 2)
+            result["profit_closed_pct"] = round(p.get("profit_closed_percent", 0), 2)
+            result["profit_closed_coin"] = round(p.get("profit_closed_coin", 0), 4)
+            result["winrate"] = round(p.get("winrate", 0) * 100, 1)
+            result["trade_count"] = p.get("trade_count", 0)
+            result["closed_trade_count"] = p.get("closed_trade_count", 0)
+            result["best_pair"] = p.get("best_pair", "—")
+            result["max_drawdown"] = round(p.get("max_drawdown", 0) * 100, 2)
+            result["profit_factor"] = round(p.get("profit_factor", 0), 2)
+            result["sharpe"] = round(p.get("sharpe", 0), 2)
+            result["avg_duration"] = p.get("avg_duration", "—")
+        except Exception:
+            pass
+
+        # Open trades
+        try:
+            status_data = self.status()
+            result["open_trades"] = len(status_data) if isinstance(status_data, list) else 0
+            result["open_trades_detail"] = status_data
+        except Exception:
+            result["open_trades"] = 0
+
+        # Balance
+        try:
+            bal = self.balance()
+            result["total_balance"] = round(bal.get("total", 0), 2)
+            result["balance_symbol"] = bal.get("symbol", "—")
+            result["currency_count"] = len(bal.get("currencies", []))
+        except Exception:
+            pass
+
+        # Health
+        try:
+            h = self.health()
+            result["last_process"] = h.get("last_process", "—")
+        except Exception:
+            pass
+
+        # Paper trading
+        try:
+            ps = self.paper_status()
+            result["paper_equity"] = round(ps.get("equity", 0), 2)
+            result["paper_balance"] = round(ps.get("balance", 0), 2)
+            result["paper_total_pnl"] = round(ps.get("total_pnl", 0), 2)
+            result["paper_day_pnl"] = round(ps.get("day_pnl", 0), 2)
+            result["paper_day_trades"] = ps.get("day_trades", 0)
+            result["paper_position"] = ps.get("position")
+        except Exception:
+            pass
+
+        return result
+

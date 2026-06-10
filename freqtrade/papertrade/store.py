@@ -277,3 +277,55 @@ class PaperStore:
                 cur.execute("SELECT COALESCE(SUM(net_pnl), 0) FROM paper_trades")
                 row = cur.fetchone()
                 return float(row[0]) if row else 0.0
+
+    def get_trades(self, limit: int = 50) -> list[dict]:
+        with self._conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, symbol, direction, entry_price, exit_price,
+                              size, net_pnl, return_pct, holding_bars, exit_reason,
+                              entry_ts, exit_ts
+                       FROM paper_trades
+                       ORDER BY id DESC LIMIT %s""",
+                    (limit,),
+                )
+                rows = cur.fetchall()
+                return [
+                    {
+                        "id": r[0],
+                        "symbol": r[1],
+                        "direction": r[2],
+                        "entry_price": float(r[3]),
+                        "exit_price": float(r[4]),
+                        "size": float(r[5]),
+                        "net_pnl": float(r[6]),
+                        "return_pct": float(r[7]) if r[7] else 0.0,
+                        "holding_bars": int(r[8]) if r[8] else 0,
+                        "exit_reason": r[9] or "",
+                        "entry_ts": str(r[10]) if r[10] else "",
+                        "exit_ts": str(r[11]) if r[11] else "",
+                    }
+                    for r in rows
+                ]
+
+    def get_account_snapshots(self, limit: int = 100) -> list[dict]:
+        with self._conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT ts, balance, equity, unrealized_pnl, day_pnl, day_trades
+                       FROM paper_account_snapshots
+                       ORDER BY ts DESC LIMIT %s""",
+                    (limit,),
+                )
+                rows = cur.fetchall()
+                return [
+                    {
+                        "ts": str(r[0]) if r[0] else "",
+                        "balance": float(r[1]),
+                        "equity": float(r[2]),
+                        "unrealized_pnl": float(r[3]) if r[3] else 0.0,
+                        "day_pnl": float(r[4]) if r[4] else 0.0,
+                        "day_trades": int(r[5]) if r[5] else 0,
+                    }
+                    for r in rows
+                ]

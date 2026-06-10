@@ -8,7 +8,7 @@ from freqtrade.papertrade.engine import PaperEngine
 from freqtrade.papertrade.store import PaperStore
 
 
-router_paper = APIRouter(prefix="/api/v1/paper", tags=["PaperTrader"])
+router_paper = APIRouter(prefix="/paper", tags=["PaperTrader"])
 
 
 class TopUpRequest(BaseModel):
@@ -63,11 +63,11 @@ async def paper_topup(req: TopUpRequest) -> dict[str, Any]:
 async def paper_trades(limit: int = 50) -> list[dict[str, Any]]:
     if not _store:
         raise HTTPException(status_code=503, detail="Paper trader not running")
-    return []
+    return _store.get_trades(limit)
 
 
 @router_paper.get("/account")
 async def paper_account(limit: int = 100) -> list[dict[str, Any]]:
     if not _store:
         raise HTTPException(status_code=503, detail="Paper trader not running")
-    return []
+    return _store.get_account_snapshots(limit)

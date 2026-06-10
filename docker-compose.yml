@@ -53,7 +53,7 @@ services:
       - "./user_data:/freqtrade/user_data"
       - "./config.json:/freqtrade/config.json"
     ports:
-      - "127.0.0.1:8080:8080"
+      - "0.0.0.0:8080:8080"
     environment:
       - FREQTRADE__FREQAI__ENABLED=false
     command: >
@@ -65,18 +65,6 @@ services:
       timescaledb:
         condition: service_healthy
         required: false
-
-  # ── Web Dashboard ────────────────────────────────────
-  web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    container_name: freqtrade-web
-    ports:
-      - "80:80"
-    depends_on:
-      - freqtrade
 
   # ── Prometheus ───────────────────────────────────────
   prometheus:
