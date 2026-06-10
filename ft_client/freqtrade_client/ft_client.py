@@ -58,10 +58,6 @@ def add_arguments(args: Any = None):
         help="Output raw JSON instead of formatted tables."
     )
     parser.add_argument(
-        "-s", "--server", type=str, metavar="URL", default=None,
-        help="Override API server URL (e.g. http://freqtrade-ws:8080)."
-    )
-    parser.add_argument(
         "-c", "--config", type=str, metavar="PATH", default="config.json",
         help="Configuration file (default: config.json)."
     )
@@ -336,17 +332,12 @@ def main_exec(parsed: dict[str, Any]):
         sys.exit()
 
     config = load_config(parsed["config"])
+    url = config.get("api_server", {}).get("listen_ip_address", "127.0.0.1")
+    port = config.get("api_server", {}).get("listen_port", "8080")
     username = config.get("api_server", {}).get("username")
     password = config.get("api_server", {}).get("password")
 
-    # --server flag overrides config URL
-    if parsed.get("server"):
-        server_url = parsed["server"]
-    else:
-        url = config.get("api_server", {}).get("listen_ip_address", "127.0.0.1")
-        port = config.get("api_server", {}).get("listen_port", "8080")
-        server_url = f"http://{url}:{port}"
-
+    server_url = f"http://{url}:{port}"
     client = FtRestClient(server_url, username, password)
 
     valid = {x for x, _ in inspect.getmembers(client) if not x.startswith("_")}

@@ -28,7 +28,7 @@
         "order_book_top": 1,
         "price_last_balance": 0.0,
         "check_depth_of_market": {
-        "enabled": true,
+            "enabled": true,
             "bids_to_ask_delta": 1
         }
     },
@@ -52,7 +52,11 @@
         "backtest_period_days": 30,
         "identifier": "multi_agent_v1",
         "feature_parameters": {
-            "include_timeframes": ["15m", "1h", "4h"],
+            "include_timeframes": [
+                "15m",
+                "1h",
+                "4h"
+            ],
             "include_corr_pairlist": [],
             "label_period_candles": 4,
             "include_shifted_candles": 2,
@@ -60,7 +64,11 @@
             "weight_factor": 0.9,
             "principal_component_analysis": false,
             "use_SVM_to_remove_outliers": false,
-            "indicator_periods_candles": [10, 20, 50]
+            "indicator_periods_candles": [
+                10,
+                20,
+                50
+            ]
         },
         "data_split_parameters": {
             "test_size": 0.25,
@@ -75,7 +83,9 @@
         "verbosity": "error",
         "enable_openapi": false,
         "jwt_secret_key": "SomethingRandomVeryLongStringAtLeast32Chars!",
-        "CORS_origins": ["*"],
+        "CORS_origins": [
+            "*"
+        ],
         "username": "admin",
         "password": "admin"
     },

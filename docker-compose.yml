@@ -66,27 +66,6 @@ services:
         condition: service_healthy
         required: false
 
-  # ── Webserver Mode (for backtest, download-data, etc.) ──
-  freqtrade-ws:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: "no"
-    profiles: ["webserver", "all"]
-    container_name: freqtrade-ws
-    ports:
-      - "127.0.0.1:8081:8080"
-    volumes:
-      - "./user_data:/freqtrade/user_data"
-      - "./config.json:/freqtrade/config.json"
-    command: >
-      webserver
-      -c /freqtrade/config.json
-    depends_on:
-      timescaledb:
-        condition: service_healthy
-        required: false
-
   # ── Prometheus ───────────────────────────────────────
   prometheus:
     profiles: ["monitoring", "all"]
