@@ -14,6 +14,9 @@ def _to_wib(ts) -> str:
         return "\u2014"
     try:
         if isinstance(ts, (int, float)):
+            # Freqtrade uses millisecond timestamps → divide by 1000
+            if ts > 10000000000:
+                ts = ts / 1000.0
             dt = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(WIB)
         elif isinstance(ts, str):
             dt = datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(WIB)
@@ -434,7 +437,7 @@ def fmt_trades(data: dict) -> None:
             f"{t.get('close_rate', 0):.2f}" if not is_open else "\u2014",
             _pct(pnl),
             t.get("exit_reason", "\u2014") or "\u2014",
-            t.get("close_date", "")[:10] if not is_open else "\u2014",
+            _to_wib(t.get("close_date"))[:10] if not is_open else "\u2014",
         )
 
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
@@ -449,7 +452,8 @@ def fmt_sysinfo(data: dict) -> None:
     console.print()
     console.print(_header("  System Info  "))
 
-    cpu_pct = sum(data.get("cpu_load", [])) / max(len(data.get("cpu_load", [])), 1) if data.get("cpu_load") else 0
+    loads = data.get("cpu_load", [])
+    cpu_pct = sum(c.get("pct", 0) for c in loads) / len(loads) if loads else 0
 
     tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
     tbl.add_column(style="bold cyan", width=16)
@@ -482,9 +486,9 @@ def fmt_health(data: dict) -> None:
     tbl.add_column(style="bold cyan", width=20)
     tbl.add_column(style="white")
 
-    tbl.add_row("Last Process", str(data.get("last_process", "\u2014")))
-    tbl.add_row("Bot Startup", str(data.get("bot_startup", "\u2014")))
-    tbl.add_row("Bot Started", str(data.get("bot_start", "\u2014")))
+    tbl.add_row("Bot Startup", _to_wib(data.get("bot_startup")))
+    tbl.add_row("Bot Started", _to_wib(data.get("bot_start_ts")))
+    tbl.add_row("Last Process", _to_wib(data.get("last_process_ts")) or _to_wib(data.get("last_process")))
 
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
     console.print()
