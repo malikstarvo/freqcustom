@@ -103,18 +103,18 @@ def _ok(msg: str) -> None:
 # ── Show Commands ───────────────────────────────────
 
 CATEGORY_ICONS = {
-    "Bot Control": "\u25b6",
-    "Dashboard": "\ud83d\udcca",
-    "Account": "\ud83d\udcb0",
-    "Trades": "\ud83d\udcc8",
-    "Trading": "\u26a1",
-    "Locks": "\ud83d\udd12",
-    "Paper Trading": "\ud83d\udcdd",
-    "Backtest": "\ud83d\udd2c",
-    "Strategy": "\ud83e\udde0",
-    "Pairs": "\ud83d\udcb1",
-    "Config": "\u2699",
-    "System": "\ud83d\udd27",
+    "Bot Control":   "\u25b6",   # ▶
+    "Dashboard":     "\u25c9",   # ◉
+    "Account":       "\u25cb",   # ○
+    "Trades":        "\u21c4",   # ⇄
+    "Trading":       "\u26a1",   # ⚡
+    "Locks":         "\u26d4",   # ⛔
+    "Paper Trading": "\u25a1",   # □
+    "Backtest":      "\u21bb",   # ↻
+    "Strategy":      "\u2666",   # ♦
+    "Pairs":         "\u21c6",   # ⇆
+    "Config":        "\u2699",   # ⚙
+    "System":        "\u2302",   # ⌂
 }
 
 def print_commands():
@@ -200,7 +200,7 @@ def print_commands():
     # ═══ Footer ═══════════════════════════════════════
     console.print()
     console.print(
-        f"  [dim]\U0001f4a1 {len(all_methods)} commands in "
+        f"  [dim]\u25b8 {len(all_methods)} commands in "
         f"{len(commands_by_category)} categories  |  "
         f"Use [bold]--json[/] for raw output  |  "
         f"v{__version__}[/]"
