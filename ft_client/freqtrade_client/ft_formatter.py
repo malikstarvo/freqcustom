@@ -647,6 +647,14 @@ def fmt_config_live(data: dict) -> None:
 def fmt_strategies(data):
     if not HAS_RICH:
         _json_output(data); return
+
+    # Handle API error response
+    if isinstance(data, dict) and data.get("detail"):
+        console.print(); console.print(_header("  Strategies  "))
+        console.print(f"  [yellow]\u26a0[/] [dim]{data['detail']}[/]")
+        console.print("  [dim]Available in [bold]webserver mode[/] only. Current mode: trade[/]")
+        console.print(); return
+
     strategies = data.get("strategies") if isinstance(data, dict) else data if isinstance(data, list) else []
     console.print(); console.print(_header(f"  Strategies ({len(strategies) if isinstance(strategies, list) else 0})  "))
     if not strategies:
@@ -654,6 +662,29 @@ def fmt_strategies(data):
     else:
         for s in (strategies if isinstance(strategies, list) else []):
             console.print(f"  [cyan]\u25b8[/] [bold white]{s}[/]")
+    console.print()
+
+
+def fmt_plot_config(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    console.print(); console.print(_header("  Plot Configuration  "))
+
+    # Check if empty — most strategies don't define plot_config
+    if not data or (isinstance(data, dict) and not data):
+        console.print("  [dim]No plot configuration defined by the strategy.[/]")
+        console.print("  [dim]Add [bold]plot_config()[/] to your strategy class to enable charting.[/]")
+    elif isinstance(data, dict) and data.get("detail"):
+        console.print(f"  [yellow]\u26a0[/] [dim]{data['detail']}[/]")
+    else:
+        tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+        tbl.add_column(style="bold cyan", width=20)
+        tbl.add_column(style="white")
+        for k, v in data.items():
+            tbl.add_row(str(k).replace("_", " ").title(), str(v)[:80])
+        console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+
     console.print()
 
 
@@ -1140,6 +1171,7 @@ FORMATTERS = {
     "health":       fmt_health,
     "strategies":   fmt_strategies,
     "strategy":     fmt_strategies,
+    "plot_config":  fmt_plot_config,
     "whitelist":    fmt_whitelist,
     "blacklist":    fmt_whitelist,
     "logs":         fmt_logs,

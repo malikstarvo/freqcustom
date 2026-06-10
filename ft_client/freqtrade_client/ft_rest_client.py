@@ -433,12 +433,18 @@ class FtRestClient:
         """
         return self._get("strategies")
 
-    def strategy(self, strategy):
-        """Get strategy details
+    def strategy(self, strategy=None):
+        """Get strategy details. Auto-detects from config if not specified.
 
-        :param strategy: Strategy class name
+        :param strategy: Strategy class name (optional, default: from config)
         :return: json object
         """
+        if not strategy:
+            try:
+                cfg = self.show_config()
+                strategy = (cfg or {}).get("strategy") or "MultiAgentStrategy"
+            except Exception:
+                strategy = "MultiAgentStrategy"
         return self._get(f"strategy/{strategy}")
 
     def pairlists_available(self):
