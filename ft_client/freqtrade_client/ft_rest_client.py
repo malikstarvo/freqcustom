@@ -250,13 +250,10 @@ class FtRestClient:
         return self._get("show_config")
 
     def ping(self):
-        """simple ping"""
-        configstatus = self.show_config()
-        if not configstatus:
-            return {"status": "not_running"}
-        elif configstatus["state"] == "running":
-            return {"status": "pong"}
-        else:
+        """simple ping — calls the actual /api/v1/ping endpoint."""
+        try:
+            return self._get("ping")
+        except Exception:
             return {"status": "not_running"}
 
     def logs(self, limit=None):
@@ -832,8 +829,8 @@ class FtRestClient:
 
         # Real WebSocket test: JWT auth → connect → subscribe → receive message
         def _test_real_ws():
-            from urllib.parse import urlparse
-            host = urlparse(getattr(self, "_serverurl", "http://localhost:8080")).hostname or "localhost"
+            # Use Docker internal hostname (always resolvable inside compose)
+            host = "freqtrade"
 
             # 1. Get JWT token via API login
             login_resp = self._post("token/login")
@@ -844,23 +841,24 @@ class FtRestClient:
             # 2. Connect WebSocket with token
             try:
                 import websocket as _ws
-                ws_url = f"ws://{host}:8080/api/v1/message/ws?token={token}"
-                ws = _ws.create_connection(ws_url, timeout=5)
-
-                # 3. Subscribe to STATUS channel
-                ws.send(json.dumps({"type": "subscribe", "data": ["STATUS"]}))
-                time_mod.sleep(0.5)
-
-                # 4. Read a message to verify real-time feed
-                ws.settimeout(3)
-                msg_raw = ws.recv()
-                msg = json.loads(msg_raw)
-                msg_type = msg.get("type", "?")
-
-                ws.close()
-                return f"WS OK: received '{msg_type}' message"
             except ImportError:
                 raise RuntimeError("websocket-client not installed")
+
+            ws_url = f"ws://{host}:8080/api/v1/message/ws?token={token}"
+            ws = _ws.create_connection(ws_url, timeout=5)
+
+            # 3. Subscribe to STATUS channel
+            ws.send(json.dumps({"type": "subscribe", "data": ["STATUS"]}))
+            time_mod.sleep(0.5)
+
+            # 4. Read a message to verify real-time feed
+            ws.settimeout(3)
+            msg_raw = ws.recv()
+            msg = json.loads(msg_raw)
+            msg_type = msg.get("type", "?")
+
+            ws.close()
+            return f"WS OK: received '{msg_type}' message"
 
         cat["tests"].append(_run("websocket", _test_real_ws))
         results.append(cat)
