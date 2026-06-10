@@ -7,7 +7,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import rapidjson
+try:
+    import rapidjson
+except ImportError:
+    rapidjson = json  # fallback if rapidjson not installed
 
 from freqtrade_client import __version__
 from freqtrade_client.ft_rest_client import FtRestClient
@@ -62,9 +65,12 @@ def load_config(configfile):
     file = Path(configfile)
     if file.is_file():
         with file.open("r") as f:
-            config = rapidjson.load(
-                f, parse_mode=rapidjson.PM_COMMENTS | rapidjson.PM_TRAILING_COMMAS
-            )
+            if rapidjson is json:
+                config = rapidjson.load(f)
+            else:
+                config = rapidjson.load(
+                    f, parse_mode=rapidjson.PM_COMMENTS | rapidjson.PM_TRAILING_COMMAS
+                )
         return config
     else:
         logger.warning(f"Could not load config file {file}.")
