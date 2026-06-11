@@ -95,7 +95,7 @@ def load_config(configfile: str) -> dict:
 
 def _fail(msg: str) -> None:
     if HAS_RICH:
-        _err_console.print(f"\n  [red]\u2717[/] {msg}")
+        _err_console.print(f"  [red]!![/] {msg}")
     else:
         print(f"ERROR: {msg}")
     sys.exit(1)
@@ -103,7 +103,7 @@ def _fail(msg: str) -> None:
 
 def _ok(msg: str) -> None:
     if HAS_RICH:
-        console.print(f"  [green]\u2713[/] {msg}")
+        console.print(f"  [green]>>[/] {msg}")
     else:
         print(f"OK: {msg}")
 
@@ -321,20 +321,19 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
             time.sleep(1)
         _fail("Webserver did not become ready within 60s")
 
-    # Step 2: Stop trade mode if running
+    # Step 2: Stop any running container (port 8080 must be free)
     if was_running:
         _ok("Stopping trade bot...")
-        client.stop()
+        try:
+            client.stop()
+        except Exception:
+            pass
         time.sleep(1)
-        _ssh_exec(f"cd {compose_dir} && docker compose stop freqtrade", ssh_host, ssh_user)
-        time.sleep(2)
-        mode_switched = True
-    else:
-        mode_switched = True  # still need to ensure webserver mode
 
-    # Step 3: Kill any leftover webserver container
+    _ok("Freeing port 8080 on server...")
+    _ssh_exec(f"cd {compose_dir} && docker compose stop freqtrade 2>/dev/null; true", ssh_host, ssh_user)
     _ssh_exec("docker kill ft-webserver 2>/dev/null; true", ssh_host, ssh_user)
-    time.sleep(1)
+    time.sleep(2)
 
     # Step 4: Start webserver
     _ok("Starting webserver mode...")
