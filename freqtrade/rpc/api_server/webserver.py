@@ -219,7 +219,12 @@ class ApiServer(RPCHandler):
 
         app.include_router(api_v1_public, prefix="/api/v1")
 
-        app.mount("/metrics", make_asgi_app())
+        from prometheus_client import REGISTRY, generate_latest
+        from starlette.responses import PlainTextResponse
+
+        @app.get("/metrics")
+        def metrics_endpoint():
+            return PlainTextResponse(generate_latest(REGISTRY), media_type="text/plain")
 
         app.include_router(router_login, prefix="/api/v1", tags=["Auth"])
         app.include_router(
