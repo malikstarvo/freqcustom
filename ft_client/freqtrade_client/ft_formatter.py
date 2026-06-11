@@ -1202,52 +1202,117 @@ def fmt_data_list(data: dict) -> None:
         _json_output(data); return
 
     records = data.get("data", [])
+    total = data.get("length", len(records))
 
     console.print()
-    header = Panel(
-        Text("Downloaded Data", style="bold cyan"),
+
+    banner = Panel(
+        Align.center(
+            Text.assemble(
+                ("\n   ", ""),
+                ("\U0001f4be", "bold cyan"),  # 💾
+                (" Downloaded Data ", "bold white"),
+                ("\U0001f4be\n\n", "bold cyan"),
+                (f"  {total} datasets  \u00b7  ", "dim"),
+                (f"{sum(r.get('candles', 0) for r in records):,} total candles", "yellow"),
+            )
+        ),
         box=box.DOUBLE, border_style="cyan", padding=(1, 2),
     )
-    console.print(header)
+    console.print(banner)
 
     if not records:
-        console.print("  [dim]No data downloaded yet.[/]\n")
+        empty = Panel(
+            Text("\n  No data downloaded yet.\n", style="dim", justify="center"),
+            box=box.SIMPLE, border_style="dim",
+        )
+        console.print(empty)
+        console.print(
+            "  [dim]Run [bold]freqtrade download-data -c config.json -t 15m 1h 4h[/] on the server.[/]\n"
+        )
         return
 
     tbl = Table(
-        box=box.SIMPLE, padding=(0, 1),
+        box=box.SIMPLE, padding=(0, 2),
         show_header=True, header_style="bold cyan",
-        title=f"  {len(records)} datasets",
-        title_style="dim",
-        title_justify="left",
     )
-    tbl.add_column("Pair", style="bold white", width=18)
-    tbl.add_column("TF", width=6)
-    tbl.add_column("Type", style="dim", width=14)
-    tbl.add_column("From", width=20)
-    tbl.add_column("To", width=20)
+    tbl.add_column("#", style="dim", width=3, justify="right")
+    tbl.add_column("Pair", style="bold white", width=18, no_wrap=True)
+    tbl.add_column("TF", width=6, justify="center")
+    tbl.add_column("Type", width=14)
+    tbl.add_column("From", width=17)
+    tbl.add_column("To", width=17)
+    tbl.add_column("Days", justify="right", width=6)
     tbl.add_column("Candles", justify="right", width=10)
 
-    for r in records:
-        candles_str = f"{r.get('candles', 0):,}" if r.get("candles") else "\u2014"
-        date_from = r.get("from", "")
-        date_to = r.get("to", "")
-        if date_from and "T" in str(date_from):
-            date_from = str(date_from).replace("T", " ")[:19]
-        if date_to and "T" in str(date_to):
-            date_to = str(date_to).replace("T", " ")[:19]
+    for i, r in enumerate(records, 1):
+        candles = r.get("candles", 0)
+        if candles >= 5000:
+            candles_style = "green"
+        elif candles >= 1000:
+            candles_style = "yellow"
+        else:
+            candles_style = "dim"
+
+        candles_str = f"[{candles_style}]{candles:,}[/]"
+
+        ctype = r.get("candle_type", "")
+        if ctype == "futures":
+            ctype_str = f"  [cyan]{ctype}[/]"
+        elif ctype == "mark":
+            ctype_str = f"  [yellow]{ctype}[/]"
+        elif ctype == "funding_rate":
+            ctype_str = f"  [magenta]{ctype}[/]"
+        else:
+            ctype_str = f"  [dim]{ctype}[/]"
+
+        def _clean(dt: str) -> str:
+            if not dt:
+                return "\u2014"
+            s = str(dt).replace("T", " ").replace("+00:00", "")
+            return s[:16]
+
+        date_from = _clean(r.get("from", ""))
+        date_to = _clean(r.get("to", ""))
+
+        days_span = ""
+        if candles > 0 and r.get("timeframe"):
+            tf = r["timeframe"]
+            tf_min = 0
+            if tf.endswith("m"):
+                tf_min = int(tf[:-1])
+            elif tf.endswith("h"):
+                tf_min = int(tf[:-1]) * 60
+            elif tf.endswith("d"):
+                tf_min = int(tf[:-1]) * 1440
+            if tf_min > 0:
+                days_span = f"{candles * tf_min / 1440:.0f}d"
 
         tbl.add_row(
+            str(i),
             r.get("pair", ""),
             r.get("timeframe", ""),
-            r.get("candle_type", ""),
-            str(date_from)[:19] if date_from else "\u2014",
-            str(date_to)[:19] if date_to else "\u2014",
+            ctype_str,
+            date_from,
+            date_to,
+            days_span,
             candles_str,
         )
 
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 1)))
-    console.print(f"  [dim]Use --json for raw output[/]\n")
+
+    oldest = records[-1].get("from", "\u2014")
+    newest = records[0].get("to", "\u2014")
+    if oldest and "T" in str(oldest):
+        oldest = str(oldest).replace("T", " ").replace("+00:00", "")[:16]
+    if newest and "T" in str(newest):
+        newest = str(newest).replace("T", " ").replace("+00:00", "")[:16]
+
+    console.print(
+        f"  [dim]Range: [/][bold]{oldest}[/] [dim]\u2192[/] [bold]{newest}[/]"
+        f"  [dim]\u00b7  [/][dim]{total} datasets[/]"
+        f"  [dim]\u00b7  [/][dim]Use [bold]--json[/] for raw output[/]\n"
+    )
 
 
 # ── Command → Formatter Mapping ──────────────────────
