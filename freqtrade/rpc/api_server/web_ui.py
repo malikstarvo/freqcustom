@@ -42,7 +42,7 @@ async def ui_version():
 
 @router_ui.get("/{rest_of_path:path}")
 async def index_html(rest_of_path: str):
-    if rest_of_path.startswith("api") or rest_of_path.startswith("."):
+    if rest_of_path.startswith("api") or rest_of_path.startswith(".") or rest_of_path == "metrics":
         raise HTTPException(status_code=404, detail="Not Found")
     uibase = _ui_installed_dir().resolve()
     filename = (uibase / rest_of_path).resolve()
