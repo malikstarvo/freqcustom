@@ -27,10 +27,20 @@ freqtrade.egg-info
 *.sh
 *.ps1
 
+# Heavy dirs not needed in Docker image
+web/
+go-collector/
+scripts/
+build_helpers/
+
 config.json*
 *.sqlite
 user_data/
 !user_data/strategies/
+!user_data/freqaimodels/
+user_data/backtest_results/
+user_data/hyperopt_results/
+user_data/data/
 *.log
 
 .vscode

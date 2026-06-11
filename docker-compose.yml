@@ -4,7 +4,7 @@
 # =============================================================================
 # Semua service dalam 1 file. Jalankan:
 #
-#   docker compose up -d                    # Core: freqtrade + web
+#   docker compose up -d                    # Core: freqtrade
 #   docker compose --profile monitoring up -d # Full: + monitoring stack
 #   docker compose --profile jupyter up -d    # + JupyterLab
 #   docker compose --profile all up -d        # Semua service
@@ -17,6 +17,8 @@ services:
     image: timescale/timescaledb:latest-pg16
     restart: unless-stopped
     container_name: freqtrade-timescaledb
+    mem_limit: 400m
+    cpus: 1.0
     ports:
       - "127.0.0.1:5432:5432"
     environment:
@@ -49,18 +51,24 @@ services:
     #           capabilities: [gpu]
     restart: unless-stopped
     container_name: freqtrade
+    mem_limit: 800m
+    cpus: 1.5
     volumes:
       - "./user_data:/freqtrade/user_data"
       - "./config.json:/freqtrade/config.json"
     ports:
       - "127.0.0.1:8080:8080"
-    environment:
-      - FREQTRADE__FREQAI__ENABLED=false
     command: >
       trade
       --logfile /freqtrade/user_data/logs/freqtrade.log
       --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
       --config /freqtrade/config.json
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/ping || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
     depends_on:
       timescaledb:
         condition: service_healthy
@@ -72,6 +80,8 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     container_name: freqtrade-prometheus
+    mem_limit: 200m
+    cpus: 0.5
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
@@ -87,8 +97,10 @@ services:
     image: grafana/grafana:latest
     restart: unless-stopped
     container_name: freqtrade-grafana
+    mem_limit: 200m
+    cpus: 0.5
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
     volumes:
@@ -108,6 +120,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     container_name: freqtrade-collector
+    mem_limit: 150m
+    cpus: 0.5
     env_file:
       - ./docker/collector.env
     depends_on:
@@ -122,6 +136,8 @@ services:
       dockerfile: docker/Dockerfile.jupyter
     restart: unless-stopped
     container_name: freqtrade-jupyter
+    mem_limit: 600m
+    cpus: 1.0
     ports:
       - "127.0.0.1:8888:8888"
     volumes:

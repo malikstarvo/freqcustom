@@ -6,6 +6,7 @@ from typing import Any
 import orjson
 import uvicorn
 from fastapi import Depends, FastAPI
+from prometheus_client import make_asgi_app
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
@@ -216,6 +217,8 @@ class ApiServer(RPCHandler):
         from freqtrade.rpc.api_server.web_ui import router_ui
 
         app.include_router(api_v1_public, prefix="/api/v1")
+
+        app.mount("/metrics", make_asgi_app())
 
         app.include_router(router_login, prefix="/api/v1", tags=["Auth"])
         app.include_router(

@@ -2,6 +2,7 @@ import argparse
 import inspect
 import json
 import logging
+import os
 import re
 import sys
 from pathlib import Path
@@ -60,6 +61,10 @@ def add_arguments(args: Any = None):
     parser.add_argument(
         "-c", "--config", type=str, metavar="PATH", default="config.json",
         help="Configuration file (default: config.json)."
+    )
+    parser.add_argument(
+        "-s", "--server", type=str, metavar="URL", default=None,
+        help="API server URL (e.g. http://43.159.56.168:8080)."
     )
     parser.add_argument(
         "command_arguments", nargs="*", default=[],
@@ -332,12 +337,27 @@ def main_exec(parsed: dict[str, Any]):
         sys.exit()
 
     config = load_config(parsed["config"])
-    url = config.get("api_server", {}).get("listen_ip_address", "127.0.0.1")
-    port = config.get("api_server", {}).get("listen_port", "8080")
-    username = config.get("api_server", {}).get("username")
-    password = config.get("api_server", {}).get("password")
 
-    server_url = f"http://{url}:{port}"
+    # Resolution chain: --server flag > FT_SERVER_URL env > client_server_url config > api_server config > 127.0.0.1
+    server_url = parsed.get("server") or os.environ.get("FT_SERVER_URL")
+    if server_url:
+        if "://" not in server_url:
+            server_url = f"http://{server_url}"
+        username = os.environ.get("FT_SERVER_USERNAME") or config.get("api_server", {}).get("username")
+        password = os.environ.get("FT_SERVER_PASSWORD") or config.get("api_server", {}).get("password")
+    elif client_url := config.get("client_server_url"):
+        server_url = client_url
+        if "://" not in server_url:
+            server_url = f"http://{server_url}"
+        username = config.get("api_server", {}).get("username")
+        password = config.get("api_server", {}).get("password")
+    else:
+        url = config.get("api_server", {}).get("listen_ip_address", "127.0.0.1")
+        port = config.get("api_server", {}).get("listen_port", "8080")
+        server_url = f"http://{url}:{port}"
+        username = config.get("api_server", {}).get("username")
+        password = config.get("api_server", {}).get("password")
+
     client = FtRestClient(server_url, username, password)
 
     valid = {x for x, _ in inspect.getmembers(client) if not x.startswith("_")}

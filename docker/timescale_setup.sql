@@ -2,7 +2,7 @@
 -- Run this against your TimescaleDB instance
 
 -- Enable the timescaledb extension (requires superuser)
--- CREATE EXTENSION IF NOT EXISTS timescaledb;
+CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 -- OHLCV Candles hypertable
 CREATE TABLE IF NOT EXISTS candles (

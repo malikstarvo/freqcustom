@@ -17,16 +17,6 @@ from freqtrade.papertrade.executor import (
 )
 from freqtrade.papertrade.store import PaperStore
 
-# Add user_data/strategies to path so agents can be imported
-_strategies_dir = Path(__file__).resolve().parents[2] / "user_data" / "strategies"
-if str(_strategies_dir) not in sys.path:
-    sys.path.insert(0, str(_strategies_dir))
-
-from agents.technical_scorer import Calculate as calc_tech, Input as TechInput  # noqa: E501
-from agents.orderflow_scorer import Calculate as calc_of, Input as OFInput  # noqa: E501
-from agents.regime_scorer import Calculate as calc_regime, Input as RegimeInput  # noqa: E501
-from agents.trade_gate import Gate, GateConfig, Input as GateInput  # noqa: E501
-
 logger = logging.getLogger(__name__)
 
 
@@ -53,6 +43,15 @@ class PaperEngine:
     def __init__(self, config: dict, store: PaperStore,
                  feature_pool: psycopg2.pool.ThreadedConnectionPool) -> None:
         self.cfg = {**DEFAULT_CONFIG, **config}
+
+        strategies_dir = Path(self.cfg.get(
+            "user_data_dir", Path.cwd() / "user_data",
+        )) / "strategies"
+        if str(strategies_dir) not in sys.path:
+            sys.path.insert(0, str(strategies_dir))
+
+        from agents.trade_gate import Gate, GateConfig  # noqa: E501
+
         self.store = store
         self._feature_pool = feature_pool
 
@@ -190,6 +189,11 @@ class PaperEngine:
                 self._feature_pool.putconn(conn)
 
     def tick(self) -> dict:
+        from agents.orderflow_scorer import Calculate as calc_of, Input as OFInput  # noqa: E501
+        from agents.regime_scorer import Calculate as calc_regime, Input as RegimeInput  # noqa: E501
+        from agents.technical_scorer import Calculate as calc_tech, Input as TechInput  # noqa: E501
+        from agents.trade_gate import GateInput  # noqa: E501
+
         candle = self._load_candle()
         if not candle:
             return {"action": "no_data"}

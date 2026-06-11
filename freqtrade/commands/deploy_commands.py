@@ -114,7 +114,11 @@ def start_install_ui(args: dict[str, Any]) -> None:
         read_ui_version,
     )
 
-    dest_folder = Path(__file__).parents[1] / "rpc/api_server/ui/installed/"
+    user_data_dir = args.get("user_data_dir")
+    if user_data_dir:
+        dest_folder = Path(user_data_dir) / "ui"
+    else:
+        dest_folder = Path(__file__).parents[1] / "rpc/api_server/ui/installed/"
     # First make sure the assets are removed.
     dl_url, latest_version = get_ui_download_url(
         args.get("ui_version"), args.get("ui_prerelease", False)
