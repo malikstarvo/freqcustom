@@ -19,6 +19,9 @@ logger = logging.getLogger(__name__)
 # Private API, protected by authentication and webserver_mode dependency
 router = APIRouter()
 
+# Data router — protected by authentication only (no webserver_mode requirement)
+router_data = APIRouter()
+
 
 @router.get("/strategies", response_model=StrategyListResponse, tags=["Strategy"])
 def list_strategies(config=Depends(get_config)):
@@ -109,7 +112,7 @@ def list_available_pairs(
     return result
 
 
-@router.get("/data/available", tags=["Candle data"])
+@router_data.get("/data/available", tags=["Candle data"])
 def list_data_with_timerange(config=Depends(get_config)):
     dh = get_datahandler(config["datadir"], config.get("dataformat_ohlcv"))
     trading_mode: TradingMode = config.get("trading_mode", TradingMode.SPOT)
