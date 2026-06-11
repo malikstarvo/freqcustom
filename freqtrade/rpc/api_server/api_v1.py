@@ -88,6 +88,14 @@ def ping():
     return {"status": "pong"}
 
 
+@router_public.get("/metrics", tags=["Info"])
+def metrics():
+    from prometheus_client import REGISTRY, generate_latest
+    from starlette.responses import PlainTextResponse
+
+    return PlainTextResponse(generate_latest(REGISTRY), media_type="text/plain")
+
+
 @router.get("/version", response_model=Version, tags=["Info"])
 def version():
     """Bot Version info"""
