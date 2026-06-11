@@ -9,6 +9,7 @@ ENV PATH=/home/ftuser/.local/bin:$PATH
 ENV FT_APP_ENV="docker"
 ENV PIP_TIMEOUT=120
 ENV PIP_RETRIES=10
+ENV PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple/
 
 # Prepare environment
 RUN mkdir /freqtrade \
