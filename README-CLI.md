@@ -127,7 +127,8 @@ freq --server http://43.159.56.168:8080 ping
 
 | Command | Deskripsi | Contoh |
 |---|---|---|
-| `backtest start [strategy=X] [timeframe=X] [timerange=X] [max_open_trades=N] [stake_amount=N] [enable_protections=true]` | Mulai backtest | `freq backtest start timeframe=15m timerange=20250601-20250610` |
+| `backtest run [strategy=X] timeframe=X timerange=X [max_open_trades=N] [stake_amount=N]` | **AUTO** — stop trade → webserver → run → hasil → restart trade | `freq backtest run timeframe=15m timerange=20250601-20250610` |
+| `backtest start [strategy=X] [timeframe=X] [timerange=X] [max_open_trades=N] [stake_amount=N] [enable_protections=true]` | Mulai backtest (butuh webserver mode manual) | `freq backtest start timeframe=15m timerange=20250601-20250610` |
 | `backtest status` | Cek progress backtest | `freq backtest status` |
 | `backtest history` | Lihat riwayat hasil backtest | `freq backtest history` |
 | `backtest history result file=X strategy=X` | Load detail hasil backtest | `freq backtest history result file=backtest-result-2025.json strategy=MultiAgentStrategy` |
@@ -199,6 +200,7 @@ Command bisa dipanggil dengan 2 cara:
 | `paper topup amount=N` | `paper_topup amount=N` | `freq paper topup amount=5000` |
 | `paper trades limit=N` | `paper_trades limit=N` | `freq paper trades limit=10` |
 | `paper account limit=N` | `paper_account limit=N` | `freq paper account limit=20` |
+| `backtest run` | `backtest_run` **AUTO** (SSH mode switch) | `freq backtest run timeframe=15m timerange=20250601-20250610` |
 | `backtest start [key=val]` | `backtest_start [key=val]` | `freq backtest start timeframe=15m` |
 | `backtest status` | `backtest_status` | `freq backtest status` |
 | `backtest history` | `backtest_history` | `freq backtest history` |
@@ -228,6 +230,23 @@ Juga support hyphens: `freq self-test` → otomatis jadi `self_test`.
 ---
 
 ## Backtest Workflow
+
+### Cara Cepat (Otomatis)
+
+```bash
+freq backtest run timeframe=15m timerange=20250601-20250610
+```
+
+Ini akan:
+1. Stop trade bot via API
+2. SSH ke server → restart container di webserver mode
+3. Start backtest via API
+4. Poll progress sampai selesai
+5. SSH ke server → restart container di trade mode
+6. Start trade bot via API
+7. Tampilkan hasil
+
+### Manual
 
 Backtest cuma bisa jalan di **webserver mode**, bukan trade mode.
 
@@ -310,6 +329,29 @@ freq trades limit=50 --json
 | `1` | Error (unknown command, API error, config not found) |
 
 ---
+
+## Config SSH untuk `backtest run`
+
+`freq backtest run` butuh SSH akses ke server untuk switch mode trade↔webserver.
+
+Konfigurasi (prioritas: env var > config.json > default):
+
+| Setting | Env Var | config.json | Default |
+|---|---|---|---|
+| SSH Host | `FT_SSH_HOST` | `ssh.host` | (dari server URL) |
+| SSH User | `FT_SSH_USER` | `ssh.user` | `ubuntu` |
+| Compose Dir | `FT_COMPOSE_DIR` | `ssh.compose_dir` | `/home/ubuntu/freqtrade` |
+
+Contoh di `config.json`:
+```json
+{
+  "ssh": {
+    "host": "43.159.56.168",
+    "user": "ubuntu",
+    "compose_dir": "/home/ubuntu/freqtrade"
+  }
+}
+```
 
 ## Catatan Penting
 

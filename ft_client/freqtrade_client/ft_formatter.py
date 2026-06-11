@@ -1197,6 +1197,81 @@ def fmt_markets(data: dict) -> None:
     console.print(f"  [dim]{len(pairs)} pairs  \u00b7  {exchange_name}  \u00b7  Real-time data[/]\n")
 
 
+def fmt_backtest_run(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    status = data.get("status", "unknown")
+    strategy = data.get("strategy", "\u2014")
+    timeframe = data.get("timeframe", "\u2014")
+    timerange = data.get("timerange", "\u2014")
+    was_running = data.get("was_running", False)
+    result = data.get("result", {})
+    history = data.get("history", {})
+
+    console.print()
+    console.print(_header("  Backtest Complete  "))
+
+    # Status banner
+    status_color = "green" if status == "completed" else "red"
+    console.print(Panel(
+        Text(f"  {status.upper()}  ", style=f"bold {status_color}", justify="center"),
+        box=box.DOUBLE, border_style=status_color, padding=(1, 2),
+    ))
+
+    # Config summary
+    info = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    info.add_column(style="bold cyan", width=16)
+    info.add_column(style="white")
+    info.add_row("Strategy", strategy)
+    info.add_row("Timeframe", timeframe)
+    info.add_row("Timerange", timerange)
+    if was_running:
+        info.add_row("Bot Mode", "[green]Restarted (trade mode)[/]")
+    else:
+        info.add_row("Bot Mode", "[dim]Was not running[/]")
+
+    if isinstance(result, dict) and result.get("status"):
+        info.add_row("Backtest Status", str(result["status"]))
+
+    console.print(Panel(info, border_style="dim blue", padding=(1, 2)))
+
+    # History results
+    if isinstance(history, dict) and history.get("_error"):
+        console.print(f"\n  [yellow]\u26a0[/] History note: {history['_error']}")
+    elif history:
+        entries = history if isinstance(history, list) else history.get("data", [])
+        if entries:
+            console.print(_section("Results"))
+            tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+            tbl.add_column("File", style="white", width=30)
+            tbl.add_column("Strategy")
+            tbl.add_column("TF", width=6)
+            tbl.add_column("Date", style="dim", width=12)
+            for e in (entries if isinstance(entries, list) else [])[:5]:
+                tbl.add_row(
+                    str(e.get("filename", ""))[:30],
+                    str(e.get("strategy", "\u2014")),
+                    str(e.get("timeframe", "\u2014")),
+                    str(e.get("backtest_start_time", ""))[:10] or "\u2014",
+                )
+            console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+            if len(entries) > 5:
+                console.print(f"  [dim]... and {len(entries) - 5} more results[/]")
+
+    # Next steps
+    console.print()
+    console.print(_section("Next Steps"))
+    steps = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    steps.add_column(width=3, style="bold cyan")
+    steps.add_column(style="white")
+    steps.add_row("1.", f"Review: [bold]freq backtest history[/]")
+    steps.add_row("2.", f"Detail: [bold]freq backtest history result file=... strategy={strategy}[/]")
+    steps.add_row("3.", f"Run again: [bold]freq backtest run timeframe={timeframe} timerange=...[/]")
+    console.print(Panel(steps, border_style="dim green", padding=(1, 2)))
+    console.print()
+
+
 def fmt_data_list(data: dict) -> None:
     if not HAS_RICH:
         _json_output(data); return
@@ -1365,6 +1440,7 @@ FORMATTERS = {
     "backtest_status": fmt_backtest_status,
     "backtest_history": fmt_backtest_history,
     "backtest_history_result": fmt_dashboard,
+    "backtest_run":    fmt_backtest_run,
     # Pairs & Data
     "pair_candles":       fmt_pair_candles,
     "pair_history":       fmt_pair_candles,

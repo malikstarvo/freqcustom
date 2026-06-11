@@ -688,6 +688,25 @@ class FtRestClient:
         """
         return self._delete(f"backtest/history/{filename}")
 
+    def backtest_run(self, strategy=None, timeframe=None, timerange=None,
+                     max_open_trades=None, stake_amount=None,
+                     enable_protections=False, freqaimodel=None):
+        """Run complete backtest workflow (automated mode switching).
+        Client-side only — delegates to backtest_start via API.
+
+        :param strategy: Strategy class name (default: from config)
+        :param timeframe: Timeframe (e.g. "15m")
+        :param timerange: Timerange string (e.g. "20240101-20240201")
+        :param max_open_trades: Max concurrent trades
+        :param stake_amount: Stake amount per trade
+        :param enable_protections: Enable protections
+        :param freqaimodel: FreqAI model identifier
+        :return: json object
+        """
+        return self.backtest_start(strategy, timeframe, timerange,
+                                   max_open_trades, stake_amount,
+                                   enable_protections, freqaimodel)
+
     # ── Dashboard ────────────────────────────────────────
 
     def dashboard(self):
