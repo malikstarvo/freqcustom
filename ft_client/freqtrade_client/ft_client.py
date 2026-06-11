@@ -361,8 +361,12 @@ def main_exec(parsed: dict[str, Any]):
     client = FtRestClient(server_url, username, password)
 
     valid = {x for x, _ in inspect.getmembers(client) if not x.startswith("_")}
+    valid.add("config_live")
     command = parsed["command"]
     cmd_args = parsed["command_arguments"]
+
+    # ── Hyphen → underscore (e.g. "self-test" → "self_test") ──
+    command = command.replace("-", "_")
 
     # ── Namespace support: "paper status" → paper_status() ──
     if command not in valid:
@@ -370,10 +374,16 @@ def main_exec(parsed: dict[str, Any]):
         if pos_args:
             subcmd = pos_args[0]
             compound = f"{command}_{subcmd}"
+            # Try direct: "paper status" → "paper_status"
             if compound in valid:
-                display_cmd = compound  # for formatting
+                display_cmd = compound
                 command = compound
-                cmd_args = [x for x in cmd_args if x != subcmd]  # remove subcommand from args
+                cmd_args = [x for x in cmd_args if x != subcmd]
+            # Try reverse: "config show" → "show_config"
+            elif f"{subcmd}_{command}" in valid:
+                display_cmd = f"{subcmd}_{command}"
+                command = f"{subcmd}_{command}"
+                cmd_args = [x for x in cmd_args if x != subcmd]
             else:
                 _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
         else:
@@ -381,14 +391,15 @@ def main_exec(parsed: dict[str, Any]):
     else:
         display_cmd = command
 
-    # ── Special: config live (client-side, no API call) ──
+    # Extract key=value args and positional args
+    kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in cmd_args if "=" in x}
+    args_list = [x for x in cmd_args if "=" not in x]
+
+    # ── Special: config_live (client-side, no API call) ──
     if display_cmd == "config_live":
         res = _handle_config_live(kwargs)
         format_output("config_live", res, force_json=parsed.get("json", False))
         sys.exit(0)
-
-    kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in cmd_args if "=" in x}
-    args_list = [x for x in cmd_args if "=" not in x]
 
     try:
         res = getattr(client, command)(*args_list, **kwargs)
