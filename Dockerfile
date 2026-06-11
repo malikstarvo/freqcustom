@@ -27,7 +27,7 @@ RUN  apt-get update \
   && apt-get -y install --no-install-recommends build-essential libssl-dev git libffi-dev libgfortran5 pkg-config cmake gcc \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+  && pip config set global.timeout 120 \
   && pip install --upgrade pip wheel
 
 # Install dependencies
