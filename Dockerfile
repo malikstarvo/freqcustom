@@ -30,10 +30,11 @@ RUN  apt-get update \
   && pip install --upgrade pip wheel
 
 # Install dependencies
-COPY --chown=ftuser:ftuser requirements.txt /freqtrade/
+COPY --chown=ftuser:ftuser requirements.txt requirements-freqai.txt /freqtrade/
 USER ftuser
 RUN  pip install --user --no-cache-dir "numpy<3.0" \
-  && pip install --user --no-cache-dir -r requirements.txt
+  && pip install --user --no-cache-dir -r requirements.txt \
+  && pip install --user --no-cache-dir -r requirements-freqai.txt
 
 # Copy dependencies to runtime-image
 FROM base AS runtime-image
