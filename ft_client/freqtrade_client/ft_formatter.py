@@ -1197,6 +1197,59 @@ def fmt_markets(data: dict) -> None:
     console.print(f"  [dim]{len(pairs)} pairs  \u00b7  {exchange_name}  \u00b7  Real-time data[/]\n")
 
 
+def fmt_data_list(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    records = data.get("data", [])
+
+    console.print()
+    header = Panel(
+        Text("Downloaded Data", style="bold cyan"),
+        box=box.DOUBLE, border_style="cyan", padding=(1, 2),
+    )
+    console.print(header)
+
+    if not records:
+        console.print("  [dim]No data downloaded yet.[/]\n")
+        return
+
+    tbl = Table(
+        box=box.SIMPLE, padding=(0, 1),
+        show_header=True, header_style="bold cyan",
+        title=f"  {len(records)} datasets",
+        title_style="dim",
+        title_justify="left",
+    )
+    tbl.add_column("Pair", style="bold white", width=18)
+    tbl.add_column("TF", width=6)
+    tbl.add_column("Type", style="dim", width=14)
+    tbl.add_column("From", width=20)
+    tbl.add_column("To", width=20)
+    tbl.add_column("Candles", justify="right", width=10)
+
+    for r in records:
+        candles_str = f"{r.get('candles', 0):,}" if r.get("candles") else "\u2014"
+        date_from = r.get("from", "")
+        date_to = r.get("to", "")
+        if date_from and "T" in str(date_from):
+            date_from = str(date_from).replace("T", " ")[:19]
+        if date_to and "T" in str(date_to):
+            date_to = str(date_to).replace("T", " ")[:19]
+
+        tbl.add_row(
+            r.get("pair", ""),
+            r.get("timeframe", ""),
+            r.get("candle_type", ""),
+            str(date_from)[:19] if date_from else "\u2014",
+            str(date_to)[:19] if date_to else "\u2014",
+            candles_str,
+        )
+
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 1)))
+    console.print(f"  [dim]Use --json for raw output[/]\n")
+
+
 # ── Command → Formatter Mapping ──────────────────────
 
 FORMATTERS = {
@@ -1253,6 +1306,7 @@ FORMATTERS = {
     "available_pairs":    fmt_whitelist,
     "pairlists_available": fmt_strategies,
     "markets":            fmt_markets,
+    "data_list":          fmt_data_list,
 }
 
 

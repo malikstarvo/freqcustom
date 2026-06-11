@@ -1051,5 +1051,9 @@ class FtRestClient:
             "total_ms": total_ms, "initial_state": was_running,
         }
 
+    def data_list(self):
+        """Show all downloaded data with timeranges and candle counts."""
+        return self._get("data/available")
+
 
 

@@ -107,3 +107,35 @@ def list_available_pairs(
         "pair_interval": pair_interval,
     }
     return result
+
+
+@router.get("/data/available", tags=["Candle data"])
+def list_data_with_timerange(config=Depends(get_config)):
+    dh = get_datahandler(config["datadir"], config.get("dataformat_ohlcv"))
+    trading_mode: TradingMode = config.get("trading_mode", TradingMode.SPOT)
+    pair_interval = dh.ohlcv_get_available_data(config["datadir"], trading_mode)
+
+    result = []
+    for pair, timeframe, candle_type in pair_interval:
+        try:
+            date_from, date_to, candles = dh.ohlcv_data_min_max(pair, timeframe, candle_type)
+            result.append({
+                "pair": pair,
+                "timeframe": timeframe,
+                "candle_type": candle_type.value if candle_type else "spot",
+                "from": date_from.isoformat() if candles > 0 else None,
+                "to": date_to.isoformat() if candles > 0 else None,
+                "candles": candles,
+            })
+        except Exception:
+            result.append({
+                "pair": pair,
+                "timeframe": timeframe,
+                "candle_type": candle_type.value if candle_type else "spot",
+                "from": None,
+                "to": None,
+                "candles": 0,
+            })
+
+    result.sort(key=lambda x: (x["pair"], x["timeframe"], x["candle_type"]))
+    return {"data": result, "length": len(result)}

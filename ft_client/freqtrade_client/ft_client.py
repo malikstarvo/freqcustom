@@ -174,7 +174,7 @@ def print_commands():
         "Strategy": ["strategies", "strategy", "plot_config"],
         "Model": ["model_info", "model"],
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
-                   "pairlists_available", "markets"],
+                   "pairlists_available", "markets", "data_list"],
         "Config": ["show_config", "config_live"],
         "System": ["ping", "sysinfo", "health", "version", "logs", "self_test"],
     }
