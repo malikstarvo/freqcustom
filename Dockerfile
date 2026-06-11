@@ -27,9 +27,8 @@ RUN  apt-get update \
   && apt-get -y install --no-install-recommends build-essential libssl-dev git libffi-dev libgfortran5 pkg-config cmake gcc \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
-  && pip config set global.extra-index-url https://pypi.org/simple/ \
   && pip config set global.timeout 120 \
+  && pip config set global.retries 10 \
   && pip install --upgrade pip wheel
 
 # Install dependencies
