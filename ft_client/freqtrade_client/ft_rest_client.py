@@ -1074,5 +1074,17 @@ class FtRestClient:
         """Show all downloaded data with timeranges and candle counts."""
         return self._get("data/available")
 
+    # ── Client-Side Commands (doc only, handled in ft_client) ──
+
+    def entrylog(self, pair=None, latest=None):
+        """View trade entry logs with gate scores, indicators, and FreqAI predictions.
+        Uses SSH to read JSONL log file from the server.
+
+        :param pair: Optional pair filter (e.g. BTC/USDT:USDT)
+        :param latest: Show only last N entries
+        :return: json object
+        """
+        return {}  # client-side only
+
 
 
