@@ -1,4 +1,8 @@
+import json
 import logging
+import os
+from datetime import datetime, timezone
+
 import pandas as pd
 import talib.abstract as ta
 
@@ -53,6 +57,9 @@ class MultiAgentStrategy(IStrategy):
         self.gate_config = GateConfig.default()
         self.trade_gate = Gate(self.gate_config)
         self._gate_stats = self._make_empty_stats()
+        data_dir = config.get("user_data_dir", "user_data")
+        self._entry_log_path = os.path.join(data_dir, "trade_logs", "entry_logs.jsonl")
+        os.makedirs(os.path.dirname(self._entry_log_path), exist_ok=True)
 
     def _make_empty_stats(self):
         return {
@@ -210,6 +217,13 @@ class MultiAgentStrategy(IStrategy):
             dataframe.loc[dataframe.index[idx], "stake_amount"] = decision.size_multiplier
             dataframe.loc[dataframe.index[idx], "confidence"] = decision.raw_confidence
             dataframe.loc[dataframe.index[idx], "regime_label"] = regime_score.regime
+            dataframe.loc[dataframe.index[idx], "tech_score"] = tech_score.technical_score
+            dataframe.loc[dataframe.index[idx], "of_score"] = of_score.orderflow_score
+            dataframe.loc[dataframe.index[idx], "regime_score"] = regime_score.regime_score
+            dataframe.loc[dataframe.index[idx], "ml_prob_val"] = ml_prob
+            dataframe.loc[dataframe.index[idx], "decision_value"] = decision.decision.value
+            dataframe.loc[dataframe.index[idx], "decision_reason"] = decision.reason
+            dataframe.loc[dataframe.index[idx], "of_available"] = int(of_score.data_available)
 
         # ── Log gate stats summary after all candles ─────
         stats = self._gate_stats
@@ -248,6 +262,47 @@ class MultiAgentStrategy(IStrategy):
         side: str,
         **kwargs,
     ) -> bool:
+        try:
+            dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
+            if dataframe is not None and not dataframe.empty:
+                row = dataframe.iloc[-1]
+                entry = {
+                    "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "pair": pair,
+                    "price": rate,
+                    "amount": amount,
+                    "indicators": {
+                        "ema20": float(row.get("ema20", 0)),
+                        "ema50": float(row.get("ema50", 0)),
+                        "ema200": float(row.get("ema200", 0)),
+                        "rsi14": float(row.get("rsi14", 0)),
+                        "atr14": float(row.get("atr14", 0)),
+                        "adx14": float(row.get("adx14", 0)),
+                        "volume_ema20": float(row.get("volume_ema20", 0)),
+                        "volatility14": float(row.get("volatility14", 0)),
+                    },
+                    "gate": {
+                        "tech_score": float(row.get("tech_score", 0)),
+                        "of_score": float(row.get("of_score", 0)),
+                        "regime_score": float(row.get("regime_score", 0)),
+                        "ml_prob": float(row.get("ml_prob_val", 0.5)),
+                        "confidence": float(row.get("confidence", 0)),
+                        "regime_label": str(row.get("regime_label", "")),
+                        "decision_value": str(row.get("decision_value", "")),
+                        "decision_reason": str(row.get("decision_reason", "")),
+                        "size_multiplier": float(row.get("stake_amount", 0)),
+                        "of_available": bool(row.get("of_available", False)),
+                    },
+                    "freqai": {
+                        "prediction": str(row.get("&s-up_or_down", "")),
+                        "probability": float(row.get("True", 0.0)),
+                        "do_predict": int(row.get("do_predict", 0)),
+                    },
+                }
+                with open(self._entry_log_path, "a") as f:
+                    f.write(json.dumps(entry) + "\n")
+        except Exception as e:
+            logger.warning(f"Failed to log entry data for {pair}: {e}")
         return True
 
     def custom_stake_amount(
