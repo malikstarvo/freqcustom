@@ -1469,15 +1469,15 @@ def fmt_entrylog(data: dict) -> None:
         box=box.SIMPLE, padding=(0, 1),
         show_header=True, header_style="bold cyan",
     )
-    tbl.add_column("Time", style="dim", width=16, no_wrap=True)
-    tbl.add_column("Pair", style="bold white", width=16, no_wrap=True)
+    tbl.add_column("Time", style="dim", width=14, no_wrap=True)
+    tbl.add_column("Pair", style="bold white", width=18, no_wrap=True)
     tbl.add_column("Price", justify="right", width=10)
-    tbl.add_column("Tech", justify="right", width=6)
-    tbl.add_column("OF", justify="right", width=5)
-    tbl.add_column("Regm", justify="right", width=6)
-    tbl.add_column("ML Pr", justify="right", width=6)
-    tbl.add_column("Conf", justify="right", width=6)
-    tbl.add_column("Decision", width=14)
+    tbl.add_column("Tch", justify="right", width=5)
+    tbl.add_column("OF", justify="right", width=4)
+    tbl.add_column("Reg", justify="right", width=5)
+    tbl.add_column("ML", justify="right", width=5)
+    tbl.add_column("Cn", justify="right", width=5)
+    tbl.add_column("Dec", width=12)
 
     for e in entries:
         ts = _to_wib(e.get("timestamp", ""))[5:16]  # "MM-DD HH:MM WIB"
@@ -1508,7 +1508,6 @@ def fmt_entrylog(data: dict) -> None:
 
         # Decision color
         dec_colors = {
-            "no_trade": "red",
             "small_size": "yellow",
             "normal_size": "green",
             "large_size": "cyan",
