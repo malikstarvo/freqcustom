@@ -894,7 +894,7 @@ class FtRestClient:
             if result.get("weight_factor") is None or result.get("weight_factor") == 0:
                 result["weight_factor"] = fp_file.get("weight_factor", 0)
             if not result.get("available_models"):
-                result["available_models"] = file_cfg.get("freqaimodel_path", [])
+                result["available_models"] = []
 
             # Strategy from file if missing
             if result.get("strategy", "\u2014") in (None, "\u2014", ""):
