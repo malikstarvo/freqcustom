@@ -562,13 +562,14 @@ def _handle_entrylog(client, config: dict, kwargs: dict[str, str]) -> dict:
     stdout = _ssh_exec(f"docker exec freqtrade sh -c '{cmd}'", ssh_host, ssh_user)
 
     entries = []
+    pair_lower = pair.lower() if pair else ""
     for line in stdout.strip().splitlines():
         line = line.strip()
         if not line:
             continue
         try:
             entry = json.loads(line)
-            if pair and entry.get("pair", "").lower() != pair.lower():
+            if pair_lower and pair_lower not in entry.get("pair", "").lower():
                 continue
             entries.append(entry)
         except json.JSONDecodeError:
