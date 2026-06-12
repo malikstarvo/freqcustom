@@ -58,7 +58,7 @@
                 "1h",
                 "4h"
             ],
-            "include_corr_pairlist": [],
+            "include_corr_pairlist": ["BTC/USDT:USDT", "ETH/USDT:USDT", "SOL/USDT:USDT"],
             "label_period_candles": 4,
             "include_shifted_candles": 2,
             "DI_threshold": 0,
@@ -69,6 +69,11 @@
                 10,
                 20,
                 50
+            ],
+            "feature_columns": [
+                "ema20", "ema50", "ema200",
+                "rsi14", "atr14", "adx14",
+                "volume_ema20", "volatility14"
             ]
         },
         "data_split_parameters": {

@@ -23,7 +23,7 @@ class GateConfig:
     max_trades_per_day: int = 5
     drawdown_limit: float = -0.05
     starting_capital: float = 10_000.0
-    meta_model_threshold: float = 0.45
+    meta_model_threshold: float = 0.55
     min_tech_score: float = 55.0
     tech_weight_default: float = 0.65
     of_weight_default: float = 0.15

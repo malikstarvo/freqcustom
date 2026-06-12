@@ -231,6 +231,22 @@ class MultiAgentStrategy(IStrategy):
 
     def populate_exit_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         dataframe.loc[:, "exit_long"] = 0
+        dataframe.loc[:, "exit_tag"] = ""
+
+        if "True" in dataframe.columns and "do_predict" in dataframe.columns:
+            ml_down = (dataframe["do_predict"] == 1) & (dataframe["True"] < 0.50)
+            dataframe.loc[ml_down, "exit_long"] = 1
+            dataframe.loc[ml_down, "exit_tag"] = "ml_flip_down"
+
+        rsi_exit = (dataframe["exit_long"] == 0) & (dataframe["rsi14"] > 80)
+        dataframe.loc[rsi_exit, "exit_long"] = 1
+        dataframe.loc[rsi_exit, "exit_tag"] = "rsi_overbought"
+
+        if "do_predict" in dataframe.columns:
+            dp_fail = (dataframe["exit_long"] == 0) & (dataframe["do_predict"] != 1)
+            dataframe.loc[dp_fail, "exit_long"] = 1
+            dataframe.loc[dp_fail, "exit_tag"] = "do_predict_fail"
+
         return dataframe
 
     def confirm_trade_entry(
@@ -304,16 +320,4 @@ class MultiAgentStrategy(IStrategy):
         after_fill: bool,
         **kwargs,
     ) -> float | None:
-        if current_profit < -0.10:
-            return -0.15
-        dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
-        if dataframe is None or dataframe.empty:
-            return None
-        last_candle = dataframe.iloc[-1]
-        atr_value = last_candle.get("atr14")
-        if atr_value and atr_value > 0 and current_rate > 0:
-            atr_pct = float(atr_value) / current_rate
-            offset = self.atr_multiplier.value * atr_pct
-            sl = current_profit - offset
-            return max(-0.15, min(sl, -0.005))
         return None
