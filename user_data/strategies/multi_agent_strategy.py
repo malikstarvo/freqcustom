@@ -62,6 +62,7 @@ class MultiAgentStrategy(IStrategy):
         self._entry_log_path = os.path.join(data_dir, "trade_logs", "entry_logs.jsonl")
         os.makedirs(os.path.dirname(self._entry_log_path), exist_ok=True)
         self._entry_cache: dict[str, list[dict]] = {}
+        self._custom_data_done: set[int] = set()
 
     def _make_empty_stats(self):
         return {
@@ -353,12 +354,13 @@ class MultiAgentStrategy(IStrategy):
         after_fill: bool,
         **kwargs,
     ) -> float | None:
-        if trade.custom_data is None and pair in self._entry_cache:
+        if trade.id not in self._custom_data_done and pair in self._entry_cache:
             pending_list = self._entry_cache.get(pair)
             if pending_list:
                 try:
                     trade.custom_data = pending_list.pop(0)
                     Trade.session.commit()
+                    self._custom_data_done.add(trade.id)
                 except Exception as e:
                     logger.warning(f"Failed to save custom_data for {pair}: {e}")
                 if not pending_list:
