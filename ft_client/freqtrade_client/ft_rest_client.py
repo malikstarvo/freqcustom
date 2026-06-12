@@ -839,6 +839,8 @@ class FtRestClient:
         :return: dict with model config, available models, training steps
         """
         result: dict[str, Any] = {"_error": None}
+
+        # 1. Read from show_config API (subset in trade mode)
         try:
             cfg = self.show_config()
             result["strategy"] = cfg.get("strategy") or "\u2014"
@@ -862,6 +864,43 @@ class FtRestClient:
                 result["available_models"] = []
         except Exception as e:
             result["_error"] = str(e)
+
+        # 2. Fallback: read local config.json (full config including freqai)
+        try:
+            import json as _j
+            with open("config.json", encoding="utf-8") as f:
+                file_cfg = _j.load(f)
+            freqai_file = file_cfg.get("freqai") or {}
+            fp_file = freqai_file.get("feature_parameters") or {}
+
+            if result.get("freqaimodel", "\u2014") in (None, "\u2014", ""):
+                result["freqaimodel"] = file_cfg.get("freqaimodel", "\u2014")
+            if result.get("freqaimodel_path", "\u2014") in (None, "\u2014", ""):
+                result["freqaimodel_path"] = file_cfg.get("freqaimodel_path", "\u2014")
+            if not result.get("freqai_enabled"):
+                result["freqai_enabled"] = freqai_file.get("enabled", False)
+            if result.get("identifier", "\u2014") in (None, "\u2014", ""):
+                result["identifier"] = freqai_file.get("identifier", "\u2014")
+            if result.get("train_period") is None or result.get("train_period") == 90:
+                result["train_period"] = freqai_file.get("train_period_days", 90)
+            if result.get("backtest_period") is None or result.get("backtest_period") == 30:
+                result["backtest_period"] = freqai_file.get("backtest_period_days", 30)
+            if not result.get("timeframes"):
+                result["timeframes"] = fp_file.get("include_timeframes", [])
+            if result.get("label_period") is None or result.get("label_period") == 4:
+                result["label_period"] = fp_file.get("label_period_candles", 4)
+            if not result.get("pca"):
+                result["pca"] = fp_file.get("principal_component_analysis", False)
+            if result.get("weight_factor") is None or result.get("weight_factor") == 0:
+                result["weight_factor"] = fp_file.get("weight_factor", 0)
+            if not result.get("available_models"):
+                result["available_models"] = file_cfg.get("freqaimodel_path", [])
+
+            # Strategy from file if missing
+            if result.get("strategy", "\u2014") in (None, "\u2014", ""):
+                result["strategy"] = file_cfg.get("strategy", "\u2014")
+        except Exception:
+            pass
 
         return result
 
