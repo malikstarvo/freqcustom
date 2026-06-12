@@ -31,6 +31,7 @@ class MultiAgentStrategy(IStrategy):
 
     stoploss = -0.15
     trailing_stop = False
+    use_custom_stoploss = False
     use_exit_signal = True
     exit_profit_only = False
     ignore_roi_if_entry_signal = False
@@ -303,14 +304,16 @@ class MultiAgentStrategy(IStrategy):
         after_fill: bool,
         **kwargs,
     ) -> float | None:
+        if current_profit < -0.10:
+            return -0.15
         dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
         if dataframe is None or dataframe.empty:
             return None
         last_candle = dataframe.iloc[-1]
         atr_value = last_candle.get("atr14")
         if atr_value and atr_value > 0 and current_rate > 0:
-            atr_stop = self.atr_multiplier.value * float(atr_value)
-            stop_price = current_rate - atr_stop
-            sl_pct = (current_rate - stop_price) / current_rate
-            return -abs(sl_pct)
+            atr_pct = float(atr_value) / current_rate
+            offset = self.atr_multiplier.value * atr_pct
+            sl = current_profit - offset
+            return max(-0.15, min(sl, -0.005))
         return None
