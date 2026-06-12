@@ -109,6 +109,20 @@ class MultiAgentStrategy(IStrategy):
 
         if self.config.get("freqai", {}).get("enabled", False):
             dataframe = self.freqai.start(dataframe, metadata, self)
+            freqai_cols = [c for c in dataframe.columns if c not in (
+                "date", "open", "high", "low", "close", "volume",
+                "ema20", "ema50", "ema200", "rsi14", "atr14", "adx14",
+                "volume_ema20", "volatility14"
+            )]
+            if not hasattr(self, "_logged_cols"):
+                self._logged_cols = True
+                logger.info(f"FREQAI COLUMNS: {freqai_cols}")
+                for c in freqai_cols:
+                    try:
+                        sample = dataframe[c].dropna().iloc[0] if not dataframe[c].dropna().empty else "N/A"
+                        logger.info(f"  col '{c}' type={type(c)} dtype={dataframe[c].dtype} sample={sample}")
+                    except Exception:
+                        pass
 
         return dataframe
 
