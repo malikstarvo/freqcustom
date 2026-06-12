@@ -186,6 +186,7 @@ def print_commands():
         "Model": ["model_info", "model"],
         "Pairs": ["whitelist", "blacklist", "pair_candles", "pair_history", "available_pairs",
                    "pairlists_available", "markets", "data_list"],
+        "Data": ["entrylog"],
         "Config": ["show_config", "config_live"],
         "System": ["ping", "sysinfo", "health", "version", "logs", "self_test"],
     }
@@ -535,6 +536,47 @@ def _handle_config_live(kwargs: dict[str, str]) -> dict[str, Any]:
     }
 
 
+# ── Entry Log Reader ────────────────────────────────
+
+def _handle_entrylog(config: dict, kwargs: dict[str, str]) -> dict:
+    """Read entry log from the server via SSH."""
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host")
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+
+    if not ssh_host:
+        _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
+
+    pair = kwargs.get("pair", "")
+    latest = kwargs.get("latest", "")
+
+    logfile = "user_data/trade_logs/entry_logs.jsonl"
+
+    # Build shell pipeline: cat + optional tail
+    cmd = f"cat /freqtrade/{logfile}"
+    if latest:
+        try:
+            cmd = f"tail -n {int(latest)} /freqtrade/{logfile}"
+        except ValueError:
+            pass
+
+    stdout = _ssh_exec(f"docker exec freqtrade sh -c '{cmd}'", ssh_host, ssh_user)
+
+    entries = []
+    for line in stdout.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+            if pair and entry.get("pair", "").lower() != pair.lower():
+                continue
+            entries.append(entry)
+        except json.JSONDecodeError:
+            pass
+
+    return {"entries": entries, "count": len(entries)}
+
+
 def main_exec(parsed: dict[str, Any]):
     if parsed.get("show") or parsed.get("command") in ("show", "help"):
         print_commands()
@@ -571,6 +613,7 @@ def main_exec(parsed: dict[str, Any]):
     valid = {x for x, _ in inspect.getmembers(client) if not x.startswith("_")}
     valid.add("config_live")
     valid.add("backtest_run")
+    valid.add("entrylog")
     command = parsed["command"]
     cmd_args = parsed["command_arguments"]
 
@@ -616,6 +659,12 @@ def main_exec(parsed: dict[str, Any]):
             _fail("backtest run does not support --json (interactive workflow)")
         res = _handle_backtest_run(client, kwargs, config)
         format_output("backtest_run", res, force_json=False)
+        sys.exit(0)
+
+    # ── Special: entrylog (SSH-based file read) ──
+    if display_cmd == "entrylog":
+        res = _handle_entrylog(config, kwargs)
+        format_output("entrylog", res, force_json=parsed.get("json", False))
         sys.exit(0)
 
     try:

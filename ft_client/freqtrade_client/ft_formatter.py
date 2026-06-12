@@ -1441,6 +1441,91 @@ def fmt_data_list(data: dict) -> None:
     )
 
 
+# -- Entry Log Formatter ------------------------------
+
+def fmt_entrylog(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data)
+        return
+
+    entries = data.get("entries", [])
+    count = data.get("count", 0)
+    error = data.get("error")
+
+    console.print()
+    console.print(_header(f"  Entry Logs ({count})  "))
+
+    if error:
+        console.print(f"  [red]\u26a0 {error}[/]")
+        console.print()
+        return
+
+    if not entries:
+        console.print("  [dim]No entry logs yet. Trades will appear here as they open.[/]")
+        console.print()
+        return
+
+    tbl = Table(
+        box=box.SIMPLE, padding=(0, 1),
+        show_header=True, header_style="bold cyan",
+    )
+    tbl.add_column("Time", style="dim", width=16, no_wrap=True)
+    tbl.add_column("Pair", style="bold white", width=16, no_wrap=True)
+    tbl.add_column("Price", justify="right", width=10)
+    tbl.add_column("Tech", justify="right", width=6)
+    tbl.add_column("OF", justify="right", width=5)
+    tbl.add_column("Regm", justify="right", width=6)
+    tbl.add_column("ML Pr", justify="right", width=6)
+    tbl.add_column("Conf", justify="right", width=6)
+    tbl.add_column("Decision", width=14)
+
+    for e in entries:
+        ts = _to_wib(e.get("timestamp", ""))[5:16]  # "MM-DD HH:MM WIB"
+        pair = e.get("pair", "")
+        price = e.get("price", 0)
+        gate = e.get("gate", {})
+        tech = gate.get("tech_score", 0)
+        of_score = gate.get("of_score", 0)
+        regime = gate.get("regime_score", 0)
+        ml = gate.get("ml_prob", 0.5)
+        conf = gate.get("confidence", 0)
+        decision = gate.get("decision_value", "")
+
+        # Price formatting
+        if price >= 1000:
+            price_s = f"{price:,.0f}"
+        elif price >= 1:
+            price_s = f"{price:,.2f}"
+        else:
+            price_s = f"{price:.6f}"
+
+        # Score colors
+        tech_s = f"[green]{tech:.0f}[/]" if tech >= 80 else f"[yellow]{tech:.0f}[/]" if tech >= 65 else f"[red]{tech:.0f}[/]"
+        of_s = f"[green]{of_score:.0f}[/]" if of_score >= 60 else f"[dim]{of_score:.0f}[/]" if of_score > 0 else f"[dim]\u2014[/]"
+        regime_s = f"[green]{regime:.0f}[/]" if regime >= 60 else f"[yellow]{regime:.0f}[/]" if regime >= 40 else f"[red]{regime:.0f}[/]"
+        ml_s = f"[green]{ml:.2f}[/]" if ml >= 0.7 else f"[yellow]{ml:.2f}[/]" if ml >= 0.5 else f"[red]{ml:.2f}[/]"
+        conf_s = f"[green]{conf:.0f}[/]" if conf >= 70 else f"[yellow]{conf:.0f}[/]" if conf >= 50 else f"[red]{conf:.0f}[/]"
+
+        # Decision color
+        dec_colors = {
+            "no_trade": "red",
+            "small_size": "yellow",
+            "normal_size": "green",
+            "large_size": "cyan",
+        }
+        dc = dec_colors.get(decision, "white")
+        decision_s = f"[{dc}]{decision}[/]" if decision else "[dim]\u2014[/]"
+
+        tbl.add_row(
+            ts, pair, price_s,
+            tech_s, of_s, regime_s,
+            ml_s, conf_s, decision_s,
+        )
+
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
 # -- Command * Formatter Mapping ----------------------
 
 FORMATTERS = {
@@ -1492,6 +1577,8 @@ FORMATTERS = {
     "backtest_history": fmt_backtest_history,
     "backtest_history_result": fmt_dashboard,
     "backtest_run":    fmt_backtest_run,
+    # Entry Logs
+    "entrylog":           fmt_entrylog,
     # Pairs & Data
     "pair_candles":       fmt_pair_candles,
     "pair_history":       fmt_pair_candles,

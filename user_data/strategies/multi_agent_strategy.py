@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import talib.abstract as ta
 
+from freqtrade.persistence import Trade
 from freqtrade.strategy import DecimalParameter, IntParameter, IStrategy
 from agents.orderflow_scorer import Calculate as calc_of
 from agents.orderflow_scorer import Input as OFInput
@@ -60,6 +61,7 @@ class MultiAgentStrategy(IStrategy):
         data_dir = config.get("user_data_dir", "user_data")
         self._entry_log_path = os.path.join(data_dir, "trade_logs", "entry_logs.jsonl")
         os.makedirs(os.path.dirname(self._entry_log_path), exist_ok=True)
+        self._entry_cache: dict[str, list[dict]] = {}
 
     def _make_empty_stats(self):
         return {
@@ -301,6 +303,7 @@ class MultiAgentStrategy(IStrategy):
                 }
                 with open(self._entry_log_path, "a") as f:
                     f.write(json.dumps(entry) + "\n")
+                self._entry_cache.setdefault(pair, []).append(entry)
         except Exception as e:
             logger.warning(f"Failed to log entry data for {pair}: {e}")
         return True
@@ -350,6 +353,19 @@ class MultiAgentStrategy(IStrategy):
         after_fill: bool,
         **kwargs,
     ) -> float | None:
+        if trade.custom_data is None and pair in self._entry_cache:
+            pending_list = self._entry_cache.get(pair)
+            if pending_list:
+                try:
+                    trade.custom_data = pending_list.pop(0)
+                    Trade.session.commit()
+                except Exception as e:
+                    logger.warning(f"Failed to save custom_data for {pair}: {e}")
+                if not pending_list:
+                    try:
+                        del self._entry_cache[pair]
+                    except KeyError:
+                        pass
         open_days = (current_time - trade.open_date_utc).days
         if open_days >= 4:
             return -0.04
