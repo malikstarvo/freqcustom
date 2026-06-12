@@ -74,6 +74,16 @@ class MultiAgentStrategy(IStrategy):
         return dataframe
 
     def feature_engineering_standard(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+        dataframe["ema20"] = ta.EMA(dataframe, timeperiod=20)
+        dataframe["ema50"] = ta.EMA(dataframe, timeperiod=50)
+        dataframe["ema200"] = ta.EMA(dataframe, timeperiod=200)
+        dataframe["rsi14"] = ta.RSI(dataframe, timeperiod=14)
+        dataframe["atr14"] = ta.ATR(dataframe, timeperiod=14)
+        dataframe["adx14"] = ta.ADX(dataframe, timeperiod=14)
+        dataframe["volume_ema20"] = ta.EMA(dataframe["volume"], timeperiod=20)
+        dataframe["volatility14"] = (
+            dataframe["close"].pct_change().rolling(window=14).std() * 100
+        )
         for col in self.freqai_info.get("feature_parameters", {}).get("feature_columns", []):
             if col in dataframe.columns:
                 dataframe[f"%{col}"] = dataframe[col]
@@ -190,12 +200,12 @@ class MultiAgentStrategy(IStrategy):
                     f"reason={decision.reason}"
                 )
 
-            dataframe.at[dataframe.index[idx], "enter_long"] = (
+            dataframe.loc[dataframe.index[idx], "enter_long"] = (
                 1 if decision.decision.value != "no_trade" else 0
             )
-            dataframe.at[dataframe.index[idx], "stake_amount"] = decision.size_multiplier
-            dataframe.at[dataframe.index[idx], "confidence"] = decision.raw_confidence
-            dataframe.at[dataframe.index[idx], "regime_label"] = regime_score.regime
+            dataframe.loc[dataframe.index[idx], "stake_amount"] = decision.size_multiplier
+            dataframe.loc[dataframe.index[idx], "confidence"] = decision.raw_confidence
+            dataframe.loc[dataframe.index[idx], "regime_label"] = regime_score.regime
 
         # ── Log gate stats summary after all candles ─────
         stats = self._gate_stats
@@ -220,21 +230,6 @@ class MultiAgentStrategy(IStrategy):
 
     def populate_exit_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         dataframe.loc[:, "exit_long"] = 0
-
-        for idx in range(self.startup_candle_count + 1, len(dataframe)):
-            row = dataframe.iloc[idx]
-
-            stop_price = row["close"] - (self.atr_multiplier.value * row["atr14"])
-            prev_low = dataframe.iloc[idx - 1]["low"]
-            if prev_low <= stop_price:
-                dataframe.at[dataframe.index[idx], "exit_long"] = 1
-                continue
-
-            bars_since_entry = idx - self.startup_candle_count
-            if bars_since_entry >= self.max_hold_bars.value:
-                dataframe.at[dataframe.index[idx], "exit_long"] = 1
-                continue
-
         return dataframe
 
     def confirm_trade_entry(
@@ -249,8 +244,6 @@ class MultiAgentStrategy(IStrategy):
         side: str,
         **kwargs,
     ) -> bool:
-        if self.trade_gate.state().value != "idle":
-            return False
         return True
 
     def custom_stake_amount(
@@ -299,3 +292,25 @@ class MultiAgentStrategy(IStrategy):
         except Exception as e:
             logger.warning(f"_get_ml_prob failed for row: {e}")
         return 0.5
+
+    def custom_stoploss(
+        self,
+        pair: str,
+        trade,
+        current_time,
+        current_rate: float,
+        current_profit: float,
+        after_fill: bool,
+        **kwargs,
+    ) -> float | None:
+        dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
+        if dataframe is None or dataframe.empty:
+            return None
+        last_candle = dataframe.iloc[-1]
+        atr_value = last_candle.get("atr14")
+        if atr_value and atr_value > 0 and current_rate > 0:
+            atr_stop = self.atr_multiplier.value * float(atr_value)
+            stop_price = current_rate - atr_stop
+            sl_pct = (current_rate - stop_price) / current_rate
+            return -abs(sl_pct)
+        return None
