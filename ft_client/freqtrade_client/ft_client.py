@@ -538,12 +538,12 @@ def _handle_config_live(kwargs: dict[str, str]) -> dict[str, Any]:
 
 # ── Entry Log Reader ────────────────────────────────
 
-def _handle_entrylog(config: dict, kwargs: dict[str, str]) -> dict:
+def _handle_entrylog(client, config: dict, kwargs: dict[str, str]) -> dict:
     """Read entry log from the server via SSH."""
-    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host")
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
     ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
 
-    if not ssh_host:
+    if not ssh_host or ssh_host in ("127.0.0.1", "localhost"):
         _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
 
     pair = kwargs.get("pair", "")
@@ -663,7 +663,7 @@ def main_exec(parsed: dict[str, Any]):
 
     # ── Special: entrylog (SSH-based file read) ──
     if display_cmd == "entrylog":
-        res = _handle_entrylog(config, kwargs)
+        res = _handle_entrylog(client, config, kwargs)
         format_output("entrylog", res, force_json=parsed.get("json", False))
         sys.exit(0)
 
