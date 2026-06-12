@@ -1469,19 +1469,20 @@ def fmt_entrylog(data: dict) -> None:
         box=box.SIMPLE, padding=(0, 1),
         show_header=True, header_style="bold cyan",
     )
-    tbl.add_column("Time", style="dim", width=14, no_wrap=True)
-    tbl.add_column("Pair", style="bold white", width=18, no_wrap=True)
-    tbl.add_column("Price", justify="right", width=10)
-    tbl.add_column("Tch", justify="right", width=5)
-    tbl.add_column("OF", justify="right", width=4)
-    tbl.add_column("Reg", justify="right", width=5)
-    tbl.add_column("ML", justify="right", width=5)
-    tbl.add_column("Cn", justify="right", width=5)
-    tbl.add_column("Dec", width=12)
+    tbl.add_column("Time", style="dim", no_wrap=True)
+    tbl.add_column("Pair", style="bold white", no_wrap=True)
+    tbl.add_column("Price", justify="right")
+    tbl.add_column("Tch", justify="right")
+    tbl.add_column("OF", justify="right")
+    tbl.add_column("Reg", justify="right")
+    tbl.add_column("ML", justify="right")
+    tbl.add_column("Cn", justify="right")
+    tbl.add_column("Dec")
 
     for e in entries:
-        ts = _to_wib(e.get("timestamp", ""))[5:16]  # "MM-DD HH:MM WIB"
-        pair = e.get("pair", "")
+        ts = _to_wib(e.get("timestamp", ""))[5:16]  # "MM-DD HH:MM"
+        raw_pair = e.get("pair", "")
+        pair = raw_pair.replace("/USDT:USDT", "").replace(":USDT", "")
         price = e.get("price", 0)
         gate = e.get("gate", {})
         tech = gate.get("tech_score", 0)
@@ -1506,14 +1507,14 @@ def fmt_entrylog(data: dict) -> None:
         ml_s = f"[green]{ml:.2f}[/]" if ml >= 0.7 else f"[yellow]{ml:.2f}[/]" if ml >= 0.5 else f"[red]{ml:.2f}[/]"
         conf_s = f"[green]{conf:.0f}[/]" if conf >= 70 else f"[yellow]{conf:.0f}[/]" if conf >= 50 else f"[red]{conf:.0f}[/]"
 
-        # Decision color
-        dec_colors = {
-            "small_size": "yellow",
-            "normal_size": "green",
-            "large_size": "cyan",
+        # Decision label + color
+        dec_labels = {
+            "small_size": "SML",
+            "normal_size": "NRM",
+            "large_size": "LRG",
         }
-        dc = dec_colors.get(decision, "white")
-        decision_s = f"[{dc}]{decision}[/]" if decision else "[dim]\u2014[/]"
+        dc = {"small_size": "yellow", "normal_size": "green", "large_size": "cyan"}.get(decision, "white")
+        decision_s = f"[{dc}]{dec_labels.get(decision, decision)}[/]" if decision else "[dim]\u2014[/]"
 
         tbl.add_row(
             ts, pair, price_s,
