@@ -851,15 +851,103 @@ def fmt_backtest_status(data):
 def fmt_backtest_history(data):
     if not HAS_RICH:
         _json_output(data); return
-    entries = data if isinstance(data, list) else []
-    console.print(); console.print(_header(f"  Backtest History ({len(entries) if isinstance(entries, list) else 0})  "))
-    if not entries:
+    results = data if isinstance(data, list) else data.get("results", [])
+    count = len(results)
+    console.print(); console.print(_header(f"  Backtest History ({count})  "))
+    if not count:
         console.print("  [dim]No history[/]"); console.print(); return
     tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
-    tbl.add_column("File", style="white", width=30); tbl.add_column("Strategy"); tbl.add_column("TF", width=6); tbl.add_column("Date", style="dim", width=12)
-    for e in (entries if isinstance(entries, list) else [])[:20]:
-        tbl.add_row(str(e.get("filename", ""))[:30], str(e.get("strategy", "\u2014")),
-                    str(e.get("timeframe", "\u2014")), str(e.get("backtest_start_time", ""))[:10] if e.get("backtest_start_time") else "\u2014")
+    tbl.add_column("File", style="white", width=34)
+    tbl.add_column("Strategy", width=22)
+    tbl.add_column("TF", width=6)
+    tbl.add_column("Timerange", width=22)
+    tbl.add_column("Date", style="dim", width=12)
+    for e in results[:30]:
+        tbl.add_row(
+            str(e.get("filename", ""))[:34],
+            str(e.get("strategy", "\u2014"))[:22],
+            str(e.get("timeframe", "\u2014")),
+            str(e.get("timerange", "\u2014")),
+            _to_wib(e.get("date", e.get("backtest_start_time", 0))),
+        )
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+    console.print()
+
+
+def fmt_backtest_history_result(data):
+    if not HAS_RICH:
+        _json_output(data); return
+    if data.get("error"):
+        console.print(f"\n  [red]![/] {data['error']}\n")
+        return
+    console.print(); console.print(_header("  Backtest Result Detail  "))
+    # Profit summary panel
+    pnl_pct = float(data.get("profit_total_pct", 0))
+    pnl_abs = float(data.get("profit_total_abs", 0))
+    pf = float(data.get("profit_factor", 0))
+    pf_color = "green" if pf >= 1.5 else ("yellow" if pf >= 1.0 else "red")
+    pnl_color = _profit_color(pnl_pct)
+    sign = "+" if pnl_pct > 0 else ""
+    profit_panel = Panel(
+        Align.center(Text(
+            f"{sign}{pnl_pct:.2f}%  ({sign}${pnl_abs:,.2f})",
+            style=f"bold {pnl_color}",
+        )),
+        box=box.HEAVY,
+        border_style=pnl_color,
+        padding=(0, 4),
+    )
+    console.print(profit_panel)
+    # Stats table
+    tbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=False)
+    tbl.add_column("Metric", style="bold cyan", width=22)
+    tbl.add_column("Value", style="white", width=20)
+    tbl.add_column("Metric", style="bold cyan", width=22)
+    tbl.add_column("Value", style="white", width=20)
+    def _r(key, label, fmt=None, color=None):
+        val = data.get(key, 0)
+        if fmt == "pct":
+            c = color or _profit_color(val)
+            v = f"[{c}]{'+' if val > 0 else ''}{val:.2f}%[/]"
+        elif fmt == "usd":
+            c = color or _profit_color(val)
+            v = f"[{c}]{'+' if val > 0 else ''}${val:,.2f}[/]"
+        elif fmt == "ratio":
+            c = color or ("green" if val >= 1.5 else "yellow" if val >= 1 else "red")
+            v = f"[{c}]{val:.2f}[/]"
+        elif fmt == "sharpe":
+            c = "green" if val >= 1.0 else "yellow" if val >= 0 else "red"
+            v = f"[{c}]{val:.2f}[/]"
+        else:
+            v = str(val)
+        return label, v
+    row1 = [
+        _r("strategy", "Strategy"),
+        _r("timeframe", "Timeframe"),
+        _r("timerange", "Timerange"),
+        _r("total_trades", "Total Trades"),
+    ]
+    row2 = [
+        _r("profit_total_pct", "Return", "pct"),
+        _r("profit_total_abs", "P&L", "usd"),
+        _r("profit_factor", "Profit Factor", "ratio"),
+        _r("max_drawdown_account", "Max DD", "pct", "red"),
+    ]
+    row3 = [
+        _r("winrate", "Win Rate", "pct"),
+        _r("wins", "Wins"),
+        _r("losses", "Losses"),
+        _r("draws", "Draws"),
+    ]
+    row4 = [
+        _r("sharpe", "Sharpe", "sharpe"),
+        _r("sortino", "Sortino", "sharpe"),
+        _r("avg_stake_amount", "Avg Stake", "usd"),
+        _r("stake_amount", "Stake Amount"),
+    ]
+    for r in (row1, row2, row3, row4):
+        tbl.add_row(r[0][0], r[0][1], r[1][0], r[1][1])
+        tbl.add_row(r[2][0], r[2][1], r[3][0], r[3][1])
     console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
     console.print()
 
@@ -1575,7 +1663,7 @@ FORMATTERS = {
     "backtest_start":  fmt_backtest_start,
     "backtest_status": fmt_backtest_status,
     "backtest_history": fmt_backtest_history,
-    "backtest_history_result": fmt_dashboard,
+    "backtest_history_result": fmt_backtest_history_result,
     "backtest_run":    fmt_backtest_run,
     # Entry Logs
     "entrylog":           fmt_entrylog,

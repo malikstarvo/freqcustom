@@ -578,6 +578,143 @@ def _handle_entrylog(client, config: dict, kwargs: dict[str, str]) -> dict:
     return {"entries": entries, "count": len(entries)}
 
 
+# ── SSH Python Helper ──────────────────────────────────
+
+def _ssh_python(py_code: str, ssh_host: str, ssh_user: str = "ubuntu") -> str:
+    """Run Python code on remote via SSH stdin pipe to docker exec."""
+    try:
+        result = subprocess.run(
+            ["ssh", "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=accept-new",
+             f"{ssh_user}@{ssh_host}", "docker exec -i freqtrade python3"],
+            input=py_code, capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode != 0:
+            stderr = result.stderr.strip()
+            if stderr:
+                _fail(f"SSH Python failed: {stderr}")
+        return result.stdout
+    except subprocess.TimeoutExpired:
+        _fail("SSH Python timed out after 120s")
+    except FileNotFoundError:
+        _fail("SSH client not found. Install OpenSSH or use manual mode.")
+    except Exception as e:
+        _fail(f"SSH Python error: {e}")
+
+
+# ── Backtest History Reader ─────────────────────────────
+
+def _handle_backtest_history(client, config: dict, kwargs: dict[str, str]) -> dict:
+    """List backtest results from the server via SSH (reads .meta.json files)."""
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+
+    if not ssh_host or ssh_host in ("127.0.0.1", "localhost"):
+        _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
+
+    py_code = """\
+import json, glob, os
+meta_dir = 'user_data/backtest_results'
+results = []
+pattern = os.path.join(meta_dir, '*.meta.json')
+for fp in sorted(glob.glob(pattern)):
+    try:
+        meta = json.load(open(fp))
+    except Exception:
+        continue
+    for strat_name, data in meta.items():
+        ts = data.get('backtest_start_time', '')
+        date_str = str(ts)[:10] if ts else ''
+        timerange = data.get('timerange', '')
+        results.append({
+            'filename': os.path.basename(fp).replace('.meta.json', ''),
+            'strategy': strat_name,
+            'timeframe': data.get('timeframe', ''),
+            'date': date_str,
+            'timerange': timerange,
+            'run_id': (data.get('run_id', '') or '')[:8],
+        })
+print(json.dumps(results))
+"""
+    stdout = _ssh_python(py_code, ssh_host, ssh_user)
+
+    try:
+        data = json.loads(stdout)
+        return {"results": data, "count": len(data)}
+    except json.JSONDecodeError as e:
+        return {"results": [], "error": str(e), "raw": stdout[:500]}
+
+
+def _handle_backtest_history_result(client, config: dict, kwargs: dict[str, str]) -> dict:
+    """Read a specific backtest result zip from the server via SSH."""
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+
+    if not ssh_host or ssh_host in ("127.0.0.1", "localhost"):
+        _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
+
+    filename = kwargs.get("filename", "")
+    if not filename:
+        _fail("filename= is required. Example: filename=backtest-result-2025-06-12_06-39-54")
+
+    py_code = f"""\
+import json, zipfile, os
+meta_dir = 'user_data/backtest_results'
+zip_path = os.path.join(meta_dir, '{filename}.zip')
+if not os.path.exists(zip_path):
+    print(json.dumps({{"error": "File not found: {filename}"}}))
+else:
+    try:
+        z = zipfile.ZipFile(zip_path, 'r')
+        main_name = '{filename}.json'
+        if main_name not in z.namelist():
+            alt = [n for n in z.namelist() if n.endswith('.json') and '.meta.' not in n]
+            main_name = alt[0] if alt else None
+        if not main_name:
+            print(json.dumps({{"error": "No result json found in zip"}}))
+        else:
+            raw = json.load(z.open(main_name))
+            strat_raw = raw.get('strategy', {{}})
+            if isinstance(strat_raw, dict) and strat_raw:
+                s = list(strat_raw.values())[0]
+                strat_name = list(strat_raw.keys())[0]
+            else:
+                s = strat_raw or {{}}
+                strat_name = ''
+            stats = {{
+                "strategy": strat_name or s.get('strategy_name', s.get('strategy', '')),
+                "total_trades": s.get('total_trades', 0),
+                "winrate": s.get('winrate', s.get('wins', 0) / max(s.get('total_trades', 1), 1)),
+                "profit_total_pct": s.get('profit_total_pct', 0),
+                "profit_total_abs": s.get('profit_total_abs', 0),
+                "profit_factor": s.get('profit_factor', 0),
+                "max_drawdown_account": s.get('max_drawdown_account', s.get('max_drawdown', 0)),
+                "max_drawdown_abs": s.get('max_drawdown_abs', 0),
+                "sharpe": s.get('sharpe', 0),
+                "sortino": s.get('sortino', 0),
+                "timeframe": s.get('timeframe', ''),
+                "timerange": s.get('timerange', ''),
+                "backtest_start": s.get('backtest_start', ''),
+                "backtest_end": s.get('backtest_end', ''),
+                "avg_stake_amount": s.get('avg_stake_amount', 0),
+                "wins": s.get('wins', 0),
+                "losses": s.get('losses', 0),
+                "draws": s.get('draws', 0),
+                "stake_currency": s.get('stake_currency', ''),
+                "stake_amount": s.get('stake_amount', 0),
+            }}
+            print(json.dumps(stats))
+        z.close()
+    except Exception as e:
+        print(json.dumps({{"error": str(e)}}))
+"""
+    stdout = _ssh_python(py_code, ssh_host, ssh_user)
+
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError as e:
+        return {"error": str(e), "raw": stdout[:500]}
+
+
 def main_exec(parsed: dict[str, Any]):
     if parsed.get("show") or parsed.get("command") in ("show", "help"):
         print_commands()
@@ -615,34 +752,35 @@ def main_exec(parsed: dict[str, Any]):
     valid.add("config_live")
     valid.add("backtest_run")
     valid.add("entrylog")
+    valid.add("backtest_history")
+    valid.add("backtest_history_result")
     command = parsed["command"]
     cmd_args = parsed["command_arguments"]
 
     # ── Hyphen → underscore (e.g. "self-test" → "self_test") ──
     command = command.replace("-", "_")
 
-    # ── Namespace support: "paper status" → paper_status() ──
-    if command not in valid:
+    # ── Multi-pass namespace: "backtest history" → backtest_history, "backtest history result" → backtest_history_result ──
+    display_cmd = command
+    while True:
         pos_args = [x for x in cmd_args if "=" not in x]
-        if pos_args:
-            subcmd = pos_args[0]
-            compound = f"{command}_{subcmd}"
-            # Try direct: "paper status" → "paper_status"
-            if compound in valid:
-                display_cmd = compound
-                command = compound
-                cmd_args = [x for x in cmd_args if x != subcmd]
-            # Try reverse: "config show" → "show_config"
-            elif f"{subcmd}_{command}" in valid:
-                display_cmd = f"{subcmd}_{command}"
-                command = f"{subcmd}_{command}"
-                cmd_args = [x for x in cmd_args if x != subcmd]
-            else:
-                _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
+        if not pos_args:
+            break
+        subcmd = pos_args[0]
+        compound = f"{command}_{subcmd}"
+        if compound in valid:
+            display_cmd = compound
+            command = compound
+            cmd_args = [x for x in cmd_args if x != subcmd]
+        elif f"{subcmd}_{command}" in valid:
+            display_cmd = f"{subcmd}_{command}"
+            command = f"{subcmd}_{command}"
+            cmd_args = [x for x in cmd_args if x != subcmd]
         else:
-            _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
-    else:
-        display_cmd = command
+            break
+
+    if command not in valid:
+        _fail(f"Unknown command: {command}\nRun [bold]freq --show[/] to see all commands.")
 
     # Extract key=value args and positional args
     kwargs = {x.split("=", 1)[0]: x.split("=", 1)[1] for x in cmd_args if "=" in x}
@@ -666,6 +804,18 @@ def main_exec(parsed: dict[str, Any]):
     if display_cmd == "entrylog":
         res = _handle_entrylog(client, config, kwargs)
         format_output("entrylog", res, force_json=parsed.get("json", False))
+        sys.exit(0)
+
+    # ── Special: backtest_history (SSH-based reader) ──
+    if display_cmd == "backtest_history":
+        res = _handle_backtest_history(client, config, kwargs)
+        format_output("backtest_history", res, force_json=parsed.get("json", False))
+        sys.exit(0)
+
+    # ── Special: backtest_history_result (SSH-based reader) ──
+    if display_cmd == "backtest_history_result":
+        res = _handle_backtest_history_result(client, config, kwargs)
+        format_output("backtest_history_result", res, force_json=parsed.get("json", False))
         sys.exit(0)
 
     try:
