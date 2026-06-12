@@ -30,8 +30,11 @@ class MultiAgentStrategy(IStrategy):
     }
 
     stoploss = -0.15
-    trailing_stop = False
-    use_custom_stoploss = False
+    trailing_stop = True
+    trailing_stop_positive = 0.01
+    trailing_stop_positive_offset = 0.02
+    trailing_only_offset_is_reached = True
+    use_custom_stoploss = True
     use_exit_signal = True
     exit_profit_only = False
     ignore_roi_if_entry_signal = False
@@ -292,4 +295,9 @@ class MultiAgentStrategy(IStrategy):
         after_fill: bool,
         **kwargs,
     ) -> float | None:
+        open_days = (current_time - trade.open_date_utc).days
+        if open_days >= 4:
+            return -0.04
+        if open_days >= 2:
+            return -0.08
         return None
