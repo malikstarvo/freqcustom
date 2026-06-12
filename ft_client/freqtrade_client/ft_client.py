@@ -32,6 +32,13 @@ except ImportError:
     HAS_RICH = False
 
 if HAS_RICH:
+    # Force UTF-8 on Windows to avoid cp1252 Unicode errors with Rich
+    if sys.platform == "win32":
+        import io
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8")
     console = Console()
     _err_console = Console(stderr=True)
 
@@ -111,19 +118,19 @@ def _ok(msg: str) -> None:
 # ── Show Commands ───────────────────────────────────
 
 CATEGORY_ICONS = {
-    "Bot Control":   "\u25b6",   # ▶
-    "Dashboard":     "\u25c9",   # ◉
-    "Account":       "\u25cb",   # ○
-    "Trades":        "\u21c4",   # ⇄
-    "Trading":       "\u26a1",   # ⚡
-    "Locks":         "\u26d4",   # ⛔
-    "Paper Trading": "\u25a1",   # □
-    "Backtest":      "\u21bb",   # ↻
-    "Strategy": "\u2666",   # ♦
-    "Model": "\u25c6",      # ◆
-    "Pairs": "\u21c6",   # ⇆
-    "Config":        "\u2699",   # ⚙
-    "System":        "\u2302",   # ⌂
+    "Bot Control":   ">>",
+    "Dashboard":     "()",
+    "Account":       "$$",
+    "Trades":        "<>",
+    "Trading":       "!!",
+    "Locks":         "##",
+    "Paper Trading": "[]",
+    "Backtest":      "~~",
+    "Strategy":      "**",
+    "Model":         "**",
+    "Pairs":         "<>",
+    "Config":        "{}",
+    "System":        "ii",
 }
 
 def print_commands():
@@ -144,18 +151,18 @@ def print_commands():
     banner = Panel(
         Align.center(
             Text.assemble(
-                ("\n    \u2554", "bold cyan"),
+                ("\n     ", "bold cyan"),
                 (" Freqtrade AI Dashboard CLI ", "bold white"),
-                ("\u2557\n", "bold cyan"),
-                ("    \u2551", "bold cyan"),
-                (f" v{__version__}  \u00b7  ", "dim"),
+                ("\n", "bold cyan"),
+                ("     ", "bold cyan"),
+                (f" v{__version__}  .  ", "dim"),
                 (f"{len(all_methods)} commands ", "white"),
-                (f" \u00b7  ", "dim"),
+                (f" .  ", "dim"),
                 ("REST + WebSocket", "dim"),
-                ("\u2551\n", "bold cyan"),
-                ("    \u255a", "bold cyan"),
-                ("\u2550" * 34, "bold cyan"),
-                ("\u255d", "bold cyan"),
+                ("\n", "bold cyan"),
+                ("     ", "bold cyan"),
+                ("-" * 34, "bold cyan"),
+                ("", "bold cyan"),
             )
         ),
         box=box.DOUBLE, border_style="cyan",
@@ -211,7 +218,7 @@ def print_commands():
     # ═══ Footer ═══════════════════════════════════════
     console.print()
     console.print(
-        f"  [dim]\u25b8 {len(all_methods)} commands in "
+        f"  [dim]> {len(all_methods)} commands in "
         f"{len(commands_by_category)} categories  |  "
         f"Use [bold]--json[/] for raw output  |  "
         f"v{__version__}[/]"
@@ -221,7 +228,7 @@ def print_commands():
         "[bold]backtest start[/], [bold]paper topup amount=1000[/][/]"
     )
     console.print()
-    console.print("  [bold cyan]\u2500\u2500 Quick Start \u2500\u2500[/]")
+    console.print("  [bold cyan]-- Quick Start --[/]")
     qs = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
     qs.add_column(width=32, style="bold white")
     qs.add_column(style="dim")
@@ -299,16 +306,17 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
     if ssh_host in ("127.0.0.1", "localhost"):
         _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
 
-    was_running = False
-    mode_switched = False
-
-    # Step 1: Check current state
     _ok(f"SSH target: {ssh_user}@{ssh_host}")
+
+    # Step 1: Ensure bot is running, check current state
+    was_running = False
     try:
+        client.start()  # ensure running — no-op if already running
+        time.sleep(1)
         cfg = client.show_config()
         was_running = (cfg or {}).get("state") == "running"
     except Exception as e:
-        _fail(f"Cannot reach bot API: {e}")
+        _ok(f"Bot API not reachable (will restart after backtest): {e}")
 
     def _wait_for_webserver(timeout=60):
         for i in range(timeout):
@@ -321,7 +329,7 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
             time.sleep(1)
         _fail("Webserver did not become ready within 60s")
 
-    # Step 2: Stop any running container (port 8080 must be free)
+    # Step 2: Free port 8080 — stop trade container gracefully
     if was_running:
         _ok("Stopping trade bot...")
         try:
@@ -335,7 +343,7 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
     _ssh_exec("docker kill ft-webserver 2>/dev/null; true", ssh_host, ssh_user)
     time.sleep(2)
 
-    # Step 4: Start webserver
+    # Step 3: Start webserver
     _ok("Starting webserver mode...")
     _ssh_exec(
         f"cd {compose_dir} && docker compose run -d --rm -p 8080:8080 --name ft-webserver "
@@ -345,7 +353,7 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
     _wait_for_webserver()
     _ok("Webserver ready")
 
-    # Step 5: Start backtest via API
+    # Step 4: Start backtest via API
     strategy = kwargs.get("strategy")
     timeframe = kwargs.get("timeframe")
     timerange = kwargs.get("timerange")
@@ -369,16 +377,18 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
         freqaimodel=kwargs.get("freqaimodel"),
     )
 
-    # Step 6: Poll for completion
+    # Step 5: Poll for completion
     _ok("Backtest started — monitoring...")
     max_poll = int(kwargs.get("max_poll_seconds", 3600))
     polled = 0
     bt_result = None
     bt_history = None
+    consecutive_errors = 0
 
     while polled < max_poll:
         try:
             status = client.backtest_status()
+            consecutive_errors = 0
             if isinstance(status, dict):
                 running = status.get("running", True)
                 if not running:
@@ -390,7 +400,7 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
                 trade_count = status.get("trade_count", "")
                 if HAS_RICH:
                     console.print(
-                        f"  [cyan]\u25b6[/] Progress: {float(progress)*100:.0f}%  "
+                        f"  [cyan]>>[/] Progress: {float(progress)*100:.0f}%  "
                         f"Step: [bold]{step}[/]  "
                         f"Trades: {trade_count}",
                         end="\r",
@@ -398,40 +408,54 @@ def _handle_backtest_run(client, kwargs: dict[str, str], config: dict) -> dict:
                 else:
                     print(f"  Progress: {float(progress)*100:.0f}%  Step: {step}  Trades: {trade_count}")
         except Exception as e:
-            if HAS_RICH:
-                _err_console.print(f"  [red]\u2717[/] Poll error: {e}")
-            else:
-                print(f"  POLL ERROR: {e}")
+            consecutive_errors += 1
+            if consecutive_errors >= 5:
+                if HAS_RICH:
+                    _err_console.print(f"  [red]!![/] Backend unreachable ({consecutive_errors} errors) — assuming done")
+                else:
+                    print(f"  Backend unreachable ({consecutive_errors} errors) — assuming done")
+                break
+            time.sleep(5)
         time.sleep(5)
         polled += 5
     else:
         _fail("Backtest did not finish within the time limit. Use backtest status to check.")
 
-    # Step 7: Get history
+    # Step 6: Get history
     try:
         bt_history = client.backtest_history()
     except Exception as e:
         bt_history = {"_error": str(e)}
+
+    # Step 7: Capture detailed result from poll
+    detail = None
+    if bt_result and bt_result.get("backtest_result"):
+        detail = bt_result["backtest_result"]
 
     # Step 8: Switch back to trade mode
     _ok("Cleaning up webserver...")
     _ssh_exec("docker kill ft-webserver 2>/dev/null; true", ssh_host, ssh_user)
     time.sleep(1)
 
-    if was_running:
-        _ok("Restarting trade bot...")
-        _ssh_exec(f"cd {compose_dir} && docker compose start freqtrade", ssh_host, ssh_user)
-        time.sleep(3)
-        try:
-            client.start()
-            _ok("Trade bot restarted")
-        except Exception as e:
-            _fail(f"Failed to restart trade bot: {e}")
+    # Always restart the trade bot after backtest
+    _ok("Restarting trade bot...")
+    _ssh_exec(
+        f"cd {compose_dir} && docker compose start freqtrade 2>/dev/null || docker compose up -d freqtrade",
+        ssh_host, ssh_user,
+    )
+    time.sleep(3)
+    try:
+        client.start()
+        _ok("Trade bot restarted")
+    except Exception as e:
+        _fail(f"Failed to restart trade bot: {e}")
 
     return {
         "status": "completed",
         "result": result,
+        "bt_result": bt_result,
         "history": bt_history,
+        "detail": detail,
         "was_running": was_running,
         "strategy": strategy or "default",
         "timeframe": timeframe,

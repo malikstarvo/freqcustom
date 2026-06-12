@@ -5,7 +5,7 @@ import sys
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-# ── Timezone: Jakarta WIB (UTC+7) ────────────────────
+# -- Timezone: Jakarta WIB (UTC+7) --------------------
 WIB = timezone(timedelta(hours=7))
 
 def _to_wib(ts) -> str:
@@ -14,7 +14,7 @@ def _to_wib(ts) -> str:
         return "\u2014"
     try:
         if isinstance(ts, (int, float)):
-            # Freqtrade uses millisecond timestamps → divide by 1000
+            # Freqtrade uses millisecond timestamps * divide by 1000
             if ts > 10000000000:
                 ts = ts / 1000.0
             dt = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(WIB)
@@ -49,10 +49,16 @@ except ImportError:
     HAS_RICH = False
 
 if HAS_RICH:
+    # Force UTF-8 on Windows to avoid cp1252 Unicode errors with Rich
+    if sys.platform == "win32":
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8")
     console = Console()
 
 
-# ── Helpers ─────────────────────────────────────────
+# -- Helpers -----------------------------------------
 
 def _profit_color(value: float) -> str:
     if value > 0:
@@ -94,7 +100,7 @@ def _json_output(data: Any) -> None:
     print(json.dumps(data, indent=2, default=str))
 
 
-# ── Format Functions ────────────────────────────────
+# -- Format Functions --------------------------------
 
 def fmt_ping(data: dict) -> None:
     if not HAS_RICH:
@@ -117,7 +123,7 @@ def fmt_dashboard(data: dict) -> None:
     console.print()
     console.print(_header("  Freqtrade AI Dashboard  "))
 
-    # ── Dry-run Warning ────────────────────────────────
+    # -- Dry-run Warning --------------------------------
     if data.get("dry_run"):
         console.print(
             Panel(
@@ -237,7 +243,7 @@ def fmt_paper_status(data: dict) -> None:
 
 
 def _bar(percent: float, width: int = 12) -> str:
-    """Render a visual bar: '████████░░░░'"""
+    """Render a visual bar: '########....'"""
     pct = max(0, min(abs(percent) / 100, 1)) if percent else 0
     filled = int(pct * width)
     empty = width - filled
@@ -275,7 +281,7 @@ def fmt_profit(data: dict) -> None:
 
     console.print()
 
-    # ═══ Header: Big P&L ═══════════════════════════════
+    # === Header: Big P&L ===============================
     pnl_color = "green" if total_pnl_pct >= 0 else "red"
     pnl_sign = "+" if total_pnl_pct >= 0 else ""
     pnl_arrow = "\u25b2" if total_pnl_pct >= 0 else "\u25bc"
@@ -302,7 +308,7 @@ def fmt_profit(data: dict) -> None:
 
     console.print(Panel(header, box=box.DOUBLE, border_style=pnl_color, padding=(1, 3)))
 
-    # ═══ Performance Bars ══════════════════════════════
+    # === Performance Bars ==============================
     console.print(_section("Performance"))
     perf = Table(show_header=False, box=box.SIMPLE, padding=(0, 1))
     perf.add_column(style="bold cyan", width=16)
@@ -320,7 +326,7 @@ def fmt_profit(data: dict) -> None:
 
     console.print(Panel(perf, border_style="dim blue", padding=(1, 2)))
 
-    # ═══ Risk Metrics ══════════════════════════════════
+    # === Risk Metrics ==================================
     console.print(_section("Risk Metrics"))
     risk = Table.grid(padding=(0, 4))
     risk.add_column(justify="left")
@@ -343,7 +349,7 @@ def fmt_profit(data: dict) -> None:
 
     console.print(Panel(risk, border_style="dim blue", padding=(1, 2)))
 
-    # ═══ P&L Breakdown ═════════════════════════════════
+    # === P&L Breakdown =================================
     console.print(_section("P&L Breakdown"))
     bd = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
     bd.add_column(style="bold cyan", width=18)
@@ -733,7 +739,7 @@ def fmt_plot_config(data: dict) -> None:
 
     console.print(); console.print(_header("  Plot Configuration  "))
 
-    # Check if empty — most strategies don't define plot_config
+    # Check if empty - most strategies don't define plot_config
     if not data or (isinstance(data, dict) and not data):
         console.print("  [dim]No plot configuration defined by the strategy.[/]")
         console.print("  [dim]Add [bold]plot_config()[/] to your strategy class to enable charting.[/]")
@@ -793,7 +799,7 @@ def fmt_trade_status(data):
     console.print(); console.print(_header(f"  Open Trades ({len(trades) if isinstance(trades, list) else 0})  "))
     if not trades:
         console.print("  [dim]No open trades yet[/]")
-        # Debug info — why no trades?
+        # Debug info - why no trades?
         if isinstance(data, dict) and (data.get("_state") or data.get("_strategy")):
             console.print()
             console.print(_section("Debug Info"))
@@ -1207,7 +1213,9 @@ def fmt_backtest_run(data: dict) -> None:
     timerange = data.get("timerange", "\u2014")
     was_running = data.get("was_running", False)
     result = data.get("result", {})
+    bt_result = data.get("bt_result", {})
     history = data.get("history", {})
+    detail = data.get("detail")
 
     console.print()
     console.print(_header("  Backtest Complete  "))
@@ -1231,14 +1239,57 @@ def fmt_backtest_run(data: dict) -> None:
     else:
         info.add_row("Bot Mode", "[dim]Was not running[/]")
 
-    if isinstance(result, dict) and result.get("status"):
-        info.add_row("Backtest Status", str(result["status"]))
+    # Show bt_result status if available (from poll)
+    bt_status = (bt_result or {}).get("status", "")
+    if bt_status:
+        info.add_row("Backtest Status", str(bt_status))
+    elif isinstance(result, dict) and result.get("status"):
+        info.add_row("Launch Status", str(result["status"]))
 
     console.print(Panel(info, border_style="dim blue", padding=(1, 2)))
 
+    # Backtest error message (shown regardless of detail)
+    bt_status_msg = (bt_result or {}).get("status_msg", "")
+    if bt_status_msg and "error" in bt_status_msg.lower():
+        console.print(f"\n  [red]!! Backtest error: {bt_status_msg}[/]")
+
+    # Backtest statistics from bt_result.detail (captured before webserver shutdown)
+    if detail:
+        console.print(_section("Results Summary"))
+        stats = detail if isinstance(detail, dict) else {}
+        stat_tbl = Table(box=box.SIMPLE, padding=(0, 2), show_header=False)
+        stat_tbl.add_column(style="bold cyan", width=18)
+        stat_tbl.add_column(style="white")
+
+        total_trades = stats.get("total_trades", 0)
+        win_rate = stats.get("winrate", 0) * 100
+        profit_pct = stats.get("profit_all_percent", 0)
+        profit_factor = stats.get("profit_factor", 0)
+        max_dd = stats.get("max_drawdown_percent", 0) * 100
+        sharpe = stats.get("sharpe", 0)
+
+        if total_trades:
+            stat_tbl.add_row("Total Trades", str(int(total_trades)))
+        if win_rate:
+            stat_tbl.add_row("Win Rate", f"{win_rate:.1f}%")
+        if profit_pct:
+            pnl_color = "green" if profit_pct >= 0 else "red"
+            stat_tbl.add_row("Profit", f"[{pnl_color}]{profit_pct:+.2f}%[/]")
+        if profit_factor:
+            stat_tbl.add_row("Profit Factor", f"{profit_factor:.2f}")
+        if max_dd:
+            stat_tbl.add_row("Max Drawdown", f"[red]{-abs(max_dd):.1f}%[/]")
+        if sharpe:
+            stat_tbl.add_row("Sharpe", f"{sharpe:.2f}")
+
+        if len(stat_tbl.rows) > 0:
+            console.print(Panel(stat_tbl, border_style="dim blue", padding=(1, 2)))
+        else:
+            console.print("  [dim]No statistics available from backtest result[/]")
+
     # History results
     if isinstance(history, dict) and history.get("_error"):
-        console.print(f"\n  [yellow]\u26a0[/] History note: {history['_error']}")
+        console.print(f"\n  [yellow]!![/] History note: {history['_error']}")
     elif history:
         entries = history if isinstance(history, list) else history.get("data", [])
         if entries:
@@ -1285,7 +1336,7 @@ def fmt_data_list(data: dict) -> None:
         Align.center(
             Text.assemble(
                 ("\n   ", ""),
-                ("\U0001f4be", "bold cyan"),  # 💾
+                ("\U0001f4be", "bold cyan"),  # ?
                 (" Downloaded Data ", "bold white"),
                 ("\U0001f4be\n\n", "bold cyan"),
                 (f"  {total} datasets  \u00b7  ", "dim"),
@@ -1390,7 +1441,7 @@ def fmt_data_list(data: dict) -> None:
     )
 
 
-# ── Command → Formatter Mapping ──────────────────────
+# -- Command * Formatter Mapping ----------------------
 
 FORMATTERS = {
     # Core
