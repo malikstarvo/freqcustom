@@ -4,14 +4,14 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class Decision(str, Enum):  # noqa: UP042
+class Decision(str, Enum):
     NO_TRADE = "no_trade"
     SMALL_SIZE = "small_size"
     NORMAL_SIZE = "normal_size"
     FULL_SIZE = "full_size"
 
 
-class GateState(str, Enum):  # noqa: UP042
+class GateState(str, Enum):
     IDLE = "idle"
     COOLDOWN = "cooldown"
     STOPPED = "stopped"
@@ -24,9 +24,13 @@ class GateConfig:
     drawdown_limit: float = -0.05
     starting_capital: float = 10_000.0
     meta_model_threshold: float = 0.45
-    tech_weight: float = 0.40
-    of_weight: float = 0.40
-    regime_weight: float = 0.20
+    min_tech_score: float = 55.0
+    tech_weight_default: float = 0.65
+    of_weight_default: float = 0.15
+    regime_weight_default: float = 0.20
+    tech_weight_no_of: float = 0.80
+    of_weight_no_of: float = 0.00
+    regime_weight_no_of: float = 0.20
 
     @staticmethod
     def default() -> "GateConfig":
@@ -40,6 +44,7 @@ class Input:
     regime_score: float = 0.0
     regime_label: str = "unknown"
     meta_model_prob: float = 0.0
+    of_data_available: bool = False
 
 
 @dataclass
@@ -51,6 +56,18 @@ class Output:
     reason: str = ""
 
 
+# ── Rejection reason constants ───────────────────────
+REASON_INVALID_INPUT = "invalid_input"
+REASON_LOW_TECH = "low_tech_score"
+REASON_META_MODEL = "meta_model_below_threshold"
+REASON_BAD_REGIME = "bad_regime"
+REASON_STOPPED = "daily_drawdown_limit"
+REASON_MAX_TRADES = "max_trades_per_day"
+REASON_COOLDOWN = "cooldown"
+REASON_LOW_CONFIDENCE = "low_confidence"
+REASON_OK = ""
+
+
 def _valid(v: float) -> bool:
     return not (math.isnan(v) or math.isinf(v))
 
@@ -58,9 +75,9 @@ def _valid(v: float) -> bool:
 def _size_from_confidence(conf: float) -> float:
     if conf >= 80:
         return 1.00
-    elif conf >= 70:
+    elif conf >= 65:
         return 0.50
-    elif conf >= 60:
+    elif conf >= 50:
         return 0.25
     else:
         return 0.0
@@ -86,6 +103,8 @@ def _apply_regime_override(size: float, label: str) -> float:
     elif label == "trending_high_vol":
         return size * 0.75
     elif label == "ranging_high_vol":
+        return size * 0.50
+    elif label == "ranging_low_vol":
         return size * 0.25
     else:
         return 0.0
@@ -104,15 +123,26 @@ class Gate:
     def evaluate(self, input: Input) -> Output:
         if (
             not _valid(input.technical_score)
-            or not _valid(input.orderflow_score)
             or not _valid(input.regime_score)
         ):
-            return self._no_trade(0.0, "invalid input: NaN or Inf score")
+            return self._no_trade(0.0, REASON_INVALID_INPUT)
+
+        # ── Dynamic weighting: OF unavailable? reassign weight ──
+        if input.of_data_available:
+            tech_w = self.cfg.tech_weight_default
+            of_w = self.cfg.of_weight_default
+            regime_w = self.cfg.regime_weight_default
+            of_val = input.orderflow_score if _valid(input.orderflow_score) else 0.0
+        else:
+            tech_w = self.cfg.tech_weight_no_of
+            of_w = self.cfg.of_weight_no_of
+            regime_w = self.cfg.regime_weight_no_of
+            of_val = 0.0
 
         raw_conf = (
-            input.technical_score * self.cfg.tech_weight
-            + input.orderflow_score * self.cfg.of_weight
-            + input.regime_score * self.cfg.regime_weight
+            input.technical_score * tech_w
+            + of_val * of_w
+            + input.regime_score * regime_w
         )
 
         if raw_conf > 100:
@@ -120,36 +150,46 @@ class Gate:
         if raw_conf < 0:
             raw_conf = 0
 
+        # ── MIN_TECH_SCORE guard ──────────────────────────
+        if input.technical_score < self.cfg.min_tech_score:
+            return self._no_trade(
+                raw_conf,
+                REASON_LOW_TECH,
+            )
+
+        # ── Meta-model threshold ──────────────────────────
         if input.meta_model_prob < self.cfg.meta_model_threshold:
             return self._no_trade(
                 raw_conf,
-                f"ML below threshold: {input.meta_model_prob:.2f}",
+                REASON_META_MODEL,
             )
 
-        if input.regime_label == "ranging_low_vol" or input.regime_label == "unknown":
-            return self._no_trade(raw_conf, f"regime: {input.regime_label}")
+        # ── Regime filter ─────────────────────────────────
+        if input.regime_label == "unknown":
+            return self._no_trade(raw_conf, REASON_BAD_REGIME)
 
+        # ── State machine ─────────────────────────────────
         with self._mu:
             if self._state == GateState.STOPPED:
-                return self._no_trade(raw_conf, "daily drawdown limit hit")
+                return self._no_trade(raw_conf, REASON_STOPPED)
 
             if self._trade_count >= self.cfg.max_trades_per_day:
                 return self._no_trade(
                     raw_conf,
-                    f"max trades per day reached: {self.cfg.max_trades_per_day}",
+                    REASON_MAX_TRADES,
                 )
 
             if self._state == GateState.COOLDOWN:
                 return self._no_trade(
                     raw_conf,
-                    f"cooldown: {self._cooldown_bars_remaining} bars remaining",
+                    REASON_COOLDOWN,
                 )
 
             base_size = _size_from_confidence(raw_conf)
             if base_size == 0:
                 return self._no_trade(
                     raw_conf,
-                    f"low confidence: {raw_conf:.1f}",
+                    REASON_LOW_CONFIDENCE,
                 )
 
             final_size = _apply_regime_override(base_size, input.regime_label)
@@ -160,7 +200,7 @@ class Gate:
                 size_multiplier=final_size,
                 raw_confidence=raw_conf,
                 final_confidence=raw_conf,
-                reason="",
+                reason=REASON_OK,
             )
 
     def on_trade_placed(self) -> None:

@@ -4,11 +4,11 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Input:
-    funding_rate: float = 0.0
-    oi_delta_pct: float = 0.0
-    ls_ratio: float = 0.0
-    long_liq_usd: float = 0.0
-    short_liq_usd: float = 0.0
+    funding_rate: float | None = None
+    oi_delta_pct: float | None = None
+    ls_ratio: float | None = None
+    long_liq_usd: float | None = None
+    short_liq_usd: float | None = None
 
 
 @dataclass
@@ -22,17 +22,17 @@ class Components:
 @dataclass
 class Score:
     orderflow_score: float = 0.0
+    data_available: bool = False
     components: Components = field(default_factory=Components)
 
 
-def _valid(v: float) -> bool:
+def _valid(v: float | None) -> bool:
+    if v is None:
+        return False
     return not (math.isnan(v) or math.isinf(v))
 
 
 def _calc_funding_score(funding_rate: float) -> float:
-    if not _valid(funding_rate):
-        return 10.0
-
     bps = funding_rate * 10000
 
     if bps <= 0:
@@ -55,9 +55,6 @@ def _calc_funding_score(funding_rate: float) -> float:
 
 
 def _calc_oi_score(oi_delta_pct: float) -> float:
-    if not _valid(oi_delta_pct):
-        return 12.5
-
     score = 15 + oi_delta_pct * 10
     if score > 25:
         score = 25
@@ -67,7 +64,7 @@ def _calc_oi_score(oi_delta_pct: float) -> float:
 
 
 def _calc_ls_score(ls_ratio: float) -> float:
-    if not _valid(ls_ratio) or ls_ratio <= 0:
+    if ls_ratio <= 0:
         return 10.0
 
     if ls_ratio >= 1.0 and ls_ratio <= 1.3:
@@ -90,9 +87,6 @@ def _calc_ls_score(ls_ratio: float) -> float:
 
 
 def _calc_liq_score(long_liq: float, short_liq: float) -> float:
-    if not _valid(long_liq) or not _valid(short_liq):
-        return 12.5
-
     total_liq = long_liq + short_liq
     if total_liq <= 0:
         return 12.5
@@ -115,21 +109,31 @@ def _calc_liq_score(long_liq: float, short_liq: float) -> float:
     return score
 
 
+def _all_none(*values: float | None) -> bool:
+    return all(v is None for v in values)
+
+
 def Calculate(input: Input) -> Score:
-    # If all inputs are zero/default, data is not available — return neutral
-    if (input.funding_rate == 0.0 and input.oi_delta_pct == 0.0
-            and input.ls_ratio == 0.0 and input.long_liq_usd == 0.0
-            and input.short_liq_usd == 0.0):
+    # Check if ALL orderflow data is unavailable (None/NaN)
+    if _all_none(input.funding_rate, input.oi_delta_pct, input.ls_ratio,
+                 input.long_liq_usd, input.short_liq_usd):
         return Score(
-            orderflow_score=50.0,
-            components=Components(funding_score=12.5, oi_score=12.5,
-                                  ls_score=12.5, liq_score=12.5),
+            orderflow_score=0.0,
+            data_available=False,
+            components=Components(),
         )
 
-    funding_score = _calc_funding_score(input.funding_rate)
-    oi_score = _calc_oi_score(input.oi_delta_pct)
-    ls_score = _calc_ls_score(input.ls_ratio)
-    liq_score = _calc_liq_score(input.long_liq_usd, input.short_liq_usd)
+    # Partial data: some fields available, others default to 0
+    funding_rate = input.funding_rate if _valid(input.funding_rate) else 0.0
+    oi_delta_pct = input.oi_delta_pct if _valid(input.oi_delta_pct) else 0.0
+    ls_ratio = input.ls_ratio if _valid(input.ls_ratio) else 1.0
+    long_liq = input.long_liq_usd if _valid(input.long_liq_usd) else 0.0
+    short_liq = input.short_liq_usd if _valid(input.short_liq_usd) else 0.0
+
+    funding_score = _calc_funding_score(funding_rate)
+    oi_score = _calc_oi_score(oi_delta_pct)
+    ls_score = _calc_ls_score(ls_ratio)
+    liq_score = _calc_liq_score(long_liq, short_liq)
 
     total = funding_score + oi_score + ls_score + liq_score
     if total > 100:
@@ -139,6 +143,7 @@ def Calculate(input: Input) -> Score:
 
     return Score(
         orderflow_score=total,
+        data_available=True,
         components=Components(
             funding_score=funding_score,
             oi_score=oi_score,

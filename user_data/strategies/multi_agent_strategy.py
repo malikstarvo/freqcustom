@@ -9,7 +9,11 @@ from agents.regime_scorer import Calculate as calc_regime
 from agents.regime_scorer import Input as RegimeInput
 from agents.technical_scorer import Calculate as calc_tech
 from agents.technical_scorer import Input as TechInput
-from agents.trade_gate import Gate, GateConfig, Input as GateInput
+from agents.trade_gate import (
+    Gate, GateConfig, Input as GateInput,
+    REASON_LOW_TECH, REASON_META_MODEL, REASON_BAD_REGIME,
+    REASON_LOW_CONFIDENCE, REASON_INVALID_INPUT,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,16 +48,32 @@ class MultiAgentStrategy(IStrategy):
         super().__init__(config)
         self.gate_config = GateConfig.default()
         self.trade_gate = Gate(self.gate_config)
+        self._gate_stats = self._make_empty_stats()
+
+    def _make_empty_stats(self):
+        return {
+            "total": 0,
+            "of_available": 0,
+            "of_missing": 0,
+            "avg_tech_score": 0.0,
+            "avg_of_score": 0.0,
+            "avg_regime_score": 0.0,
+            "avg_confidence": 0.0,
+            "rejected_low_tech": 0,
+            "rejected_meta_model": 0,
+            "rejected_bad_regime": 0,
+            "rejected_low_conf": 0,
+            "rejected_invalid_input": 0,
+            "trades": 0,
+        }
 
     def set_freqai_targets(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
-        """Define FreqAI labels: 4-bar forward return classifier."""
         lp = self.freqai_info.get("feature_parameters", {}).get("label_period_candles", 4)
         future_return = dataframe["close"].shift(-lp) / dataframe["close"] - 1
         dataframe["&s-up_or_down"] = (future_return > 0.002).astype(str)
         return dataframe
 
     def feature_engineering_standard(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
-        """Add % prefix to feature columns so FreqAI recognizes them."""
         for col in self.freqai_info.get("feature_parameters", {}).get("feature_columns", []):
             if col in dataframe.columns:
                 dataframe[f"%{col}"] = dataframe[col]
@@ -73,13 +93,8 @@ class MultiAgentStrategy(IStrategy):
             dataframe["close"].pct_change().rolling(window=14).std() * 100
         )
 
-        of_columns = [
-            "funding_rate", "oi_delta_1_pct", "ls_ratio",
-            "liq_long_usd", "liq_short_usd",
-        ]
-        for col in of_columns:
-            if col not in dataframe.columns:
-                dataframe[col] = 0.0
+        # Do NOT fill orderflow columns with 0 — let NaN propagate
+        # so orderflow_scorer can detect data unavailability
 
         if self.config.get("freqai", {}).get("enabled", False):
             dataframe = self.freqai.start(dataframe, metadata, self)
@@ -108,11 +123,11 @@ class MultiAgentStrategy(IStrategy):
 
             of_score = calc_of(
                 OFInput(
-                    funding_rate=float(row.get("funding_rate", 0)),
-                    oi_delta_pct=float(row.get("oi_delta_1_pct", 0)),
-                    ls_ratio=float(row.get("ls_ratio", 0)),
-                    long_liq_usd=float(row.get("liq_long_usd", 0)),
-                    short_liq_usd=float(row.get("liq_short_usd", 0)),
+                    funding_rate=row.get("funding_rate"),
+                    oi_delta_pct=row.get("oi_delta_1_pct"),
+                    ls_ratio=row.get("ls_ratio"),
+                    long_liq_usd=row.get("liq_long_usd"),
+                    short_liq_usd=row.get("liq_short_usd"),
                 )
             )
 
@@ -133,20 +148,46 @@ class MultiAgentStrategy(IStrategy):
                 regime_score=regime_score.regime_score,
                 regime_label=regime_score.regime,
                 meta_model_prob=ml_prob,
+                of_data_available=of_score.data_available,
             )
 
             decision = self.trade_gate.evaluate(gate_input)
+
+            # ── Accumulate gate stats ─────────────────────
+            self._gate_stats["total"] += 1
+            self._gate_stats["avg_tech_score"] += tech_score.technical_score
+            self._gate_stats["avg_of_score"] += of_score.orderflow_score
+            self._gate_stats["avg_regime_score"] += regime_score.regime_score
+            self._gate_stats["avg_confidence"] += decision.raw_confidence
+            if of_score.data_available:
+                self._gate_stats["of_available"] += 1
+            else:
+                self._gate_stats["of_missing"] += 1
+            if decision.reason == REASON_LOW_TECH:
+                self._gate_stats["rejected_low_tech"] += 1
+            elif decision.reason == REASON_META_MODEL:
+                self._gate_stats["rejected_meta_model"] += 1
+            elif decision.reason == REASON_BAD_REGIME:
+                self._gate_stats["rejected_bad_regime"] += 1
+            elif decision.reason == REASON_LOW_CONFIDENCE:
+                self._gate_stats["rejected_low_conf"] += 1
+            elif decision.reason == REASON_INVALID_INPUT:
+                self._gate_stats["rejected_invalid_input"] += 1
+            if decision.decision.value != "no_trade":
+                self._gate_stats["trades"] += 1
 
             # Log scores every 500 candles for diagnostics
             if idx % 500 == 0:
                 logger.info(
                     f"BAR {idx}: tech={tech_score.technical_score:.1f} "
                     f"of={of_score.orderflow_score:.1f} "
+                    f"of_avail={of_score.data_available} "
                     f"regime={regime_score.regime_score:.1f} "
                     f"label={regime_score.regime} "
                     f"ml={ml_prob:.2f} "
                     f"combined={decision.raw_confidence:.1f} "
-                    f"decision={decision.decision.value}"
+                    f"decision={decision.decision.value} "
+                    f"reason={decision.reason}"
                 )
 
             dataframe.at[dataframe.index[idx], "enter_long"] = (
@@ -155,6 +196,25 @@ class MultiAgentStrategy(IStrategy):
             dataframe.at[dataframe.index[idx], "stake_amount"] = decision.size_multiplier
             dataframe.at[dataframe.index[idx], "confidence"] = decision.raw_confidence
             dataframe.at[dataframe.index[idx], "regime_label"] = regime_score.regime
+
+        # ── Log gate stats summary after all candles ─────
+        stats = self._gate_stats
+        n = stats["total"] or 1
+        logger.info(
+            f"GATE STATS: total={n} "
+            f"of_avail={stats['of_available']} "
+            f"of_missing={stats['of_missing']} "
+            f"avg_tech={stats['avg_tech_score']/n:.1f} "
+            f"avg_of={stats['avg_of_score']/n:.1f} "
+            f"avg_regime={stats['avg_regime_score']/n:.1f} "
+            f"avg_conf={stats['avg_confidence']/n:.1f} "
+            f"rej_low_tech={stats['rejected_low_tech']} "
+            f"rej_meta={stats['rejected_meta_model']} "
+            f"rej_regime={stats['rejected_bad_regime']} "
+            f"rej_low_conf={stats['rejected_low_conf']} "
+            f"rej_invalid={stats['rejected_invalid_input']} "
+            f"trades={stats['trades']}"
+        )
 
         return dataframe
 
@@ -219,19 +279,14 @@ class MultiAgentStrategy(IStrategy):
         return max(min_stake, min(adjusted, max_stake))
 
     def _get_ml_prob(self, row) -> float:
-        """Get FreqAI prediction probability for the positive class (True/1)."""
         try:
             if "do_predict" in row.index and int(row["do_predict"]) == 1:
-                # FreqAI predict returns columns: [label, prob_class_0, prob_class_1]
-                # After label encoding/rename, prob columns are the original class labels
-                # Look for positive class probability column: 'True', 1, or '1.0'
                 for col in row.index:
                     col_str = str(col)
                     if col_str == "True" or col_str == "1" or col_str == "1.0":
                         val = float(row[col])
                         if 0 < val <= 1:
                             return val
-                # Fallback: scan any numeric column that looks like a probability
                 for col in row.index:
                     if col == "&s-up_or_down" or col == "do_predict":
                         continue
