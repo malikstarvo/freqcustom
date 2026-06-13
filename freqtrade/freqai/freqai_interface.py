@@ -487,6 +487,7 @@ class IFreqaiModel(ABC):
             self.dd.set_initial_return_values(pair, pred_df, dataframe)
 
             dk.return_dataframe = self.dd.attach_return_values_to_return_dataframe(pair, dataframe)
+            self._last_pred_save_ts = 0  # force immediate save on first prediction batch
             return
         elif self.dk.check_if_model_expired(trained_timestamp):
             pred_df = DataFrame(np.zeros((2, len(dk.label_list))), columns=dk.label_list)
@@ -506,6 +507,14 @@ class IFreqaiModel(ABC):
             self.fit_live_predictions(dk, pair)
         self.dd.append_model_predictions(pair, pred_df, do_preds, dk, dataframe)
         dk.return_dataframe = self.dd.attach_return_values_to_return_dataframe(pair, dataframe)
+
+        # Periodically save historic predictions to disk so external tools can read them
+        if self.live:
+            now = time.time()
+            last_save = getattr(self, "_last_pred_save_ts", 0)
+            if now - last_save > 600:
+                self.dd.save_historic_predictions_to_disk()
+                self._last_pred_save_ts = now
 
         return
 

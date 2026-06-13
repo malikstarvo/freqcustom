@@ -25,16 +25,16 @@ logger = logging.getLogger(__name__)
 
 class MultiAgentStrategy(IStrategy):
     timeframe = "15m"
-    can_short = False
+    can_short = True
 
     minimal_roi = {
-        "120": 0.01,
-        "60": 0.02,
-        "30": 0.04,
-        "0": 0.05,
+        "120": 0.0025,
+        "60": 0.005,
+        "30": 0.01,
+        "0": 0.02,
     }
 
-    stoploss = -0.15
+    stoploss = -0.08
     trailing_stop = True
     trailing_stop_positive = 0.01
     trailing_stop_positive_offset = 0.02
@@ -98,6 +98,21 @@ class MultiAgentStrategy(IStrategy):
         dataframe["volatility14"] = (
             dataframe["close"].pct_change().rolling(window=14).std() * 100
         )
+
+        bb = ta.BBANDS(dataframe, timeperiod=20, nbdevup=2.0, nbdevdn=2.0)
+        dataframe["bb_upper"] = bb["upperband"]
+        dataframe["bb_lower"] = bb["lowerband"]
+        dataframe["bb_width"] = (bb["upperband"] - bb["lowerband"]) / bb["middleband"]
+        dataframe["bb_pct"] = (dataframe["close"] - bb["lowerband"]) / (bb["upperband"] - bb["lowerband"])
+
+        macd = ta.MACD(dataframe)
+        dataframe["macd"] = macd["macd"]
+        dataframe["macd_signal"] = macd["macdsignal"]
+        dataframe["macd_hist"] = macd["macdhist"]
+
+        dataframe["obv"] = ta.OBV(dataframe["close"], dataframe["volume"])
+        dataframe["williams_r"] = ta.WILLR(dataframe)
+
         for col in self.freqai_info.get("feature_parameters", {}).get("feature_columns", []):
             if col in dataframe.columns:
                 dataframe[f"%{col}"] = dataframe[col]
@@ -110,12 +125,27 @@ class MultiAgentStrategy(IStrategy):
         dataframe["rsi14"] = ta.RSI(dataframe, timeperiod=14)
         dataframe["atr14"] = ta.ATR(dataframe, timeperiod=14)
         dataframe["adx14"] = ta.ADX(dataframe, timeperiod=14)
+        dataframe["ema_short"] = ta.EMA(dataframe, timeperiod=9)
 
         dataframe["volume_ema20"] = ta.EMA(dataframe["volume"], timeperiod=20)
 
         dataframe["volatility14"] = (
             dataframe["close"].pct_change().rolling(window=14).std() * 100
         )
+
+        bb = ta.BBANDS(dataframe, timeperiod=20, nbdevup=2.0, nbdevdn=2.0)
+        dataframe["bb_upper"] = bb["upperband"]
+        dataframe["bb_lower"] = bb["lowerband"]
+        dataframe["bb_width"] = (bb["upperband"] - bb["lowerband"]) / bb["middleband"]
+        dataframe["bb_pct"] = (dataframe["close"] - bb["lowerband"]) / (bb["upperband"] - bb["lowerband"])
+
+        macd = ta.MACD(dataframe)
+        dataframe["macd"] = macd["macd"]
+        dataframe["macd_signal"] = macd["macdsignal"]
+        dataframe["macd_hist"] = macd["macdhist"]
+
+        dataframe["obv"] = ta.OBV(dataframe["close"], dataframe["volume"])
+        dataframe["williams_r"] = ta.WILLR(dataframe)
 
         # Do NOT fill orderflow columns with 0 — let NaN propagate
         # so orderflow_scorer can detect data unavailability
@@ -127,6 +157,7 @@ class MultiAgentStrategy(IStrategy):
 
     def populate_entry_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         dataframe.loc[:, "enter_long"] = 0
+        dataframe.loc[:, "enter_short"] = 0
 
         for idx in range(self.startup_candle_count, len(dataframe)):
             row = dataframe.iloc[idx]
@@ -148,10 +179,6 @@ class MultiAgentStrategy(IStrategy):
             of_score = calc_of(
                 OFInput(
                     funding_rate=row.get("funding_rate"),
-                    oi_delta_pct=row.get("oi_delta_1_pct"),
-                    ls_ratio=row.get("ls_ratio"),
-                    long_liq_usd=row.get("liq_long_usd"),
-                    short_liq_usd=row.get("liq_short_usd"),
                 )
             )
 
@@ -166,7 +193,8 @@ class MultiAgentStrategy(IStrategy):
 
             ml_prob = self._get_ml_prob(row)
 
-            gate_input = GateInput(
+            # LONG evaluation
+            long_gate = GateInput(
                 technical_score=tech_score.technical_score,
                 orderflow_score=of_score.orderflow_score,
                 regime_score=regime_score.regime_score,
@@ -174,31 +202,54 @@ class MultiAgentStrategy(IStrategy):
                 meta_model_prob=ml_prob,
                 of_data_available=of_score.data_available,
             )
+            long_decision = self.trade_gate.evaluate(long_gate)
 
-            decision = self.trade_gate.evaluate(gate_input)
+            # SHORT evaluation (inverse ML prob)
+            short_ml = 1 - ml_prob
+            short_gate = GateInput(
+                technical_score=tech_score.technical_score,
+                orderflow_score=of_score.orderflow_score,
+                regime_score=regime_score.regime_score,
+                regime_label=regime_score.regime,
+                meta_model_prob=short_ml,
+                of_data_available=of_score.data_available,
+            )
+            short_decision = self.trade_gate.evaluate(short_gate)
+
+            # Choose direction: LONG > SHORT > no trade
+            if long_decision.decision.value != "no_trade":
+                chosen = long_decision
+                is_long = True
+            elif short_decision.decision.value != "no_trade":
+                chosen = short_decision
+                is_long = False
+            else:
+                chosen = None
+                is_long = True
 
             # ── Accumulate gate stats ─────────────────────
             self._gate_stats["total"] += 1
             self._gate_stats["avg_tech_score"] += tech_score.technical_score
             self._gate_stats["avg_of_score"] += of_score.orderflow_score
             self._gate_stats["avg_regime_score"] += regime_score.regime_score
-            self._gate_stats["avg_confidence"] += decision.raw_confidence
+            if chosen:
+                self._gate_stats["avg_confidence"] += chosen.raw_confidence
+                self._gate_stats["trades"] += 1
             if of_score.data_available:
                 self._gate_stats["of_available"] += 1
             else:
                 self._gate_stats["of_missing"] += 1
-            if decision.reason == REASON_LOW_TECH:
-                self._gate_stats["rejected_low_tech"] += 1
-            elif decision.reason == REASON_META_MODEL:
-                self._gate_stats["rejected_meta_model"] += 1
-            elif decision.reason == REASON_BAD_REGIME:
-                self._gate_stats["rejected_bad_regime"] += 1
-            elif decision.reason == REASON_LOW_CONFIDENCE:
-                self._gate_stats["rejected_low_conf"] += 1
-            elif decision.reason == REASON_INVALID_INPUT:
-                self._gate_stats["rejected_invalid_input"] += 1
-            if decision.decision.value != "no_trade":
-                self._gate_stats["trades"] += 1
+            if chosen:
+                if chosen.reason == REASON_LOW_TECH:
+                    self._gate_stats["rejected_low_tech"] += 1
+                elif chosen.reason == REASON_META_MODEL:
+                    self._gate_stats["rejected_meta_model"] += 1
+                elif chosen.reason == REASON_BAD_REGIME:
+                    self._gate_stats["rejected_bad_regime"] += 1
+                elif chosen.reason == REASON_LOW_CONFIDENCE:
+                    self._gate_stats["rejected_low_conf"] += 1
+                elif chosen.reason == REASON_INVALID_INPUT:
+                    self._gate_stats["rejected_invalid_input"] += 1
 
             # Log scores every 500 candles for diagnostics
             if idx % 500 == 0:
@@ -209,23 +260,35 @@ class MultiAgentStrategy(IStrategy):
                     f"regime={regime_score.regime_score:.1f} "
                     f"label={regime_score.regime} "
                     f"ml={ml_prob:.2f} "
-                    f"combined={decision.raw_confidence:.1f} "
-                    f"decision={decision.decision.value} "
-                    f"reason={decision.reason}"
+                    f"combined={chosen.raw_confidence if chosen else 0:.1f} "
+                    f"direction={'LONG' if chosen and is_long else 'SHORT' if chosen else 'NONE'} "
+                    f"decision={chosen.decision.value if chosen else 'no_trade'} "
+                    f"reason={chosen.reason if chosen else 'no_signal'}"
                 )
 
             dataframe.loc[dataframe.index[idx], "enter_long"] = (
-                1 if decision.decision.value != "no_trade" else 0
+                1 if chosen and is_long else 0
             )
-            dataframe.loc[dataframe.index[idx], "stake_amount"] = decision.size_multiplier
-            dataframe.loc[dataframe.index[idx], "confidence"] = decision.raw_confidence
+            dataframe.loc[dataframe.index[idx], "enter_short"] = (
+                1 if chosen and not is_long else 0
+            )
+            dataframe.loc[dataframe.index[idx], "stake_amount"] = (
+                chosen.size_multiplier if chosen else 1.0
+            )
+            dataframe.loc[dataframe.index[idx], "confidence"] = (
+                chosen.raw_confidence if chosen else 0.0
+            )
             dataframe.loc[dataframe.index[idx], "regime_label"] = regime_score.regime
             dataframe.loc[dataframe.index[idx], "tech_score"] = tech_score.technical_score
             dataframe.loc[dataframe.index[idx], "of_score"] = of_score.orderflow_score
             dataframe.loc[dataframe.index[idx], "regime_score"] = regime_score.regime_score
             dataframe.loc[dataframe.index[idx], "ml_prob_val"] = ml_prob
-            dataframe.loc[dataframe.index[idx], "decision_value"] = decision.decision.value
-            dataframe.loc[dataframe.index[idx], "decision_reason"] = decision.reason
+            dataframe.loc[dataframe.index[idx], "decision_value"] = (
+                chosen.decision.value if chosen else "no_trade"
+            )
+            dataframe.loc[dataframe.index[idx], "decision_reason"] = (
+                chosen.reason if chosen else "no_signal"
+            )
             dataframe.loc[dataframe.index[idx], "of_available"] = int(of_score.data_available)
 
         # ── Log gate stats summary after all candles ─────
@@ -251,6 +314,42 @@ class MultiAgentStrategy(IStrategy):
 
     def populate_exit_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         dataframe.loc[:, "exit_long"] = 0
+        dataframe.loc[:, "exit_short"] = 0
+
+        # ── LONG exits ────────────────────────────────────
+
+        # Exit 1: RSI overbought + price di bawah EMA20 (bearish divergence)
+        dataframe.loc[
+            (dataframe["rsi14"] > 75)
+            & (dataframe["close"] < dataframe["ema20"]),
+            "exit_long",
+        ] = 1
+
+        # Exit 2: ML probability drop (< 0.3) + volume spike
+        dataframe.loc[
+            (dataframe["ml_prob_val"].notna())
+            & (dataframe["ml_prob_val"] < 0.3)
+            & (dataframe["volume"] > dataframe["volume_ema20"] * 1.5),
+            "exit_long",
+        ] = 1
+
+        # ── SHORT exits ───────────────────────────────────
+
+        # Exit 1: RSI oversold + price di atas EMA20 (bullish reversal — cover short)
+        dataframe.loc[
+            (dataframe["rsi14"] < 25)
+            & (dataframe["close"] > dataframe["ema20"]),
+            "exit_short",
+        ] = 1
+
+        # Exit 2: ML prob flips up (> 0.6) — model now predicts up
+        dataframe.loc[
+            (dataframe["ml_prob_val"].notna())
+            & (dataframe["ml_prob_val"] > 0.6)
+            & (dataframe["volume"] > dataframe["volume_ema20"] * 1.5),
+            "exit_short",
+        ] = 1
+
         return dataframe
 
     def confirm_trade_entry(
@@ -368,9 +467,30 @@ class MultiAgentStrategy(IStrategy):
                         del self._entry_cache[pair]
                     except KeyError:
                         pass
+        if trade.is_short:
+            open_days = (current_time - trade.open_date_utc).days
+            if open_days >= 4:
+                return 0.04
+            if open_days >= 2:
+                return 0.08
+            return None
         open_days = (current_time - trade.open_date_utc).days
         if open_days >= 4:
             return -0.04
         if open_days >= 2:
             return -0.08
+        return None
+
+    def custom_exit(
+        self,
+        pair: str,
+        trade: Trade,
+        current_time: datetime,
+        current_rate: float,
+        current_profit: float,
+        **kwargs,
+    ) -> str | bool | None:
+        open_hours = (current_time - trade.open_date_utc).total_seconds() / 3600
+        if open_hours > 48:
+            return "time_based_max_hold"
         return None

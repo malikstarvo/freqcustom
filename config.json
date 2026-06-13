@@ -14,7 +14,9 @@
         "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
-            "BTC/USDT:USDT"
+            "BTC/USDT:USDT",
+            "ETH/USDT:USDT",
+            "SOL/USDT:USDT"
         ]
     },
     "pairlists": [
@@ -40,7 +42,7 @@
     "strategy": "MultiAgentStrategy",
     "strategy_path": "user_data/strategies",
     "stoploss": -0.15,
-    "trailing_stop": false,
+    "trailing_stop": true,
     "position_adjustment_enable": true,
     "max_entry_position_adjustment": 3,
     "freqaimodel": "XGBoostGridSearchModel",
@@ -48,8 +50,9 @@
     "freqai": {
         "enabled": true,
         "purge_old_models": 3,
-        "train_period_days": 90,
-        "backtest_period_days": 30,
+        "train_period_days": 365,
+        "backtest_period_days": 180,
+        "live_retrain_hours": 12,
         "identifier": "multi_agent_v1",
         "activate_tensorboard": false,
         "feature_parameters": {
@@ -73,7 +76,10 @@
             "feature_columns": [
                 "ema20", "ema50", "ema200",
                 "rsi14", "atr14", "adx14",
-                "volume_ema20", "volatility14"
+                "volume_ema20", "volatility14",
+                "bb_upper", "bb_lower", "bb_width", "bb_pct",
+                "macd", "macd_signal", "macd_hist",
+                "obv", "williams_r"
             ]
         },
         "data_split_parameters": {
@@ -97,5 +103,29 @@
     },
     "internals": {
         "process_throttle_secs": 30
+    },
+    "timescaledb": {
+        "database_url": "postgresql://freqtrade:freqtrade@timescaledb:5432/freqtrade"
+    },
+    "unfilledtimeout": {
+        "entry": 30,
+        "exit": 30,
+        "unit": "minutes"
+    },
+    "paper_trader": {
+        "symbol": "BTC/USDT:USDT",
+        "timeframe": "15m",
+        "initial_capital": 10000.0,
+        "commission": 0.00055,
+        "slippage": 0.0005,
+        "atr_multiplier": 2.0,
+        "holding_bars": 24,
+        "poll_interval_sec": 60,
+        "risk_per_trade_pct": 1.0,
+        "max_daily_drawdown_pct": 5.0,
+        "max_total_drawdown_pct": 15.0,
+        "long_threshold": 60.0,
+        "short_threshold": 40.0,
+        "ml_api_url": "http://localhost:8080"
     }
 }

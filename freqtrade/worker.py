@@ -3,6 +3,7 @@ Main Freqtrade worker class.
 """
 
 import logging
+import threading
 import time
 import traceback
 from collections.abc import Callable
@@ -53,6 +54,21 @@ class Worker:
 
         # Init the instance of the bot
         self.freqtrade = FreqtradeBot(self._config)
+
+        # Start paper trading engine in background if configured
+        if self._config and "paper_trader" in self._config:
+            try:
+                from freqtrade.commands.paper_commands import start_paper_trader
+
+                t = threading.Thread(
+                    target=start_paper_trader,
+                    args=({"config": self._config, "background": True},),
+                    daemon=True,
+                )
+                t.start()
+                logger.info("Paper trader started in background thread")
+            except Exception as e:
+                logger.warning(f"Failed to start paper trader: {e}")
 
         internals_config = self._config.get("internals", {})
         self._throttle_secs = internals_config.get("process_throttle_secs", PROCESS_THROTTLE_SECS)

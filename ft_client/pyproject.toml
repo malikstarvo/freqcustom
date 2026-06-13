@@ -33,6 +33,7 @@ dependencies = [
   'python-rapidjson >= 1.0',
   'rich >= 13.0',
   'ccxt >= 4.0',
+  'python-dotenv >= 1.0',
 ]
 
 

@@ -45,6 +45,13 @@ if HAS_RICH:
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("ft_rest_client")
 
+# ── Auto-load .env ────────────────────────────────────
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 # ── Args ────────────────────────────────────────────
 
@@ -145,6 +152,15 @@ def print_commands():
         return
 
     all_methods = {n for n, _ in inspect.getmembers(client) if not n.startswith("_")}
+    all_methods.update({"config_live", "backtest_run", "entrylog",
+                        "backtest_history", "backtest_history_result",
+                        "backtest_history_delete", "doctor", "model_retrain"})
+
+    _handler_docs = {
+        "config_live": "Generate a live trading config file from user input",
+        "doctor": "Run connection diagnostics: API, SSH, Docker",
+        "model_retrain": "Retrain ML model: stop bot, delete model files, restart",
+    }
 
     # ═══ Banner ══════════════════════════════════════
     console.print()
@@ -161,9 +177,8 @@ def print_commands():
     banner = Panel(
         Align.center(
             Text.assemble(
-                ("", ""),
-                (Text.from_markup(art_text), ""),
-                ("\n", ""),
+                Text.from_markup(art_text),
+                "\n",
                 (sub, "dim"),
             )
         ),
@@ -190,7 +205,7 @@ def print_commands():
                    "pairlists_available", "markets", "data_list"],
         "Data": ["entrylog"],
         "Config": ["show_config", "config_live"],
-        "System": ["ping", "sysinfo", "health", "version", "logs", "self_test"],
+        "System": ["ping", "sysinfo", "health", "version", "logs", "self_test", "doctor", "model_retrain"],
     }
 
     for category, cmds in commands_by_category.items():
@@ -211,7 +226,11 @@ def print_commands():
         count = 0
         for name in cmds:
             if name in all_methods:
-                doc = getattr(client, name).__doc__ or ""
+                method = getattr(client, name, None)
+                if method is not None:
+                    doc = method.__doc__ or ""
+                else:
+                    doc = _handler_docs.get(name, "")
                 doc = doc.strip().split("\n")[0].rstrip(".")
                 tbl.add_row(f"  {name}", doc)
                 count += 1
@@ -230,6 +249,23 @@ def print_commands():
         "  [dim]Namespace: [bold]paper status[/], "
         "[bold]backtest start[/], [bold]paper topup amount=1000[/][/]"
     )
+
+    # SSH config hint
+    ssh_host = os.environ.get("FT_SSH_HOST")
+    if not ssh_host:
+        try:
+            cfg = load_config("config.json")
+            ssh_host = cfg.get("ssh", {}).get("host", "")
+        except Exception:
+            ssh_host = ""
+    if ssh_host:
+        console.print(f"  [dim]SSH: [bold]{ssh_host}[/]  |  API: [bold]config.json[/]  |  "
+                      f"Run [bold]freq doctor[/] to verify[/]")
+    else:
+        console.print(f"  [dim]SSH: not configured  |  "
+                      f"Set [bold]FT_SSH_HOST[/] or [bold]ssh.host[/] in config.json  |  "
+                      f"Run [bold]freq doctor[/] for diagnostics[/]")
+
     console.print()
     console.print("  [bold cyan]-- Quick Start --[/]")
     qs = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
@@ -588,13 +624,14 @@ def _ssh_python(py_code: str, ssh_host: str, ssh_user: str = "ubuntu") -> str:
         result = subprocess.run(
             ["ssh", "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=accept-new",
              f"{ssh_user}@{ssh_host}", "docker exec -i freqtrade python3"],
-            input=py_code, capture_output=True, text=True, timeout=120,
+            input=py_code.encode("utf-8"), capture_output=True, timeout=120,
         )
+        stdout = result.stdout.decode("utf-8")
         if result.returncode != 0:
-            stderr = result.stderr.strip()
+            stderr = result.stderr.decode("utf-8", errors="replace").strip()
             if stderr:
                 _fail(f"SSH Python failed: {stderr}")
-        return result.stdout
+        return stdout
     except subprocess.TimeoutExpired:
         _fail("SSH Python timed out after 120s")
     except FileNotFoundError:
@@ -731,6 +768,374 @@ else:
         return {"error": str(e), "raw": stdout[:500]}
 
 
+# ── Doctor (Diagnostic) ────────────────────────────────
+
+def _handle_doctor(client, config: dict) -> dict:
+    """Test all connection paths: API, SSH, Docker."""
+    result = {}
+
+    # Resolve config
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+    compose_dir = os.environ.get("FT_COMPOSE_DIR") or config.get("ssh", {}).get("compose_dir", "/home/ubuntu/freqtrade")
+    server_url = client._serverurl
+
+    result["config"] = {
+        "server_url": server_url,
+        "ssh_host": ssh_host,
+        "ssh_user": ssh_user,
+        "compose_dir": compose_dir,
+    }
+
+    # Test API connectivity
+    api_ok = False
+    api_detail = ""
+    try:
+        pong = client.ping()
+        if pong and pong.get("status") == "pong":
+            api_ok = True
+            api_detail = "pong"
+        else:
+            api_detail = str(pong)
+    except Exception as e:
+        api_detail = str(e)
+    result["api"] = {"ok": api_ok, "detail": api_detail}
+
+    # Test SSH connectivity
+    ssh_ok = False
+    ssh_detail = ""
+    if not ssh_host:
+        ssh_detail = "SSH host not configured"
+    elif ssh_host in ("127.0.0.1", "localhost"):
+        ssh_detail = "SSH resolves to localhost; set FT_SSH_HOST"
+    else:
+        try:
+            out = subprocess.run(
+                ["ssh", "-o", "ConnectTimeout=5", "-o", "StrictHostKeyChecking=accept-new",
+                 f"{ssh_user}@{ssh_host}", "echo ok"],
+                capture_output=True, text=True, timeout=15,
+            )
+            if out.returncode == 0 and out.stdout.strip() == "ok":
+                ssh_ok = True
+                ssh_detail = "connected"
+            else:
+                ssh_detail = (out.stderr or out.stdout or "").strip()[:200]
+        except FileNotFoundError:
+            ssh_detail = "SSH client not found"
+        except Exception as e:
+            ssh_detail = str(e)[:200]
+    result["ssh"] = {"ok": ssh_ok, "detail": ssh_detail}
+
+    # Test Docker containers on server (if SSH works)
+    docker_containers = {}
+    docker_ok = False
+    docker_detail = ""
+    if ssh_ok:
+        try:
+            out = subprocess.run(
+                ["ssh", "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=accept-new",
+                 f"{ssh_user}@{ssh_host}",
+                 "docker ps --format '{{.Names}}\t{{.Status}}' 2>/dev/null || echo 'docker_not_found'"],
+                capture_output=True, text=True, timeout=15,
+            )
+            if out.returncode == 0:
+                lines = out.stdout.strip().splitlines()
+                if lines and lines[0] == "docker_not_found":
+                    docker_detail = "Docker not found on server"
+                else:
+                    for line in lines:
+                        parts = line.split("\t", 1)
+                        if len(parts) == 2:
+                            docker_containers[parts[0].strip()] = parts[1].strip()
+                    docker_ok = True
+                    docker_detail = f"{len(docker_containers)} containers running"
+            else:
+                docker_detail = (out.stderr or "").strip()[:200]
+        except Exception as e:
+            docker_detail = str(e)[:200]
+    result["docker"] = {
+        "ok": docker_ok,
+        "detail": docker_detail,
+        "containers": docker_containers,
+    }
+
+    # Docker exec python availability
+    py_ok = False
+    py_detail = ""
+    if ssh_ok:
+        try:
+            out = subprocess.run(
+                ["ssh", "-o", "ConnectTimeout=5", "-o", "StrictHostKeyChecking=accept-new",
+                 f"{ssh_user}@{ssh_host}",
+                 "docker exec freqtrade python3 --version 2>/dev/null || echo 'not_available'"],
+                capture_output=True, text=True, timeout=10,
+            )
+            if out.returncode == 0:
+                ver = out.stdout.strip()
+                if ver and ver != "not_available":
+                    py_ok = True
+                    py_detail = ver
+                else:
+                    py_detail = "freqtrade container or python3 not available"
+            else:
+                py_detail = (out.stderr or "").strip()[:200]
+        except Exception as e:
+            py_detail = str(e)[:200]
+    result["python"] = {"ok": py_ok, "detail": py_detail}
+
+    return result
+
+
+# ── Model Info (SSH-based with accuracy) ──────────────
+
+def _handle_model_info(client, config: dict, kwargs: dict[str, str]) -> dict:
+    """Read model metrics and compute accuracy via SSH."""
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+
+    result = {"_error": None}
+
+    # 1. Get config info from REST API
+    try:
+        cfg = client.show_config()
+        freqai = cfg.get("freqai") or {}
+        fp = freqai.get("feature_parameters") or {}
+        result["config"] = {
+            "strategy": cfg.get("strategy", "\u2014"),
+            "freqaimodel": cfg.get("freqaimodel", "\u2014"),
+            "enabled": freqai.get("enabled", False),
+            "identifier": freqai.get("identifier", "\u2014"),
+            "train_period": freqai.get("train_period_days", 90),
+            "backtest_period": freqai.get("backtest_period_days", 30),
+            "timeframes": fp.get("include_timeframes", []),
+            "label_period": fp.get("label_period_candles", 4),
+            "pca": fp.get("principal_component_analysis", False),
+            "weight_factor": fp.get("weight_factor", 0),
+        }
+        try:
+            models_resp = client.freqaimodels()
+            result["config"]["available_models"] = models_resp.get("freqaimodels", []) if models_resp else []
+        except Exception:
+            result["config"]["available_models"] = []
+    except Exception as e:
+        result["_error"] = str(e)
+        result["config"] = {}
+
+    # 2. Fallback: read local config.json
+    try:
+        with open("config.json", encoding="utf-8") as f:
+            file_cfg = json.load(f)
+        freqai_file = file_cfg.get("freqai") or {}
+        fp_file = freqai_file.get("feature_parameters") or {}
+        if not result["config"].get("identifier") or result["config"]["identifier"] in ("\u2014", ""):
+            result["config"]["identifier"] = freqai_file.get("identifier", "\u2014")
+        result["config"]["enabled"] = freqai_file.get("enabled", False) or result["config"].get("enabled", False)
+        if result["config"].get("freqaimodel", "\u2014") in ("\u2014", ""):
+            result["config"]["freqaimodel"] = file_cfg.get("freqaimodel", "\u2014")
+        if not result["config"].get("timeframes"):
+            result["config"]["timeframes"] = fp_file.get("include_timeframes", [])
+        if not result["config"].get("available_models"):
+            result["config"]["available_models"] = []
+        if result["config"].get("label_period") == 4:
+            result["config"]["label_period"] = fp_file.get("label_period_candles", 4)
+        if freqai_file.get("train_period_days"):
+            result["config"]["train_period"] = freqai_file["train_period_days"]
+        if freqai_file.get("backtest_period_days"):
+            result["config"]["backtest_period"] = freqai_file["backtest_period_days"]
+    except Exception:
+        pass
+
+    # 3. Read model data from server via SSH
+    if not ssh_host or ssh_host in ("127.0.0.1", "localhost"):
+        result["ssh_status"] = "SSH not configured"
+        return result
+    result["ssh_status"] = "ok"
+
+    identifier = result.get("config", {}).get("identifier", "multi_agent_v1")
+    if identifier in ("\u2014", ""):
+        identifier = "multi_agent_v1"
+
+    py_code = f"""\
+import json, os, sys, pickle, glob as _glob
+try:
+    import pandas as pd
+    import numpy as np
+except ImportError:
+    print(json.dumps({{"error": "pandas/numpy not available"}}))
+    sys.exit(0)
+
+model_dir = 'user_data/models/{identifier}'
+out = {{}}
+
+# pair_dictionary.json
+pd_path = os.path.join(model_dir, 'pair_dictionary.json')
+if os.path.exists(pd_path):
+    with open(pd_path) as f:
+        out['pair_dict'] = json.load(f)
+
+# metric_tracker.json
+mt_path = os.path.join(model_dir, 'metric_tracker.json')
+if os.path.exists(mt_path):
+    with open(mt_path) as f:
+        out['metrics'] = json.load(f)
+
+# run_params.json
+rp_path = os.path.join(model_dir, 'run_params.json')
+if os.path.exists(rp_path):
+    with open(rp_path) as f:
+        rp = json.load(f)
+        out['run_params'] = {{
+            'train_period_days': rp.get('freqai', {{}}).get('train_period_days'),
+            'backtest_period_days': rp.get('freqai', {{}}).get('backtest_period_days'),
+            'live_retrain_hours': rp.get('freqai', {{}}).get('live_retrain_hours', 0),
+        }}
+
+# historic_predictions.pkl - compute accuracy
+hp_path = os.path.join(model_dir, 'historic_predictions.pkl')
+if os.path.exists(hp_path):
+    try:
+        with open(hp_path, 'rb') as f:
+            hp_data = pickle.load(f)
+        acc = {{'per_pair': {{}}, 'total_predictions': 0, 'total_correct': 0}}
+        for pair, df in hp_data.items():
+            if not isinstance(df, pd.DataFrame):
+                continue
+            label_col = '&s-up_or_down'
+            if label_col not in df.columns:
+                continue
+            # Find prediction probability column (True = up probability)
+            prob_col = 'True' if 'True' in df.columns else None
+            pred_col = None
+            if prob_col and prob_col in df.columns:
+                pred_col = prob_col
+            else:
+                pred_cols = [c for c in df.columns if 'prediction' in c.lower()]
+                pred_col = pred_cols[0] if pred_cols else None
+            if not pred_col:
+                continue
+            valid = df[[pred_col, label_col]].dropna().copy()
+            if len(valid) == 0:
+                continue
+            # Convert True prob column to numeric, label from string to 0/1
+            prob_vals = pd.to_numeric(valid[pred_col], errors='coerce')
+            preds = prob_vals.round().astype(int)
+            if valid[label_col].dtype == 'object':
+                actuals = valid[label_col].map({{'True': 1, 'False': 0}}).astype(int)
+            else:
+                actuals = valid[label_col].astype(int)
+            correct = (preds == actuals).sum()
+            total = len(valid)
+            up_preds = int((preds == 1).sum())
+            down_preds = int((preds == 0).sum())
+            up_correct = int(((preds == 1) & (actuals == 1)).sum())
+            down_correct = int(((preds == 0) & (actuals == 0)).sum())
+            acc['per_pair'][pair] = {{
+                'total': total,
+                'correct': int(correct),
+                'accuracy': round(float(correct / total), 4) if total > 0 else 0,
+                'up_predicted': up_preds,
+                'down_predicted': down_preds,
+                'up_correct': up_correct,
+                'down_correct': down_correct,
+            }}
+            acc['total_predictions'] += total
+            acc['total_correct'] += int(correct)
+        if acc['total_predictions'] > 0:
+            acc['overall_accuracy'] = round(acc['total_correct'] / acc['total_predictions'], 4)
+        else:
+            acc['overall_accuracy'] = 0
+        out['accuracy'] = acc
+    except Exception as e:
+        out['accuracy_error'] = str(e)
+
+# sub-train directories for feature metadata
+sub_dirs = sorted(_glob.glob(os.path.join(model_dir, 'sub-train-*')))
+if sub_dirs:
+    out['sub_train_count'] = len(sub_dirs)
+    latest = sub_dirs[-1]
+    meta_files = _glob.glob(os.path.join(latest, '*_metadata.json'))
+    if meta_files:
+        try:
+            with open(meta_files[0]) as f:
+                meta = json.load(f)
+            out['features'] = {{
+                'total': len(meta.get('training_features_list', [])),
+                'list': meta.get('training_features_list', [])[:10],
+            }}
+            out['labels'] = {{
+                'mean': meta.get('labels_mean', {{}}),
+                'std': meta.get('labels_std', {{}}),
+            }}
+        except Exception:
+            pass
+
+print(json.dumps(out, default=str))
+"""
+    try:
+        stdout = _ssh_python(py_code, ssh_host, ssh_user)
+        ssh_data = json.loads(stdout)
+        result.update(ssh_data)
+    except Exception as e:
+        result["ssh_error"] = str(e)
+
+    return result
+
+
+# ── Model Retrain ──────────────────────────────────────
+
+def _handle_model_retrain(client, config: dict, kwargs: dict[str, str]) -> dict:
+    """Retrain the ML model: stop bot, delete model files, restart bot."""
+    ssh_host = os.environ.get("FT_SSH_HOST") or config.get("ssh", {}).get("host") or _extract_host(client._serverurl)
+    ssh_user = os.environ.get("FT_SSH_USER") or config.get("ssh", {}).get("user", "ubuntu")
+    compose_dir = os.environ.get("FT_COMPOSE_DIR") or config.get("ssh", {}).get("compose_dir", "/home/ubuntu/freqtrade")
+    identifier = config.get("freqai", {}).get("identifier", "multi_agent_v1")
+
+    if not ssh_host or ssh_host in ("127.0.0.1", "localhost"):
+        _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
+
+    steps = []
+
+    # Step 1: Stop bot
+    _ok("Stopping bot...")
+    _ssh_exec(f"cd {compose_dir} && docker compose stop freqtrade 2>/dev/null; true", ssh_host, ssh_user)
+    time.sleep(2)
+    steps.append("stop")
+
+    # Step 2: Delete model files
+    _ok(f"Removing model files ({identifier})...")
+    _ssh_exec(f"rm -rf /freqtrade/user_data/models/{identifier} 2>/dev/null; true", ssh_host, ssh_user)
+    steps.append("delete_models")
+
+    # Step 3: Restart bot
+    _ok("Starting bot...")
+    _ssh_exec(
+        f"cd {compose_dir} && docker compose start freqtrade 2>/dev/null || docker compose up -d freqtrade",
+        ssh_host, ssh_user,
+    )
+    steps.append("start")
+
+    # Step 4: Wait for API
+    _ok("Waiting for API...")
+    for i in range(30):
+        time.sleep(2)
+        try:
+            pong = client.ping()
+            if pong and pong.get("status") == "pong":
+                _ok("Bot is ready")
+                steps.append("ready")
+                break
+        except Exception:
+            pass
+    else:
+        steps.append("timeout")
+
+    return {
+        "status": "completed" if "ready" in steps else "partial",
+        "steps": steps,
+        "identifier": identifier,
+    }
+
+
 def main_exec(parsed: dict[str, Any]):
     if parsed.get("show") or parsed.get("command") in ("show", "help"):
         print_commands()
@@ -770,6 +1175,8 @@ def main_exec(parsed: dict[str, Any]):
     valid.add("entrylog")
     valid.add("backtest_history")
     valid.add("backtest_history_result")
+    valid.add("doctor")
+    valid.add("model_retrain")
     command = parsed["command"]
     cmd_args = parsed["command_arguments"]
 
@@ -832,6 +1239,26 @@ def main_exec(parsed: dict[str, Any]):
     if display_cmd == "backtest_history_result":
         res = _handle_backtest_history_result(client, config, kwargs)
         format_output("backtest_history_result", res, force_json=parsed.get("json", False))
+        sys.exit(0)
+
+    # ── Special: doctor (diagnostic) ──
+    if display_cmd == "doctor":
+        res = _handle_doctor(client, config)
+        format_output("doctor", res, force_json=parsed.get("json", False))
+        sys.exit(0)
+
+    # ── Special: model_info (SSH-based with accuracy) ──
+    if display_cmd == "model_info":
+        res = _handle_model_info(client, config, kwargs)
+        format_output("model_info", res, force_json=parsed.get("json", False))
+        sys.exit(0)
+
+    # ── Special: model_retrain (SSH-based) ──
+    if display_cmd == "model_retrain":
+        if parsed.get("json", False):
+            _fail("model retrain does not support --json (interactive workflow)")
+        res = _handle_model_retrain(client, config, kwargs)
+        format_output("model_retrain", res, force_json=False)
         sys.exit(0)
 
     try:

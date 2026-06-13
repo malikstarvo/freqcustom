@@ -192,7 +192,7 @@ class PaperEngine:
         from agents.orderflow_scorer import Calculate as calc_of, Input as OFInput  # noqa: E501
         from agents.regime_scorer import Calculate as calc_regime, Input as RegimeInput  # noqa: E501
         from agents.technical_scorer import Calculate as calc_tech, Input as TechInput  # noqa: E501
-        from agents.trade_gate import GateInput  # noqa: E501
+        from agents import GateInput  # noqa: E501
 
         candle = self._load_candle()
         if not candle:

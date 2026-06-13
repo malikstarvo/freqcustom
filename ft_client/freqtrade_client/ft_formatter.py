@@ -1018,47 +1018,191 @@ def fmt_model_info(data: dict) -> None:
     if not HAS_RICH:
         _json_output(data); return
 
-    console.print(); console.print(_header("  Model Configuration  "))
+    console.print(); console.print(_header("  Model Info  "))
 
-    enabled = data.get("freqai_enabled", False)
-    state_color = "green" if enabled else "yellow"
+    cfg = data.get("config", data)
+
+    # ── Config Section ──
+    enabled = cfg.get("enabled", False)
     state_badge = "[green]\u2713 ENABLED[/]" if enabled else "[yellow]\u26a0 DISABLED[/]"
 
-    info = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
-    info.add_column(style="bold cyan", width=18)
-    info.add_column(style="white")
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=18)
+    tbl.add_column(style="white")
+    tbl.add_column(style="dim")
 
-    info.add_row("Active Model", str(data.get("freqaimodel", "\u2014")))
-    info.add_row("FreqAI Status", state_badge)
-    info.add_row("Identifier", str(data.get("identifier", "\u2014")))
-    info.add_row("Train Period", f"{data.get('train_period', 90)} days")
-    info.add_row("Backtest Period", f"{data.get('backtest_period', 30)} days")
-    tfs = data.get("timeframes", [])
-    info.add_row("Timeframes", ", ".join(tfs) if tfs else "\u2014")
-    info.add_row("Label Candles", str(data.get("label_period", 4)))
-    info.add_row("PCA Enabled", str(data.get("pca", False)))
-    info.add_row("Weight Factor", str(data.get("weight_factor", 0)))
+    tbl.add_row("Model", str(cfg.get("freqaimodel", "\u2014")),
+                state_badge)
+    tbl.add_row("Identifier", str(cfg.get("identifier", "\u2014")), "")
+    tbl.add_row("Strategy", str(cfg.get("strategy", "\u2014")), "")
+    tbl.add_row("Train Period", f"{cfg.get('train_period', 90)} days",
+                f"Backtest: {cfg.get('backtest_period', 30)} days")
+    tfs = cfg.get("timeframes", [])
+    tbl.add_row("Timeframes", ", ".join(tfs) if tfs else "\u2014",
+                f"Label: {cfg.get('label_period', 4)} candles")
+    tbl.add_row("PCA", "Yes" if cfg.get("pca") else "No",
+                f"Weight: {cfg.get('weight_factor', 0)}")
 
-    console.print(Panel(info, border_style="dim blue", padding=(1, 2)))
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
 
     # Available models
-    models = data.get("available_models", [])
+    models = cfg.get("available_models", [])
     if models:
         console.print(_section("Available Models"))
         for m in models:
             console.print(f"  [cyan]\u25b8[/] [bold white]{m}[/]")
 
-    # Training guide
+    # ── SSH Status ──
+    ssh_status = data.get("ssh_status", "")
+    if ssh_status == "SSH not configured":
+        console.print(f"\n  [yellow]\u26a0[/] SSH not configured — model metrics unavailable")
+        console.print(f"  [dim]Set FT_SSH_HOST or ssh.host in config.json[/]")
+        console.print()
+        return
+    if data.get("ssh_error"):
+        console.print(f"\n  [red]!![/] SSH error: {data['ssh_error']}")
+        console.print()
+
+    # ── Training Status ──
+    pair_dict = data.get("pair_dict", {})
+    if pair_dict:
+        console.print(_section("Training Status"))
+        ptbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+        ptbl.add_column("Pair", style="bold white", width=16)
+        ptbl.add_column("Model File")
+        ptbl.add_column("Last Trained", style="dim", width=20)
+        for pair, info in list(pair_dict.items())[:10]:
+            ts = info.get("trained_timestamp", 0)
+            ts_str = _to_wib(ts) if ts else "\u2014"
+            ptbl.add_row(pair, str(info.get("model_filename", "\u2014"))[:30], ts_str)
+        console.print(Panel(ptbl, border_style="dim blue", padding=(1, 2)))
+        console.print(f"  [dim]{len(pair_dict)} pair(s) trained[/]")
+
+    # ── Features ──
+    features = data.get("features", {})
+    if features:
+        console.print(_section("Features"))
+        feat_list = features.get("list", [])
+        feat_count = features.get("total", len(feat_list))
+        console.print(f"  [bold]{feat_count}[/] features total")
+        if feat_list:
+            console.print(f"  [dim]{', '.join(feat_list)}[/]")
+        labels = data.get("labels", {})
+        if labels.get("mean"):
+            m = labels["mean"]
+            console.print(f"  Label mean: {m}")
+        console.print()
+
+    # ── Accuracy ──
+    acc = data.get("accuracy")
+    if acc:
+        console.print(_section("Prediction Accuracy"))
+        overall = acc.get("overall_accuracy", 0)
+        total_preds = acc.get("total_predictions", 0)
+        correct = acc.get("total_correct", 0)
+        ac = "green" if overall >= 0.6 else "yellow" if overall >= 0.4 else "red"
+
+        # Overall accuracy header
+        hdr = Table.grid(padding=(0, 2))
+        hdr.add_column(justify="center")
+        hdr.add_row(Text(f"  {overall:.1%}  ", style=f"bold {ac}"))
+        hdr.add_row(Text(f"{correct}/{total_preds} correct predictions", style="dim"))
+        console.print(Panel(hdr, box=box.HEAVY, border_style=ac, padding=(1, 3)))
+
+        # Per-pair table
+        per_pair = acc.get("per_pair", {})
+        if per_pair:
+            atbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+            atbl.add_column("Pair", style="bold white", width=16)
+            atbl.add_column("Accuracy", justify="right")
+            atbl.add_column("Correct", justify="right")
+            atbl.add_column("Total", justify="right")
+            atbl.add_column("Up \u2191", justify="right")
+            atbl.add_column("Down \u2193", justify="right")
+            for pair, p in per_pair.items():
+                pair_acc = p.get("accuracy", 0)
+                pc = "green" if pair_acc >= 0.6 else "yellow" if pair_acc >= 0.4 else "red"
+                atbl.add_row(
+                    pair,
+                    f"[{pc}]{pair_acc:.1%}[/]",
+                    str(p.get("correct", 0)),
+                    str(p.get("total", 0)),
+                    str(p.get("up_predicted", 0)),
+                    str(p.get("down_predicted", 0)),
+                )
+            console.print(Panel(atbl, border_style="dim blue", padding=(1, 2)))
+    elif data.get("accuracy_error"):
+        console.print(f"\n  [yellow]\u26a0 Accuracy: {data['accuracy_error']}[/]")
+    else:
+        console.print(f"\n  [dim]\u26a0 No prediction history yet — model needs more data[/]")
+
+    # ── Metrics ──
+    metrics = data.get("metrics", {})
+    if metrics:
+        console.print(_section("Training Metrics"))
+        mtbl = Table(box=box.SIMPLE, padding=(0, 1), show_header=True, header_style="bold cyan")
+        mtbl.add_column("Pair", style="bold white", width=16)
+        mtbl.add_column("Train Time", justify="right")
+        mtbl.add_column("Inference", justify="right")
+        mtbl.add_column("CPU Load", justify="right")
+        for pair, m in list(metrics.items())[:10]:
+            train_t = m.get("train_time", {}).get("value", [0])
+            infer_t = m.get("inference_time", {}).get("value", [0])
+            cpu = m.get("cpu_load1min", {}).get("value", [0])
+            train_val = f"{train_t[-1]:.1f}s" if train_t else "\u2014"
+            infer_val = f"{infer_t[-1]:.3f}s" if infer_t else "\u2014"
+            cpu_val = f"{cpu[-1]:.1%}" if cpu else "\u2014"
+            mtbl.add_row(pair, train_val, infer_val, cpu_val)
+        console.print(Panel(mtbl, border_style="dim blue", padding=(1, 2)))
+
+    # ── Sub-train count ──
+    sub_count = data.get("sub_train_count", 0)
+    if sub_count:
+        console.print(f"  [dim]{sub_count} sub-train directories[/]")
+
+    # ── Run Params from disk ──
+    rp = data.get("run_params", {})
+    if rp:
+        console.print(_section("Training Config"))
+        rtbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+        rtbl.add_column(style="bold cyan", width=20)
+        rtbl.add_column(style="white")
+        rtbl.add_row("Live Retrain Hours", str(rp.get("live_retrain_hours", 0)))
+        rtbl.add_row("Train Period Days", str(rp.get("train_period_days", "\u2014")))
+        rtbl.add_row("Backtest Period Days", str(rp.get("backtest_period_days", "\u2014")))
+        console.print(Panel(rtbl, border_style="dim green", padding=(1, 2)))
+
     console.print()
-    console.print(_section("How to Train the Model"))
-    steps = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
-    steps.add_column(width=3, style="bold cyan")
-    steps.add_column(style="white")
-    steps.add_row("1.", "Enable FreqAI: set [bold]freqai.enabled = true[/] in config.json")
-    steps.add_row("2.", "Download data: [bold]freqtrade download-data -c /freqtrade/config.json[/]")
-    steps.add_row("3.", "Run backtest: [bold]freq backtest start[/] (trains model automatically)")
-    steps.add_row("4.", "Start live: [bold]freq start[/] (will use trained model)")
-    console.print(Panel(steps, border_style="dim green", padding=(1, 2)))
+
+
+def fmt_model_retrain(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data); return
+
+    status = data.get("status", "unknown")
+    steps = data.get("steps", [])
+    identifier = data.get("identifier", "\u2014")
+
+    console.print()
+    color = "green" if status == "completed" else "yellow"
+    icon = "\u2713" if status == "completed" else "\u26a0"
+    console.print(Panel(
+        Text(f"  {icon} Model Retrain: {status.upper()}  ", style=f"bold {color}", justify="center"),
+        box=box.DOUBLE, border_style=color, padding=(1, 2),
+    ))
+
+    tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    tbl.add_column(style="bold cyan", width=18)
+    tbl.add_column(style="white")
+    tbl.add_row("Identifier", identifier)
+    tbl.add_row("Steps", " \u2192 ".join(steps))
+    tbl.add_row("Status", "[green]Bot retraining[/]" if status == "completed" else "[yellow]Partial[/]")
+    console.print(Panel(tbl, border_style="dim blue", padding=(1, 2)))
+
+    console.print()
+    console.print(_section("Next Steps"))
+    console.print(f"  [dim]The model will auto-train when {identifier} directory is empty.[/]")
+    console.print(f"  [dim]Check: [bold]freq model info[/] to see training progress.[/]")
     console.print()
 
 
@@ -1616,6 +1760,76 @@ def fmt_entrylog(data: dict) -> None:
     console.print()
 
 
+# -- Doctor Formatter ----------------------------------
+
+def fmt_doctor(data: dict) -> None:
+    if not HAS_RICH:
+        _json_output(data)
+        return
+
+    console.print()
+    console.print(_header("  Connection Diagnostic  "))
+
+    cfg = data.get("config", {})
+
+    # Config panel
+    cfg_tbl = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+    cfg_tbl.add_column(style="bold cyan", width=18)
+    cfg_tbl.add_column(style="white")
+    cfg_tbl.add_row("Server URL", str(cfg.get("server_url", "\u2014")))
+    cfg_tbl.add_row("SSH Host", str(cfg.get("ssh_host", "\u2014")))
+    cfg_tbl.add_row("SSH User", str(cfg.get("ssh_user", "ubuntu")))
+    cfg_tbl.add_row("Compose Dir", str(cfg.get("compose_dir", "\u2014")))
+    console.print(Panel(cfg_tbl, border_style="dim blue", padding=(1, 2)))
+
+    # Status panel
+    def _status_row(name: str, ok: bool, detail: str) -> Table:
+        icon = "[green]\u2713[/]" if ok else "[red]\u2717[/]"
+        detail_trunc = str(detail)[:60]
+        t = Table(show_header=False, box=box.SIMPLE, padding=(0, 2))
+        t.add_column(width=20)
+        t.add_column(width=10)
+        t.add_column()
+        t.add_row(f"  {name}", icon, detail_trunc)
+        return t
+
+    status = Table.grid(padding=(0, 0))
+    status.add_column()
+    status.add_row(_status_row("API Reachable",
+                               data.get("api", {}).get("ok", False),
+                               str(data.get("api", {}).get("detail", ""))))
+    status.add_row(_status_row("SSH Reachable",
+                               data.get("ssh", {}).get("ok", False),
+                               str(data.get("ssh", {}).get("detail", ""))))
+    status.add_row(_status_row("Docker Access",
+                               data.get("docker", {}).get("ok", False),
+                               str(data.get("docker", {}).get("detail", ""))))
+    status.add_row(_status_row("Python (docker exec)",
+                               data.get("python", {}).get("ok", False),
+                               str(data.get("python", {}).get("detail", ""))))
+
+    # Overall
+    all_ok = all(
+        data.get(k, {}).get("ok", False)
+        for k in ("api", "ssh", "docker", "python")
+    )
+    overall = "[green]All systems operational[/]" if all_ok else "[yellow]Some checks failed[/]"
+    console.print(Panel(status, border_style="dim blue", padding=(1, 2)))
+    console.print(f"  {overall}\n")
+
+    # Docker containers (if available)
+    containers = data.get("docker", {}).get("containers", {})
+    if containers:
+        console.print(_section("Running Containers"))
+        ctbl = Table(box=box.SIMPLE, padding=(0, 2), show_header=False)
+        ctbl.add_column(style="bold cyan", width=24)
+        ctbl.add_column(style="white")
+        for name, status_str in containers.items():
+            ctbl.add_row(f"  {name}", status_str)
+        console.print(Panel(ctbl, border_style="dim green", padding=(1, 2)))
+        console.print()
+
+
 # -- Command * Formatter Mapping ----------------------
 
 FORMATTERS = {
@@ -1676,6 +1890,8 @@ FORMATTERS = {
     "pairlists_available": fmt_strategies,
     "markets":            fmt_markets,
     "data_list":          fmt_data_list,
+    "doctor":             fmt_doctor,
+    "model_retrain":      fmt_model_retrain,
 }
 
 

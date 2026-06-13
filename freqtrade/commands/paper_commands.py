@@ -7,6 +7,7 @@ import psycopg2.pool
 
 from freqtrade.papertrade.engine import PaperEngine
 from freqtrade.papertrade.store import PaperStore
+from freqtrade.rpc.api_server.api_paper import set_engine
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,9 @@ def start_paper_trader(args: dict) -> None:
 
     engine.recover()
 
+    # Register with API server so /api/v1/paper/* endpoints work
+    set_engine(engine, store)
+
     stop_event = threading.Event()
 
     def _run_loop() -> None:
@@ -68,6 +72,10 @@ def start_paper_trader(args: dict) -> None:
     thread.start()
 
     logger.info("[PaperTrader] Running in background. Use API to check status.")
+
+    background = args.get("background", False)
+    if background:
+        return
 
     try:
         while thread.is_alive():
