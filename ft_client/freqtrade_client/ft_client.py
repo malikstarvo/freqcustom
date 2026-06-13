@@ -612,7 +612,7 @@ def _handle_backtest_history(client, config: dict, kwargs: dict[str, str]) -> di
         _fail("Cannot determine SSH host. Set FT_SSH_HOST or ssh.host in config.json")
 
     py_code = """\
-import json, glob, os
+import json, glob, os, datetime
 meta_dir = 'user_data/backtest_results'
 results = []
 pattern = os.path.join(meta_dir, '*.meta.json')
@@ -622,14 +622,19 @@ for fp in sorted(glob.glob(pattern)):
     except Exception:
         continue
     for strat_name, data in meta.items():
-        ts = data.get('backtest_start_time', '')
-        date_str = str(ts)[:10] if ts else ''
-        timerange = data.get('timerange', '')
+        ts = data.get('backtest_start_time', 0)
+        st_ts = data.get('backtest_start_ts')
+        et_ts = data.get('backtest_end_ts')
+        timerange = ''
+        if st_ts and et_ts:
+            st_dt = datetime.datetime.fromtimestamp(st_ts)
+            et_dt = datetime.datetime.fromtimestamp(et_ts)
+            timerange = st_dt.strftime('%Y%m%d') + '-' + et_dt.strftime('%Y%m%d')
         results.append({
             'filename': os.path.basename(fp).replace('.meta.json', ''),
             'strategy': strat_name,
             'timeframe': data.get('timeframe', ''),
-            'date': date_str,
+            'date': ts,
             'timerange': timerange,
             'run_id': (data.get('run_id', '') or '')[:8],
         })
@@ -680,14 +685,20 @@ else:
             else:
                 s = strat_raw or {{}}
                 strat_name = ''
+            p_total = s.get('profit_total', 0) or 0
+            total_trades = s.get('total_trades', 0)
+            wins = s.get('wins', 0)
+            losses = s.get('losses', 0)
+            draws = s.get('draws', 0)
             stats = {{
                 "strategy": strat_name or s.get('strategy_name', s.get('strategy', '')),
-                "total_trades": s.get('total_trades', 0),
-                "winrate": s.get('winrate', s.get('wins', 0) / max(s.get('total_trades', 1), 1)),
-                "profit_total_pct": s.get('profit_total_pct', 0),
+                "total_trades": total_trades,
+                "winrate": (wins / max(total_trades, 1)) * 100,
+                "profit_total": p_total,
+                "profit_total_pct": s.get('profit_total_pct') or (p_total * 100),
                 "profit_total_abs": s.get('profit_total_abs', 0),
                 "profit_factor": s.get('profit_factor', 0),
-                "max_drawdown_account": s.get('max_drawdown_account', s.get('max_drawdown', 0)),
+                "max_drawdown_account": -((s.get('max_drawdown_account') or s.get('max_drawdown') or 0) * 100),
                 "max_drawdown_abs": s.get('max_drawdown_abs', 0),
                 "sharpe": s.get('sharpe', 0),
                 "sortino": s.get('sortino', 0),
@@ -696,9 +707,9 @@ else:
                 "backtest_start": s.get('backtest_start', ''),
                 "backtest_end": s.get('backtest_end', ''),
                 "avg_stake_amount": s.get('avg_stake_amount', 0),
-                "wins": s.get('wins', 0),
-                "losses": s.get('losses', 0),
-                "draws": s.get('draws', 0),
+                "wins": wins,
+                "losses": losses,
+                "draws": draws,
                 "stake_currency": s.get('stake_currency', ''),
                 "stake_amount": s.get('stake_amount', 0),
             }}
