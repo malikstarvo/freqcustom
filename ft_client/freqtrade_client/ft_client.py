@@ -148,21 +148,23 @@ def print_commands():
 
     # ═══ Banner ══════════════════════════════════════
     console.print()
+    art_lines = [
+        "[bold cyan]███╗   ██╗  ██████╗  ███████╗  ██████╗  ███████╗  ████████╗[/]",
+        "[bold cyan]████╗  ██║  ██╔════╝  ██╔════╝  ██╔══██╗  ██╔════╝  ╚══██╔══╝[/]",
+        "[bold cyan]██╔██╗ ██║  ██║  ███╗  █████╗    ██████╔╝  █████╗     ██║   [/]",
+        "[bold cyan]██║╚██╗██║  ██║   ██║  ██╔══╝    ██╔═══╝   ██╔══╝     ██║   [/]",
+        "[bold cyan]██║ ╚████║  ╚██████╔╝  ███████╗  ██║       ███████╗   ██║   [/]",
+        "[bold cyan]╚═╝  ╚═══╝   ╚═════╝   ╚══════╝  ╚═╝       ╚══════╝   ╚═╝   [/]",
+    ]
+    art_text = "\n".join(art_lines)
+    sub = f"v{__version__}  ·  {len(all_methods)} commands  ·  REST + WebSocket"
     banner = Panel(
         Align.center(
             Text.assemble(
-                ("\n     ", "bold cyan"),
-                (" Freqtrade AI Dashboard CLI ", "bold white"),
-                ("\n", "bold cyan"),
-                ("     ", "bold cyan"),
-                (f" v{__version__}  .  ", "dim"),
-                (f"{len(all_methods)} commands ", "white"),
-                (f" .  ", "dim"),
-                ("REST + WebSocket", "dim"),
-                ("\n", "bold cyan"),
-                ("     ", "bold cyan"),
-                ("-" * 34, "bold cyan"),
-                ("", "bold cyan"),
+                ("", ""),
+                (Text.from_markup(art_text), ""),
+                ("\n", ""),
+                (sub, "dim"),
             )
         ),
         box=box.DOUBLE, border_style="cyan",
@@ -660,6 +662,9 @@ def _handle_backtest_history_result(client, config: dict, kwargs: dict[str, str]
     filename = kwargs.get("filename", "")
     if not filename:
         _fail("filename= is required. Example: filename=backtest-result-2025-06-12_06-39-54")
+    # Sanitize: only allow safe characters to prevent code injection in f-string
+    if not re.match(r'^[a-zA-Z0-9_.-]+$', filename):
+        _fail("Invalid filename. Use only letters, numbers, dots, hyphens, underscores.")
 
     py_code = f"""\
 import json, zipfile, os
@@ -669,52 +674,52 @@ if not os.path.exists(zip_path):
     print(json.dumps({{"error": "File not found: {filename}"}}))
 else:
     try:
-        z = zipfile.ZipFile(zip_path, 'r')
-        main_name = '{filename}.json'
-        if main_name not in z.namelist():
-            alt = [n for n in z.namelist() if n.endswith('.json') and '.meta.' not in n]
-            main_name = alt[0] if alt else None
-        if not main_name:
-            print(json.dumps({{"error": "No result json found in zip"}}))
-        else:
-            raw = json.load(z.open(main_name))
-            strat_raw = raw.get('strategy', {{}})
-            if isinstance(strat_raw, dict) and strat_raw:
-                s = list(strat_raw.values())[0]
-                strat_name = list(strat_raw.keys())[0]
+        with zipfile.ZipFile(zip_path, 'r') as z:
+            main_name = '{filename}.json'
+            namelist = z.namelist()
+            if main_name not in namelist:
+                alt = [n for n in namelist if n.endswith('.json') and '.meta.' not in n]
+                main_name = alt[0] if alt else None
+            if not main_name:
+                print(json.dumps({{"error": "No result json found in zip"}}))
             else:
-                s = strat_raw or {{}}
-                strat_name = ''
-            p_total = s.get('profit_total', 0) or 0
-            total_trades = s.get('total_trades', 0)
-            wins = s.get('wins', 0)
-            losses = s.get('losses', 0)
-            draws = s.get('draws', 0)
-            stats = {{
-                "strategy": strat_name or s.get('strategy_name', s.get('strategy', '')),
-                "total_trades": total_trades,
-                "winrate": (wins / max(total_trades, 1)) * 100,
-                "profit_total": p_total,
-                "profit_total_pct": s.get('profit_total_pct') or (p_total * 100),
-                "profit_total_abs": s.get('profit_total_abs', 0),
-                "profit_factor": s.get('profit_factor', 0),
-                "max_drawdown_account": -((s.get('max_drawdown_account') or s.get('max_drawdown') or 0) * 100),
-                "max_drawdown_abs": s.get('max_drawdown_abs', 0),
-                "sharpe": s.get('sharpe', 0),
-                "sortino": s.get('sortino', 0),
-                "timeframe": s.get('timeframe', ''),
-                "timerange": s.get('timerange', ''),
-                "backtest_start": s.get('backtest_start', ''),
-                "backtest_end": s.get('backtest_end', ''),
-                "avg_stake_amount": s.get('avg_stake_amount', 0),
-                "wins": wins,
-                "losses": losses,
-                "draws": draws,
-                "stake_currency": s.get('stake_currency', ''),
-                "stake_amount": s.get('stake_amount', 0),
-            }}
-            print(json.dumps(stats))
-        z.close()
+                raw = json.load(z.open(main_name))
+                strat_raw = raw.get('strategy', {{}})
+                if isinstance(strat_raw, dict) and strat_raw:
+                    s = list(strat_raw.values())[0]
+                    strat_name = list(strat_raw.keys())[0]
+                else:
+                    s = strat_raw or {{}}
+                    strat_name = ''
+                p_total = s.get('profit_total', 0) or 0
+                total_trades = s.get('total_trades', 0)
+                wins = s.get('wins', 0)
+                losses = s.get('losses', 0)
+                draws = s.get('draws', 0)
+                stats = {{
+                    "strategy": strat_name or s.get('strategy_name', s.get('strategy', '')),
+                    "total_trades": total_trades,
+                    "winrate": (wins / max(total_trades, 1)) * 100,
+                    "profit_total": p_total,
+                    "profit_total_pct": s.get('profit_total_pct') or (p_total * 100),
+                    "profit_total_abs": s.get('profit_total_abs', 0),
+                    "profit_factor": s.get('profit_factor', 0),
+                    "max_drawdown_account": -((s.get('max_drawdown_account') or s.get('max_drawdown') or 0) * 100),
+                    "max_drawdown_abs": s.get('max_drawdown_abs', 0),
+                    "sharpe": s.get('sharpe', 0),
+                    "sortino": s.get('sortino', 0),
+                    "timeframe": s.get('timeframe', ''),
+                    "timerange": s.get('timerange', ''),
+                    "backtest_start": s.get('backtest_start', ''),
+                    "backtest_end": s.get('backtest_end', ''),
+                    "avg_stake_amount": s.get('avg_stake_amount', 0),
+                    "wins": wins,
+                    "losses": losses,
+                    "draws": draws,
+                    "stake_currency": s.get('stake_currency', ''),
+                    "stake_amount": s.get('stake_amount', 0),
+                }}
+                print(json.dumps(stats))
     except Exception as e:
         print(json.dumps({{"error": str(e)}}))
 """

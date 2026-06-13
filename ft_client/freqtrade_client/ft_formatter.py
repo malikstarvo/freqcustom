@@ -861,7 +861,7 @@ def fmt_backtest_history(data):
     tbl.add_column("Strategy", width=22)
     tbl.add_column("TF", width=6)
     tbl.add_column("Timerange", width=22)
-    tbl.add_column("Date", style="dim", width=12)
+    tbl.add_column("Date", style="dim", width=22)
     for e in results[:30]:
         tbl.add_row(
             str(e.get("filename", ""))[:34],
@@ -912,6 +912,8 @@ def fmt_backtest_history_result(data):
         elif fmt == "usd":
             c = color or _profit_color(val)
             v = f"[{c}]{'+' if val > 0 else ''}${val:,.2f}[/]"
+        elif fmt == "plain":
+            v = f"{val:,.2f}"
         elif fmt == "ratio":
             c = color or ("green" if val >= 1.5 else "yellow" if val >= 1 else "red")
             v = f"[{c}]{val:.2f}[/]"
@@ -942,7 +944,7 @@ def fmt_backtest_history_result(data):
     row4 = [
         _r("sharpe", "Sharpe", "sharpe"),
         _r("sortino", "Sortino", "sharpe"),
-        _r("avg_stake_amount", "Avg Stake", "usd"),
+        _r("avg_stake_amount", "Avg Stake", "plain"),
         _r("stake_amount", "Stake Amount"),
     ]
     for r in (row1, row2, row3, row4):
@@ -1386,7 +1388,7 @@ def fmt_backtest_run(data: dict) -> None:
             tbl.add_column("File", style="white", width=30)
             tbl.add_column("Strategy")
             tbl.add_column("TF", width=6)
-            tbl.add_column("Date", style="dim", width=12)
+            tbl.add_column("Date", style="dim", width=22)
             for e in (entries if isinstance(entries, list) else [])[:5]:
                 tbl.add_row(
                     str(e.get("filename", ""))[:30],
