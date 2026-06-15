@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import os
 from datetime import datetime, timezone
 
@@ -84,7 +85,7 @@ class MultiAgentStrategy(IStrategy):
     def set_freqai_targets(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         lp = self.freqai_info.get("feature_parameters", {}).get("label_period_candles", 4)
         future_return = dataframe["close"].shift(-lp) / dataframe["close"] - 1
-        dataframe["&s-up_or_down"] = (future_return > 0.002).astype(str)
+        dataframe["&-s_close"] = future_return
         return dataframe
 
     def feature_engineering_standard(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
@@ -396,8 +397,8 @@ class MultiAgentStrategy(IStrategy):
                         "of_available": bool(row.get("of_available", False)),
                     },
                     "freqai": {
-                        "prediction": str(row.get("&s-up_or_down", "")),
-                        "probability": float(row.get("True", 0.0)),
+                        "prediction": float(row.get("&-s_close", 0.0)),
+                        "probability": float(self._get_ml_prob(row)),
                         "do_predict": int(row.get("do_predict", 0)),
                     },
                 }
@@ -436,9 +437,9 @@ class MultiAgentStrategy(IStrategy):
     def _get_ml_prob(self, row) -> float:
         try:
             if "do_predict" in row.index and int(row["do_predict"]) == 1:
-                val = float(row.get("True", 0.0))
-                if 0 <= val <= 1:
-                    return val
+                pred = row.get("&-s_close", None)
+                if pred is not None and not pd.isna(pred):
+                    return 1.0 / (1.0 + math.exp(-float(pred)))
         except Exception as e:
             logger.warning(f"_get_ml_prob failed for row: {e}")
         return 0.5

@@ -14,8 +14,6 @@
         "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
-            "BTC/USDT:USDT",
-            "ETH/USDT:USDT",
             "SOL/USDT:USDT"
         ]
     },
@@ -45,7 +43,7 @@
     "trailing_stop": true,
     "position_adjustment_enable": true,
     "max_entry_position_adjustment": 3,
-    "freqaimodel": "XGBoostGridSearchModel",
+    "freqaimodel": "XGBoostRegressor",
     "freqaimodel_path": "user_data/freqaimodels",
     "freqai": {
         "enabled": true,
@@ -53,7 +51,7 @@
         "train_period_days": 365,
         "backtest_period_days": 180,
         "live_retrain_hours": 12,
-        "identifier": "multi_agent_v1",
+        "identifier": "sol_only_v1",
         "activate_tensorboard": false,
         "feature_parameters": {
             "include_timeframes": [
@@ -61,7 +59,7 @@
                 "1h",
                 "4h"
             ],
-            "include_corr_pairlist": ["BTC/USDT:USDT", "ETH/USDT:USDT", "SOL/USDT:USDT"],
+            "include_corr_pairlist": [],
             "label_period_candles": 4,
             "include_shifted_candles": 2,
             "DI_threshold": 0,
@@ -113,7 +111,7 @@
         "unit": "minutes"
     },
     "paper_trader": {
-        "symbol": "BTC/USDT:USDT",
+        "symbol": "SOL/USDT:USDT",
         "timeframe": "15m",
         "initial_capital": 10000.0,
         "commission": 0.00055,

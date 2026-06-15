@@ -14,7 +14,7 @@
         "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
-            "BTC/USDT:USDT"
+            "SOL/USDT:USDT"
         ]
     },
     "pairlists": [
@@ -44,7 +44,7 @@
         "purge_old_models": 3,
         "train_period_days": 90,
         "backtest_period_days": 30,
-        "identifier": "multi_agent_v1",
+        "identifier": "sol_only_v1",
         "feature_parameters": {
             "include_timeframes": ["15m"],
             "include_corr_pairlist": [],
@@ -79,7 +79,7 @@
             "subsample": [0.8, 1.0],
             "colsample_bytree": [0.8, 1.0]
         },
-        "freqaimodel": "XGBoostGridSearchModel",
+    "freqaimodel": "XGBoostRegressor",
         "freqaimodel_path": "user_data/freqaimodels",
         "fit_live_predictions_candles": 4
     },
@@ -89,7 +89,7 @@
         "feature_set_id": 1
     },
     "paper_trader": {
-        "symbol": "BTCUSDT",
+        "symbol": "SOLUSDT",
         "timeframe": "15m",
         "initial_capital": 10000,
         "commission": 0.00055,

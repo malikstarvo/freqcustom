@@ -17,7 +17,7 @@ type Config struct {
 func LoadConfig() *Config {
 	return &Config{
 		TimescaleDSN: getEnv("TIMESCALE_DSN", "postgresql://freqtrade:freqtrade@localhost:5432/freqtrade?sslmode=disable"),
-		Symbols:      splitEnv("BYBIT_SYMBOLS", "BTCUSDT,ETHUSDT,SOLUSDT"),
+		Symbols:      splitEnv("BYBIT_SYMBOLS", "SOLUSDT"),
 		Timeframes:   splitEnv("BYBIT_TIMEFRAMES", "15m,1h,4h"),
 		FeatureSetID: getEnvInt("FEATURE_SET_ID", 1),
 	}
