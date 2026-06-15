@@ -19,12 +19,13 @@ class GateState(str, Enum):
 
 @dataclass
 class GateConfig:
-    cooldown_bars: int = 2
-    max_trades_per_day: int = 5
+    cooldown_bars: int = 6
+    max_trades_per_day: int = 3
     drawdown_limit: float = -0.05
     starting_capital: float = 10_000.0
-    meta_model_threshold: float = 0.45
-    min_tech_score: float = 55.0
+    meta_model_threshold: float = 0.60
+    min_tech_score: float = 70.0
+    min_regime_score: float = 50.0
     tech_weight_default: float = 0.65
     of_weight_default: float = 0.15
     regime_weight_default: float = 0.20
@@ -73,11 +74,11 @@ def _valid(v: float) -> bool:
 
 
 def _size_from_confidence(conf: float) -> float:
-    if conf >= 80:
+    if conf >= 85:
         return 1.00
-    elif conf >= 65:
+    elif conf >= 70:
         return 0.50
-    elif conf >= 50:
+    elif conf >= 60:
         return 0.25
     else:
         return 0.0
@@ -103,9 +104,9 @@ def _apply_regime_override(size: float, label: str) -> float:
     elif label == "trending_high_vol":
         return size * 0.75
     elif label == "ranging_high_vol":
-        return size * 0.50
-    elif label == "ranging_low_vol":
         return size * 0.25
+    elif label == "ranging_low_vol":
+        return 0.0
     else:
         return 0.0
 
@@ -166,6 +167,9 @@ class Gate:
 
         # ── Regime filter ─────────────────────────────────
         if input.regime_label == "unknown":
+            return self._no_trade(raw_conf, REASON_BAD_REGIME)
+
+        if input.regime_score < self.cfg.min_regime_score:
             return self._no_trade(raw_conf, REASON_BAD_REGIME)
 
         # ── State machine ─────────────────────────────────

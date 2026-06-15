@@ -48,8 +48,8 @@ class MultiAgentStrategy(IStrategy):
     process_only_new_candles = True
     startup_candle_count = 200
 
-    position_adjustment_enable = True
-    max_entry_position_adjustment = 3
+    position_adjustment_enable = False
+    max_entry_position_adjustment = 0
 
     atr_multiplier = DecimalParameter(1.5, 3.0, default=2.0, space="sell")
     max_hold_bars = IntParameter(12, 48, default=24, space="sell")
@@ -85,7 +85,7 @@ class MultiAgentStrategy(IStrategy):
     def set_freqai_targets(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
         lp = self.freqai_info.get("feature_parameters", {}).get("label_period_candles", 4)
         future_return = dataframe["close"].shift(-lp) / dataframe["close"] - 1
-        dataframe["&-s_close"] = future_return
+        dataframe["&-s_above_median"] = (future_return > 0.005).astype(int)
         return dataframe
 
     def feature_engineering_standard(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
@@ -113,6 +113,24 @@ class MultiAgentStrategy(IStrategy):
 
         dataframe["obv"] = ta.OBV(dataframe["close"], dataframe["volume"])
         dataframe["williams_r"] = ta.WILLR(dataframe)
+
+        dataframe["%-ema_bull_aligned"] = (
+            (dataframe["ema20"] > dataframe["ema50"]) & (dataframe["ema50"] > dataframe["ema200"])
+        ).astype(int)
+        dataframe["%-ema_bear_aligned"] = (
+            (dataframe["ema20"] < dataframe["ema50"]) & (dataframe["ema50"] < dataframe["ema200"])
+        ).astype(int)
+        dataframe["%-adx_trending"] = (dataframe["adx14"] > 25).astype(int)
+        dataframe["%-adx_strong_trend"] = (dataframe["adx14"] > 35).astype(int)
+        dataframe["%-rsi_overbought"] = (dataframe["rsi14"] > 70).astype(int)
+        dataframe["%-rsi_oversold"] = (dataframe["rsi14"] < 30).astype(int)
+        dataframe["%-vol_above_avg"] = (
+            dataframe["volume"] > dataframe["volume_ema20"]
+        ).astype(int)
+        dataframe["%-vol_high"] = (
+            dataframe["volume"] > dataframe["volume_ema20"] * 1.5
+        ).astype(int)
+        dataframe["%-bb_squeeze"] = (dataframe["bb_width"] < dataframe["bb_width"].rolling(50).mean()).astype(int)
 
         for col in self.freqai_info.get("feature_parameters", {}).get("feature_columns", []):
             if col in dataframe.columns:
@@ -193,6 +211,25 @@ class MultiAgentStrategy(IStrategy):
             )
 
             ml_prob = self._get_ml_prob(row)
+
+            # ── Trend filter: skip non-trending / weak regime ──
+            ema_bull = (
+                row.get("ema20", 0) > row.get("ema50", 0) > row.get("ema200", 0)
+            )
+            ema_bear = (
+                row.get("ema20", 0) < row.get("ema50", 0) < row.get("ema200", 0)
+            )
+            strong_trend = ema_bull or ema_bear
+            if not strong_trend and regime_score.regime_score < 60:
+                chosen = None
+                is_long = True
+                self._gate_stats["rejected_bad_regime"] += 1
+                self._gate_stats["total"] += 1
+                if of_score.data_available:
+                    self._gate_stats["of_available"] += 1
+                else:
+                    self._gate_stats["of_missing"] += 1
+                continue
 
             # LONG evaluation
             long_gate = GateInput(
@@ -397,7 +434,7 @@ class MultiAgentStrategy(IStrategy):
                         "of_available": bool(row.get("of_available", False)),
                     },
                     "freqai": {
-                        "prediction": float(row.get("&-s_close", 0.0)),
+                        "prediction": float(row.get("&-s_above_median", 0.0)),
                         "probability": float(self._get_ml_prob(row)),
                         "do_predict": int(row.get("do_predict", 0)),
                     },
@@ -437,9 +474,9 @@ class MultiAgentStrategy(IStrategy):
     def _get_ml_prob(self, row) -> float:
         try:
             if "do_predict" in row.index and int(row["do_predict"]) == 1:
-                pred = row.get("&-s_close", None)
+                pred = row.get("&-s_above_median", None)
                 if pred is not None and not pd.isna(pred):
-                    return 1.0 / (1.0 + math.exp(-float(pred)))
+                    return float(pred)
         except Exception as e:
             logger.warning(f"_get_ml_prob failed for row: {e}")
         return 0.5
@@ -474,13 +511,33 @@ class MultiAgentStrategy(IStrategy):
                 return 0.04
             if open_days >= 2:
                 return 0.08
+            atr = self._get_last_atr(pair)
+            if atr and trade.open_rate:
+                atr_distance = atr * float(self.atr_multiplier.value) / trade.open_rate
+                return max(atr_distance, 0.02)
             return None
         open_days = (current_time - trade.open_date_utc).days
         if open_days >= 4:
             return -0.04
         if open_days >= 2:
             return -0.08
+        atr = self._get_last_atr(pair)
+        if atr and trade.open_rate:
+            atr_distance = atr * float(self.atr_multiplier.value) / trade.open_rate
+            return -max(atr_distance, 0.02)
         return None
+
+    def _get_last_atr(self, pair: str) -> float | None:
+        try:
+            dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
+            if dataframe is None or dataframe.empty:
+                return None
+            atr = dataframe.iloc[-1].get("atr14", 0)
+            if pd.isna(atr) or atr <= 0:
+                return None
+            return float(atr)
+        except Exception:
+            return None
 
     def custom_exit(
         self,
