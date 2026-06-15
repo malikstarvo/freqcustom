@@ -496,7 +496,6 @@ class MultiAgentStrategy(IStrategy):
             if pending_list:
                 try:
                     trade.custom_data = pending_list.pop(0)
-                    Trade.session.commit()
                     self._custom_data_done.add(trade.id)
                 except Exception as e:
                     logger.warning(f"Failed to save custom_data for {pair}: {e}")
